@@ -1,0 +1,18 @@
+{
+  "title": {
+    "id": "templateSettingsPage.title",
+    "defaultMessage": "Настройки шаблона"
+  },
+  "description": {
+    "id": "templateSettingsPage.description",
+    "defaultMessage": "Эта страница оставлена как owner-only placeholder для будущих настроек проекта."
+  },
+  "note": {
+    "id": "templateSettingsPage.note",
+    "defaultMessage": "При создании нового продукта замените этот экран своими настройками или удалите его полностью."
+  },
+  "backToHome": {
+    "id": "settings.error.backToHome",
+    "defaultMessage": "К настройкам"
+  }
+}

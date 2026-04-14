@@ -1,0 +1,11 @@
+.title {
+  font-size: var(--mantine-font-size-lg);
+  font-weight: 600;
+  margin-bottom: var(--mantine-spacing-md);
+}
+
+.compactTitle {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  margin-bottom: var(--mantine-spacing-sm);
+}

@@ -1,0 +1,124 @@
+/* FloatingInput - Floating label pattern */
+/* Based on https://ui.mantine.dev/component/floating-label-input/ */
+
+.root {
+  position: relative;
+  margin-top: var(--mantine-spacing-md);
+}
+
+.label {
+  position: absolute;
+  z-index: var(--z-float);
+  top: 0.4375rem;
+  left: var(--mantine-spacing-sm);
+  pointer-events: none;
+  color: var(--mantine-color-placeholder);
+  transition:
+    transform 150ms ease,
+    font-size 150ms ease,
+    color 150ms ease;
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 400;
+}
+
+.label[data-floating] {
+  /*
+     Floating state:
+     - Moves above the input border using transform
+     - Shrinks text to xs (12px)
+     - Dimmed color to not compete with input value
+  */
+  transform: translate(calc(var(--mantine-spacing-sm) * -1), -26px);
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dimmed);
+  font-weight: 500;
+
+  /* Force child elements (TranslationText span) to inherit font-size */
+  & * {
+    font-size: inherit;
+  }
+}
+
+.label[data-error='true'] {
+  color: var(--mantine-color-red-6);
+}
+
+.required {
+  transition: opacity 150ms ease;
+  opacity: 0;
+}
+
+.required[data-floating] {
+  opacity: 1;
+}
+
+.input.input {
+  /* Match Mantine UI reference: 36px height, 14px font */
+  height: 2.25rem;
+  min-height: 2.25rem;
+  font-size: var(--mantine-font-size-sm);
+  line-height: 2.125rem;
+  padding: 0 var(--mantine-spacing-sm);
+
+  &::placeholder {
+    transition: color 150ms ease;
+    color: transparent;
+  }
+
+  &[data-floating] {
+    &::placeholder {
+      color: var(--mantine-color-placeholder);
+    }
+  }
+}
+
+/* Textarea - allows multi-line, no fixed height */
+.textareaInput {
+  font-size: var(--mantine-font-size-sm);
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+
+  &::placeholder {
+    transition: color 150ms ease;
+    color: transparent;
+  }
+
+  &[data-floating] {
+    &::placeholder {
+      color: var(--mantine-color-placeholder);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .label {
+    transition: none;
+  }
+
+  .required {
+    transition: none;
+  }
+
+  .input::placeholder {
+    transition: none;
+  }
+
+  .textareaInput::placeholder {
+    transition: none;
+  }
+}
+
+/* Reusing the same classes for all input types to simplify */
+.passwordLabel {
+  composes: label;
+}
+
+.passwordInput {
+  composes: input;
+}
+
+/* Focus-visible for keyboard navigation */
+.input:focus-visible,
+.textareaInput:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}

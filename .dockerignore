@@ -1,0 +1,51 @@
+# Environment files
+.env
+.env.*
+!.env.example
+
+# MCP configuration
+.mcp.json
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Dependencies (installed in container)
+node_modules/
+
+# Build output (built in container)
+.next/
+out/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Tests and documentation
+tests/
+docs/
+*.md
+!README.md
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Husky (git hooks, not needed in container)
+.husky/
+
+# Coverage
+coverage/

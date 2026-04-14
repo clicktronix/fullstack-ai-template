@@ -1,0 +1,6 @@
+{
+  "moreItems": {
+    "id": "badgeGroup.moreItems",
+    "defaultMessage": "и ещё {count}"
+  }
+}

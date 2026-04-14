@@ -1,0 +1,58 @@
+{
+  "title": {
+    "id": "errorBoundary.title",
+    "defaultMessage": "Что-то пошло не так"
+  },
+  "networkBadge": {
+    "id": "errorBoundary.networkBadge",
+    "defaultMessage": "Сеть"
+  },
+  "heading": {
+    "id": "errorBoundary.heading",
+    "defaultMessage": "Упс! Что-то пошло не так"
+  },
+  "defaultError": {
+    "id": "errorBoundary.defaultError",
+    "defaultMessage": "Произошла непредвиденная ошибка"
+  },
+  "tryAgain": {
+    "id": "errorBoundary.tryAgain",
+    "defaultMessage": "Попробовать снова"
+  },
+  "unknownError": {
+    "id": "errorBoundary.unknownError",
+    "defaultMessage": "Неизвестная ошибка"
+  },
+  "authRequired": {
+    "id": "errorBoundary.authRequired",
+    "defaultMessage": "Требуется авторизация"
+  },
+  "accessDenied": {
+    "id": "errorBoundary.accessDenied",
+    "defaultMessage": "Доступ запрещён"
+  },
+  "notFound": {
+    "id": "errorBoundary.notFound",
+    "defaultMessage": "Ресурс не найден"
+  },
+  "networkError": {
+    "id": "errorBoundary.networkError",
+    "defaultMessage": "Ошибка сети"
+  },
+  "serverError": {
+    "id": "errorBoundary.serverError",
+    "defaultMessage": "Ошибка сервера"
+  },
+  "requestError": {
+    "id": "errorBoundary.requestError",
+    "defaultMessage": "Ошибка запроса"
+  },
+  "apiError": {
+    "id": "errorBoundary.apiError",
+    "defaultMessage": "Ошибка API"
+  },
+  "applicationError": {
+    "id": "errorBoundary.applicationError",
+    "defaultMessage": "Ошибка приложения"
+  }
+}

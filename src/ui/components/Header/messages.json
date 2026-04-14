@@ -1,0 +1,38 @@
+{
+  "application": {
+    "id": "header.application",
+    "defaultMessage": "Приложение"
+  },
+  "workItems": {
+    "id": "header.nav.workItems",
+    "defaultMessage": "Задачи"
+  },
+  "settings": {
+    "id": "header.nav.settings",
+    "defaultMessage": "Настройки"
+  },
+  "team": {
+    "id": "header.nav.team",
+    "defaultMessage": "Команда"
+  },
+  "profile": {
+    "id": "header.nav.profile",
+    "defaultMessage": "Профиль"
+  },
+  "signIn": {
+    "id": "header.signIn",
+    "defaultMessage": "Войти"
+  },
+  "logout": {
+    "id": "header.logout",
+    "defaultMessage": "Выйти"
+  },
+  "openUserMenu": {
+    "id": "header.openUserMenu",
+    "defaultMessage": "Открыть меню пользователя"
+  },
+  "toggleNavigation": {
+    "id": "header.toggleNavigation",
+    "defaultMessage": "Переключить навигацию"
+  }
+}

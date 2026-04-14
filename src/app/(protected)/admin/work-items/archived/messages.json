@@ -1,0 +1,10 @@
+{
+  "title": {
+    "id": "archivedWorkItemsPage.title",
+    "defaultMessage": "Архив задач"
+  },
+  "description": {
+    "id": "archivedWorkItemsPage.description",
+    "defaultMessage": "Вложенные admin-маршруты используются для архивных, детальных и вспомогательных экранов feature slice."
+  }
+}

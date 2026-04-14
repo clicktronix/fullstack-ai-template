@@ -1,0 +1,10 @@
+{
+  "cancel": {
+    "id": "common.cancel",
+    "defaultMessage": "Отмена"
+  },
+  "save": {
+    "id": "common.save",
+    "defaultMessage": "Сохранить"
+  }
+}

@@ -1,0 +1,111 @@
+.wrapper {
+  min-width: 0;
+}
+
+.group {
+  min-width: 0;
+}
+
+.badge {
+  font-weight: 400;
+  border: 1px solid color-mix(in srgb, currentColor 8%, transparent);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease,
+    transform 150ms ease;
+}
+
+.badge :global(.mantine-Badge-label) {
+  color: color-mix(in srgb, currentColor 76%, transparent);
+  padding-inline: 2px;
+}
+
+.badge:hover {
+  background-color: color-mix(in srgb, currentColor 7%, var(--mantine-color-body));
+  border-color: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.primaryIndicator {
+  color: var(--mantine-color-amber-6);
+  flex-shrink: 0;
+}
+
+.badge :global(.mantine-Badge-section[data-position='left']) {
+  margin-inline-end: 4px;
+}
+
+/* Overflow section — grid row animation for smooth height */
+.overflowCollapsed,
+.overflowExpanded {
+  display: grid;
+  transition: grid-template-rows 250ms ease;
+}
+
+.overflowCollapsed {
+  grid-template-rows: 0fr;
+}
+
+.overflowExpanded {
+  grid-template-rows: 1fr;
+}
+
+.overflowInner {
+  overflow: hidden;
+}
+
+/* Badge revealed on expand — staggered fade-in + scale */
+@keyframes badgeReveal {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.badgeRevealed {
+  composes: badge;
+  animation: badgeReveal 200ms ease both;
+}
+
+.counterButton {
+  display: flex;
+  align-items: center;
+}
+
+.counterBadge {
+  cursor: pointer;
+  flex-shrink: 0;
+  font-weight: 400;
+  border: 1px solid color-mix(in srgb, currentColor 8%, transparent);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+/* Prevent text truncation in counter badge */
+.counterBadge :global(.mantine-Badge-label) {
+  color: color-mix(in srgb, currentColor 76%, transparent);
+  padding-inline: 2px;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.counterBadge:hover {
+  background-color: color-mix(in srgb, currentColor 7%, var(--mantine-color-body));
+  border-color: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge,
+  .badgeRevealed,
+  .overflowCollapsed,
+  .overflowExpanded {
+    transition: none;
+    animation: none;
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "fullNameLabel": {
+    "id": "signupForm.fullNameLabel",
+    "defaultMessage": "Полное имя"
+  },
+  "fullNamePlaceholder": {
+    "id": "signupForm.fullNamePlaceholder",
+    "defaultMessage": "Иван Иванов"
+  },
+  "emailLabel": {
+    "id": "signupForm.emailLabel",
+    "defaultMessage": "Email"
+  },
+  "emailPlaceholder": {
+    "id": "signupForm.emailPlaceholder",
+    "defaultMessage": "ваш@email.com"
+  },
+  "passwordLabel": {
+    "id": "signupForm.passwordLabel",
+    "defaultMessage": "Пароль"
+  },
+  "passwordPlaceholder": {
+    "id": "signupForm.passwordPlaceholder",
+    "defaultMessage": "Минимум 8 символов"
+  },
+  "confirmPasswordLabel": {
+    "id": "signupForm.confirmPasswordLabel",
+    "defaultMessage": "Подтвердите пароль"
+  },
+  "confirmPasswordPlaceholder": {
+    "id": "signupForm.confirmPasswordPlaceholder",
+    "defaultMessage": "Повторите пароль"
+  },
+  "submitButton": {
+    "id": "signupForm.submitButton",
+    "defaultMessage": "Создать аккаунт"
+  },
+  "errorTitle": {
+    "id": "signupForm.errorTitle",
+    "defaultMessage": "Ошибка регистрации"
+  },
+  "validationFullNameMinLength": {
+    "id": "signupForm.validationFullNameMinLength",
+    "defaultMessage": "Имя должно содержать минимум 2 символа"
+  },
+  "validationEmailInvalid": {
+    "id": "signupForm.validationEmailInvalid",
+    "defaultMessage": "Введите корректный email"
+  },
+  "validationPasswordMinLength": {
+    "id": "signupForm.validationPasswordMinLength",
+    "defaultMessage": "Пароль должен содержать минимум 8 символов"
+  },
+  "validationPasswordsDoNotMatch": {
+    "id": "signupForm.validationPasswordsDoNotMatch",
+    "defaultMessage": "Пароли не совпадают"
+  }
+}

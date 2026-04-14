@@ -1,0 +1,18 @@
+{
+  "savedSuccessfully": {
+    "id": "serverActionForm.savedSuccessfully",
+    "defaultMessage": "Saved successfully"
+  },
+  "error": {
+    "id": "serverActionForm.error",
+    "defaultMessage": "Error"
+  },
+  "success": {
+    "id": "serverActionForm.success",
+    "defaultMessage": "Success"
+  },
+  "unknownError": {
+    "id": "serverActionForm.unknownError",
+    "defaultMessage": "An unexpected error occurred"
+  }
+}

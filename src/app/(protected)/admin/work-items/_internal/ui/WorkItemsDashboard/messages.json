@@ -1,0 +1,86 @@
+{
+  "title": {
+    "id": "workItemsDashboard.title",
+    "defaultMessage": "Work Items"
+  },
+  "description": {
+    "id": "workItemsDashboard.description",
+    "defaultMessage": "Эталонный vertical slice для full-stack B2B и AI-приложений."
+  },
+  "archivedDescription": {
+    "id": "workItemsDashboard.archivedDescription",
+    "defaultMessage": "Та же feature работает через отдельный archived route и reuse server-state."
+  },
+  "searchLabel": {
+    "id": "workItemsDashboard.searchLabel",
+    "defaultMessage": "Поиск"
+  },
+  "searchPlaceholder": {
+    "id": "workItemsDashboard.searchPlaceholder",
+    "defaultMessage": "Искать по названию или описанию"
+  },
+  "loading": {
+    "id": "workItemsDashboard.loading",
+    "defaultMessage": "Загрузка данных…"
+  },
+  "labelFilter": {
+    "id": "workItemsDashboard.labelFilter",
+    "defaultMessage": "Метка"
+  },
+  "labelFilterPlaceholder": {
+    "id": "workItemsDashboard.labelFilterPlaceholder",
+    "defaultMessage": "Все метки"
+  },
+  "priorityOnly": {
+    "id": "workItemsDashboard.priorityOnly",
+    "defaultMessage": "Только приоритетные"
+  },
+  "create": {
+    "id": "workItemsDashboard.create",
+    "defaultMessage": "Создать задачу"
+  },
+  "showArchived": {
+    "id": "workItemsDashboard.showArchived",
+    "defaultMessage": "Открыть архив"
+  },
+  "showActive": {
+    "id": "workItemsDashboard.showActive",
+    "defaultMessage": "Вернуться к активным"
+  },
+  "itemsSection": {
+    "id": "workItemsDashboard.itemsSection",
+    "defaultMessage": "Список задач"
+  },
+  "empty": {
+    "id": "workItemsDashboard.empty",
+    "defaultMessage": "Задачи не найдены. Создайте первую запись, чтобы показать полный flow."
+  },
+  "priorityBadge": {
+    "id": "workItemsDashboard.priorityBadge",
+    "defaultMessage": "Priority"
+  },
+  "statusActive": {
+    "id": "workItemsDashboard.statusActive",
+    "defaultMessage": "Активна"
+  },
+  "statusArchived": {
+    "id": "workItemsDashboard.statusArchived",
+    "defaultMessage": "В архиве"
+  },
+  "updatedAt": {
+    "id": "workItemsDashboard.updatedAt",
+    "defaultMessage": "Обновлено {value}"
+  },
+  "edit": {
+    "id": "workItemsDashboard.edit",
+    "defaultMessage": "Редактировать"
+  },
+  "archive": {
+    "id": "workItemsDashboard.archive",
+    "defaultMessage": "Архивировать"
+  },
+  "restore": {
+    "id": "workItemsDashboard.restore",
+    "defaultMessage": "Восстановить"
+  }
+}

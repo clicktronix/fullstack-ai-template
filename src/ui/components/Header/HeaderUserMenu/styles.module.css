@@ -1,0 +1,7 @@
+.noShrink {
+  flex: 0 0 auto;
+}
+
+.clickable {
+  cursor: pointer;
+}

@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "deny": ["Bash(git commit:*)", "Bash(git push:*)"],
+    "defaultMode": "bypassPermissions"
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": ["langsmith", "supabase", "chrome-devtools", "playwright"],
+  "enabledPlugins": {
+    "superpowers@superpowers-marketplace": true
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/clicktronix/Projects/ai/native/platform && if ! git diff --quiet -- . ':(exclude).claude/settings.json'; then bun run check; fi"
+          }
+        ]
+      }
+    ]
+  }
+}

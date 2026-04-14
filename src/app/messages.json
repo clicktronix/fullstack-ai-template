@@ -1,0 +1,34 @@
+{
+  "notFoundTitle": {
+    "id": "errors.notFoundTitle",
+    "defaultMessage": "404"
+  },
+  "notFoundDescription": {
+    "id": "errors.notFoundDescription",
+    "defaultMessage": "Страница не найдена"
+  },
+  "goHome": {
+    "id": "errors.goHome",
+    "defaultMessage": "На главную"
+  },
+  "errorTitle": {
+    "id": "errors.errorTitle",
+    "defaultMessage": "Что-то пошло не так"
+  },
+  "errorDescription": {
+    "id": "errors.errorDescription",
+    "defaultMessage": "Произошла непредвиденная ошибка"
+  },
+  "criticalErrorDescription": {
+    "id": "errors.criticalErrorDescription",
+    "defaultMessage": "Произошла критическая ошибка"
+  },
+  "tryAgain": {
+    "id": "errors.tryAgain",
+    "defaultMessage": "Попробовать снова"
+  },
+  "errorId": {
+    "id": "errors.errorId",
+    "defaultMessage": "ID ошибки: {id}"
+  }
+}

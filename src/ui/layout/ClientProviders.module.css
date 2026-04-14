@@ -1,0 +1,4 @@
+.fallback {
+  padding: var(--mantine-spacing-xl);
+  text-align: center;
+}

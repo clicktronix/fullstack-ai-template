@@ -1,0 +1,10 @@
+{
+  "loading": {
+    "id": "authLayout.loading",
+    "defaultMessage": "Загрузка…"
+  },
+  "redirecting": {
+    "id": "authLayout.redirecting",
+    "defaultMessage": "Переход в панель управления…"
+  }
+}

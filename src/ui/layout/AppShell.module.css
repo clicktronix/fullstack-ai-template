@@ -1,0 +1,28 @@
+.skipToContent {
+  position: absolute;
+  top: -100%;
+  left: var(--mantine-spacing-md);
+  z-index: var(--z-skip-link);
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  background: var(--mantine-color-blue-filled);
+  color: var(--mantine-color-white);
+  border-radius: var(--mantine-radius-sm);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--mantine-font-size-sm);
+  /* top used for sticky header offset — layout trigger acceptable for infrequent changes */
+  transition: top 0.2s ease;
+}
+
+.skipToContent:focus {
+  top: var(--mantine-spacing-xs);
+}
+
+.header {
+  min-height: 60px;
+}
+
+.main {
+  background: var(--mantine-color-body);
+  color: var(--mantine-color-text);
+}

@@ -1,0 +1,82 @@
+{
+  "unknownTitle": {
+    "id": "error.unknown.title",
+    "defaultMessage": "Something went wrong"
+  },
+  "unknownMessage": {
+    "id": "error.unknown.message",
+    "defaultMessage": "An unexpected error occurred. Please try again."
+  },
+  "networkTitle": {
+    "id": "error.network.title",
+    "defaultMessage": "Connection Error"
+  },
+  "networkMessage": {
+    "id": "error.network.message",
+    "defaultMessage": "Unable to connect to the server. Please check your internet connection."
+  },
+  "rateLimitTitle": {
+    "id": "error.rateLimit.title",
+    "defaultMessage": "Too Many Requests"
+  },
+  "rateLimitMessage": {
+    "id": "error.rateLimit.message",
+    "defaultMessage": "Please wait {seconds} seconds before trying again."
+  },
+  "authTitle": {
+    "id": "error.auth.title",
+    "defaultMessage": "Session Expired"
+  },
+  "authMessage": {
+    "id": "error.auth.message",
+    "defaultMessage": "Your session has expired. Please log in again."
+  },
+  "forbiddenTitle": {
+    "id": "error.forbidden.title",
+    "defaultMessage": "Access Denied"
+  },
+  "forbiddenMessage": {
+    "id": "error.forbidden.message",
+    "defaultMessage": "You do not have permission for this action."
+  },
+  "notFoundTitle": {
+    "id": "error.notFound.title",
+    "defaultMessage": "Not Found"
+  },
+  "notFoundMessage": {
+    "id": "error.notFound.message",
+    "defaultMessage": "The requested resource was not found."
+  },
+  "validationTitle": {
+    "id": "error.validation.title",
+    "defaultMessage": "Invalid Input"
+  },
+  "validationMessage": {
+    "id": "error.validation.message",
+    "defaultMessage": "Invalid input. Please check your data."
+  },
+  "serverTitle": {
+    "id": "error.server.title",
+    "defaultMessage": "Server Error"
+  },
+  "serverMessage": {
+    "id": "error.server.message",
+    "defaultMessage": "The server encountered an error. Please try again later."
+  },
+  "requestFailedTitle": {
+    "id": "error.requestFailed.title",
+    "defaultMessage": "Request Failed"
+  },
+  "requestFailedMessage": {
+    "id": "error.requestFailed.message",
+    "defaultMessage": "An error occurred while processing your request."
+  },
+  "unexpectedTitle": {
+    "id": "error.unexpected.title",
+    "defaultMessage": "Unexpected Error"
+  },
+  "temporaryTitle": {
+    "id": "error.temporary.title",
+    "defaultMessage": "Temporary Error"
+  }
+}

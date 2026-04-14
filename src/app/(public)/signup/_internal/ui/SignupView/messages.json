@@ -1,0 +1,18 @@
+{
+  "title": {
+    "id": "signup.title",
+    "defaultMessage": "Регистрация"
+  },
+  "description": {
+    "id": "signup.description",
+    "defaultMessage": "Заполните данные для создания аккаунта"
+  },
+  "hasAccount": {
+    "id": "signup.hasAccount",
+    "defaultMessage": "Уже есть аккаунт?"
+  },
+  "loginLink": {
+    "id": "signup.loginLink",
+    "defaultMessage": "Войти"
+  }
+}

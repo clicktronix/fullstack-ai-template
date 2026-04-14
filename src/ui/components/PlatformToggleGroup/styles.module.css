@@ -1,0 +1,55 @@
+.group {
+  padding-bottom: 2px;
+  flex-wrap: wrap;
+}
+
+.button {
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: 999px;
+  background-color: var(--mantine-color-default);
+  color: color-mix(in srgb, var(--mantine-color-text) 72%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--mantine-color-white) 4%, transparent);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.button:hover {
+  background-color: var(--mantine-color-default-hover);
+  border-color: color-mix(
+    in srgb,
+    var(--mantine-color-default-border) 82%,
+    var(--mantine-color-text)
+  );
+}
+
+.button[data-selected] {
+  background-color: var(--mantine-primary-color-light);
+  border-color: color-mix(in srgb, var(--mantine-primary-color-filled) 32%, transparent);
+  color: var(--mantine-primary-color-filled);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--mantine-color-white) 10%, transparent);
+}
+
+.button[data-selected]:hover {
+  background-color: color-mix(
+    in srgb,
+    var(--mantine-primary-color-light) 88%,
+    var(--mantine-primary-color-filled)
+  );
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}
+
+.label {
+  display: block;
+  min-height: 18px;
+  padding: 0 8px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 18px;
+}

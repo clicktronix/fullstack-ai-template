@@ -1,0 +1,99 @@
+/**
+ * CSS Cascade Layers declaration.
+ * Mantine styles are in @layer mantine (from styles.layer.css).
+ * CSS Modules are NOT in any layer, so they have higher specificity.
+ * This ensures consistent CSS order in dev and production builds.
+ */
+@layer mantine;
+
+/* Z-index scale — aligned with Mantine z-index system */
+:root {
+  --font-onest:
+    'Avenir Next', 'Segoe UI Variable', 'Segoe UI', Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-unbounded:
+    'Arial Black', 'Avenir Next Condensed', 'Segoe UI Variable Display', 'Segoe UI', sans-serif;
+
+  --z-sticky: 1;
+  --z-float: 2;
+  --z-resize: 10;
+  --z-popover: var(--mantine-z-index-popover); /* 300 */
+  --z-overlay: var(--mantine-z-index-overlay); /* 400 */
+  --z-skip-link: var(--mantine-z-index-max); /* 9999 */
+
+  /* Elevation shadow scale */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.15);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.3);
+
+  /* Breakpoint reference tokens (aligned with Mantine breakpoints) */
+  --breakpoint-xs: 36em; /* 576px */
+  --breakpoint-sm: 48em; /* 768px */
+  --breakpoint-md: 62em; /* 992px */
+  --breakpoint-lg: 75em; /* 1200px */
+  --breakpoint-xl: 88em; /* 1408px */
+}
+
+/* global resets */
+html,
+body {
+  min-height: 100%;
+  color-scheme: dark light;
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  margin: 0;
+  background-color: var(--mantine-color-body);
+  color: var(--mantine-color-text);
+  /* Subtle noise texture for visual depth */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.015'/%3E%3C/svg%3E");
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+}
+
+/* Remove 300ms tap delay on mobile for interactive elements */
+button,
+a,
+input,
+select,
+textarea,
+[role='button'],
+[tabindex] {
+  touch-action: manipulation;
+}
+
+/* Global keyframes for theme-level animations */
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Chart overflow - allow labels outside SVG bounds */
+.mantine-DonutChart-root,
+.mantine-DonutChart-root svg {
+  overflow: visible !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

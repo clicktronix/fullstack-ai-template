@@ -1,0 +1,354 @@
+.center {
+  text-align: center;
+}
+
+/* Row interaction styles */
+.clickableRow {
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.clickableRow:hover {
+  background-color: var(--mantine-color-default-hover);
+}
+
+.clickableRow:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: -2px;
+}
+
+.selectedRow.selectedRow {
+  background-color: var(--mantine-color-sky-light);
+}
+
+.selectedRow.selectedRow:hover {
+  background-color: var(--mantine-color-sky-light-hover);
+}
+
+/* Pagination container (minimal styling, Mantine components inside) */
+.paginationBar {
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+
+/* Inline edit input (TextInput classNames) */
+.inlineEditRoot {
+  margin: 0;
+}
+
+.inlineEditWrapper {
+  margin: 0;
+}
+
+.inlineEditInput {
+  padding: 0;
+  margin: 0;
+  min-height: auto;
+  height: auto;
+  line-height: var(--mantine-line-height);
+  font-size: var(--mantine-font-size-sm);
+  caret-color: var(--mantine-color-anchor);
+}
+
+.inlineEditInput:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}
+
+/* Resizable column styles */
+.resizableHeader {
+  position: relative;
+}
+
+.columnResizeHandle {
+  position: absolute;
+  top: 0;
+  right: calc(-1 * var(--mantine-spacing-sm));
+  /* Extend beyond column edge for easier grabbing */
+  bottom: 0;
+  width: calc(2 * var(--mantine-spacing-sm));
+  /* Wider hit area */
+  cursor: col-resize;
+  background-color: transparent;
+  transition: background-color 150ms ease;
+  z-index: var(--z-resize);
+  touch-action: none;
+}
+
+/* Visual indicator - thin line in center of hit area */
+.columnResizeHandle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background-color: transparent;
+  transition: background-color 150ms ease;
+}
+
+.columnResizeHandle:hover::after,
+.columnResizeHandle.resizing::after {
+  background-color: var(--mantine-color-anchor);
+}
+
+.columnResizeHandle:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}
+
+/* Fixed table layout - columns respect their set widths */
+.fixedTable.fixedTable {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* Prevent text wrapping in cells, show ellipsis */
+.fixedTable :global(th),
+.fixedTable :global(td) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Spacer column - absorbs remaining space */
+.spacerColumn.spacerColumn {
+  width: auto;
+  min-width: 40px;
+}
+
+/* Actions menu cell - align to the right */
+.actionsCell {
+  text-align: right;
+}
+
+/* Ячейка в режиме редактирования (inline и popover) */
+:global([data-mantine-color-scheme='light']) .editingCell.editingCell {
+  background-color: var(--mantine-color-default-hover);
+}
+
+:global([data-mantine-color-scheme='dark']) .editingCell.editingCell {
+  background-color: var(--mantine-color-default);
+}
+
+/* Ячейка в процессе сохранения */
+.savingCell {
+  position: relative;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.savingCellLoader {
+  position: absolute;
+  top: 50%;
+  right: var(--mantine-spacing-xs);
+  transform: translateY(-50%);
+}
+
+/* Interactive cell - cursor hint for double-click editing */
+.interactiveCell,
+.interactiveCell *:not(input) {
+  cursor: pointer;
+}
+
+/* Popover cell - zero padding so EditPopover target fills entire cell */
+.popoverCell.popoverCell {
+  padding: 0;
+  height: 1px;
+  /* Allows child height: 100% in table-cell context */
+}
+
+/* Popover cell в режиме редактирования (popover открыт) */
+:global([data-mantine-color-scheme='light']) .popoverCell.popoverCell:has([aria-expanded='true']) {
+  background-color: var(--mantine-color-default-hover);
+}
+
+:global([data-mantine-color-scheme='dark']) .popoverCell.popoverCell:has([aria-expanded='true']) {
+  background-color: var(--mantine-color-default);
+}
+
+/* Stack container - takes full available height */
+.stackContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Paper wrapper - clip content to respect border-radius */
+.tableWrapper {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Scroll container wrapper for sticky header support */
+.scrollWrapper {
+  position: relative;
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+  contain: paint;
+}
+
+/* Sticky header */
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+}
+
+.stickyHeader :global(th) {
+  background-color: var(--mantine-color-body);
+}
+
+/* Header content wrapper */
+.headerContent {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* Header label - truncate long text */
+.headerLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+}
+
+/* Header actions group */
+.headerActions {
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.headerActionsActive,
+.resizableHeader:hover .headerActions {
+  opacity: 1;
+}
+
+/* Column drag handle (ActionIcon) */
+.dragHandle {
+  cursor: grab;
+  opacity: 0.6;
+  transition: opacity 150ms ease;
+}
+
+.dragHandle:hover {
+  opacity: 1;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+/* Column drag preview (DragOverlay) */
+.columnDragPreview {
+  background-color: var(--mantine-color-body);
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-sm);
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  box-shadow: var(--mantine-shadow-md);
+}
+
+.dragHandlePreview {
+  cursor: grabbing;
+}
+
+/* Action icon base styles (edit/delete) */
+.actionIconEdit,
+.actionIconDelete {
+  transition: background-color 150ms ease;
+}
+
+/* Edit action icon — dark scheme */
+:global([data-mantine-color-scheme='dark']) .actionIconEdit {
+  color: var(--mantine-color-blue-4);
+  background-color: color-mix(in srgb, var(--mantine-color-blue-5) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mantine-color-blue-5) 35%, transparent);
+}
+
+:global([data-mantine-color-scheme='dark']) .actionIconEdit:hover {
+  background-color: color-mix(in srgb, var(--mantine-color-blue-5) 35%, transparent);
+}
+
+/* Edit action icon — light scheme */
+:global([data-mantine-color-scheme='light']) .actionIconEdit {
+  color: var(--mantine-color-blue-6);
+  background-color: color-mix(in srgb, var(--mantine-color-blue-6) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mantine-color-blue-6) 30%, transparent);
+}
+
+:global([data-mantine-color-scheme='light']) .actionIconEdit:hover {
+  background-color: color-mix(in srgb, var(--mantine-color-blue-6) 18%, transparent);
+}
+
+/* Delete action icon — dark scheme */
+:global([data-mantine-color-scheme='dark']) .actionIconDelete {
+  color: var(--mantine-color-red-4);
+  background-color: color-mix(in srgb, var(--mantine-color-red-4) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mantine-color-red-4) 35%, transparent);
+}
+
+:global([data-mantine-color-scheme='dark']) .actionIconDelete:hover {
+  background-color: color-mix(in srgb, var(--mantine-color-red-4) 35%, transparent);
+}
+
+/* Delete action icon — light scheme */
+:global([data-mantine-color-scheme='light']) .actionIconDelete {
+  color: var(--mantine-color-red-6);
+  background-color: color-mix(in srgb, var(--mantine-color-red-6) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mantine-color-red-6) 30%, transparent);
+}
+
+:global([data-mantine-color-scheme='light']) .actionIconDelete:hover {
+  background-color: color-mix(in srgb, var(--mantine-color-red-6) 18%, transparent);
+}
+
+/* Background fetching indicator (keepPreviousData indicator) */
+.fetchingOverlay {
+  position: absolute;
+  top: var(--mantine-spacing-sm);
+  right: var(--mantine-spacing-sm);
+  z-index: calc(var(--z-sticky, 1) + 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: color-mix(in srgb, var(--mantine-color-body) 88%, transparent);
+  border: 1px solid var(--mantine-color-default-border);
+  box-shadow: var(--mantine-shadow-sm);
+  pointer-events: none;
+  border-radius: var(--mantine-radius-sm);
+}
+
+/* Виртуализация строк через content-visibility */
+.fixedTable :global(tbody tr) {
+  content-visibility: auto;
+  contain-intrinsic-block-size: auto 48px;
+}
+
+.clickableRow {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 48px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clickableRow,
+  .columnResizeHandle,
+  .columnResizeHandle::after,
+  .dragHandle,
+  .headerActions,
+  .actionIconEdit,
+  .actionIconDelete {
+    transition: none;
+  }
+}

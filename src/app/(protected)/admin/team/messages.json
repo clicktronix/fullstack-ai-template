@@ -1,0 +1,18 @@
+{
+  "title": {
+    "id": "templateTeamPage.title",
+    "defaultMessage": "Команда"
+  },
+  "description": {
+    "id": "templateTeamPage.description",
+    "defaultMessage": "Owner-only placeholder для управления командой и доступами в будущих проектах."
+  },
+  "note": {
+    "id": "templateTeamPage.note",
+    "defaultMessage": "Замените этот экран своей логикой приглашений, ролей и управления участниками."
+  },
+  "backToHome": {
+    "id": "team.error.backToHome",
+    "defaultMessage": "Вернуться к команде"
+  }
+}

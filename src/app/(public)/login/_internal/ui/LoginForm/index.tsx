@@ -1,0 +1,54 @@
+'use client'
+
+import { Button, Stack } from '@mantine/core'
+import { FloatingPasswordInput } from '@/ui/components/FloatingInput/FloatingPasswordInput'
+import { FloatingTextInput } from '@/ui/components/FloatingInput/FloatingTextInput'
+import { FormErrorAlert } from '@/ui/components/FormErrorAlert'
+import { composeHooks } from '@/ui/hooks/compose-hooks'
+import { useLoginFormProps, type LoginFormProps, type LoginFormViewProps } from './lib'
+
+export function LoginFormView({
+  emailLabel,
+  passwordLabel,
+  submitButtonLabel,
+  form,
+  isSubmitting,
+  error,
+  onSubmit,
+}: LoginFormViewProps) {
+  return (
+    <form onSubmit={onSubmit}>
+      <Stack gap="lg">
+        <FormErrorAlert error={error} />
+
+        <FloatingTextInput
+          label={emailLabel}
+          name="email"
+          type="email"
+          autoComplete="email"
+          spellCheck={false}
+          data-testid="login-email"
+          key={form.key('email')}
+          {...form.getInputProps('email')}
+        />
+
+        <FloatingPasswordInput
+          label={passwordLabel}
+          name="current-password"
+          autoComplete="current-password"
+          data-testid="login-password"
+          key={form.key('password')}
+          {...form.getInputProps('password')}
+        />
+
+        <Button type="submit" loading={isSubmitting} fullWidth mt="sm" data-testid="login-submit">
+          {submitButtonLabel}
+        </Button>
+      </Stack>
+    </form>
+  )
+}
+
+export const LoginForm = composeHooks<LoginFormViewProps, LoginFormProps>(LoginFormView)(
+  useLoginFormProps
+)

@@ -1,0 +1,50 @@
+{
+  "title": {
+    "id": "labelsPanel.title",
+    "defaultMessage": "Метки"
+  },
+  "description": {
+    "id": "labelsPanel.description",
+    "defaultMessage": "Простой reference-data slice для настройки группировки задач."
+  },
+  "nameLabel": {
+    "id": "labelsPanel.nameLabel",
+    "defaultMessage": "Название метки"
+  },
+  "colorLabel": {
+    "id": "labelsPanel.colorLabel",
+    "defaultMessage": "Цвет"
+  },
+  "namePlaceholder": {
+    "id": "labelsPanel.namePlaceholder",
+    "defaultMessage": "Например, Product"
+  },
+  "colorPlaceholder": {
+    "id": "labelsPanel.colorPlaceholder",
+    "defaultMessage": "Например, blue"
+  },
+  "create": {
+    "id": "labelsPanel.create",
+    "defaultMessage": "Добавить"
+  },
+  "save": {
+    "id": "labelsPanel.save",
+    "defaultMessage": "Сохранить"
+  },
+  "cancelEdit": {
+    "id": "labelsPanel.cancelEdit",
+    "defaultMessage": "Отменить"
+  },
+  "editLabel": {
+    "id": "labelsPanel.editLabel",
+    "defaultMessage": "Редактировать метку"
+  },
+  "empty": {
+    "id": "labelsPanel.empty",
+    "defaultMessage": "Пока нет меток. Создайте первую, чтобы помечать задачи."
+  },
+  "validationNameRequired": {
+    "id": "labelsPanel.validationNameRequired",
+    "defaultMessage": "Введите название метки"
+  }
+}

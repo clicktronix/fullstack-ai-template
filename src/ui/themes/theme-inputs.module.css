@@ -1,0 +1,20 @@
+/* Theme-level input overrides — focus border styles that cannot be expressed as inline styles */
+
+.input {
+  border-color: var(--mantine-color-default-border);
+  background-color: transparent;
+
+  &:focus {
+    border-color: var(--mantine-primary-color-filled);
+  }
+}
+
+/* PasswordInput and MultiSelect use focus-within because the actual <input> is nested */
+.inputFocusWithin {
+  border-color: var(--mantine-color-default-border);
+  background-color: transparent;
+
+  &:focus-within {
+    border-color: var(--mantine-primary-color-filled);
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "title": {
+    "id": "profile.title",
+    "defaultMessage": "Профиль и настройки"
+  },
+  "version": {
+    "id": "profile.version",
+    "defaultMessage": "Influra v1.0.0 - Платформа инфлюенс-маркетинга"
+  },
+  "error": {
+    "id": "profile.error",
+    "defaultMessage": "Ошибка"
+  }
+}

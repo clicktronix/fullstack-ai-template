@@ -1,0 +1,10 @@
+{
+  "cancelAriaLabel": {
+    "id": "actionPopover.cancelAriaLabel",
+    "defaultMessage": "Отменить"
+  },
+  "confirmAriaLabel": {
+    "id": "actionPopover.confirmAriaLabel",
+    "defaultMessage": "Подтвердить"
+  }
+}

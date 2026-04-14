@@ -1,0 +1,10 @@
+{
+  "title": {
+    "id": "workItemsPage.title",
+    "defaultMessage": "Эталонный vertical slice"
+  },
+  "description": {
+    "id": "workItemsPage.description",
+    "defaultMessage": "Эта страница станет основным примером того, как в шаблоне соединяются domain, use-cases, inbound/outbound adapters и ui/server-state."
+  }
+}

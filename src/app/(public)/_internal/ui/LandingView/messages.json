@@ -1,0 +1,58 @@
+{
+  "title": {
+    "id": "landing.title",
+    "defaultMessage": "Fullstack AI Template"
+  },
+  "subtitle": {
+    "id": "landing.subtitle",
+    "defaultMessage": "Стартовая кодовая база для AI-продуктов и full-stack B2B приложений"
+  },
+  "cta": {
+    "id": "landing.cta",
+    "defaultMessage": "Войти"
+  },
+  "featuresTitle": {
+    "id": "landing.features.title",
+    "defaultMessage": "Что входит в шаблон"
+  },
+  "featureBlogsTitle": {
+    "id": "landing.features.verticalSlice.title",
+    "defaultMessage": "Vertical slice"
+  },
+  "featureBlogsDescription": {
+    "id": "landing.features.verticalSlice.description",
+    "defaultMessage": "Готовый пример feature через domain, use-cases, adapters, server-state и UI"
+  },
+  "featureAiSearchTitle": {
+    "id": "landing.features.aiSearch.title",
+    "defaultMessage": "Supabase + Auth"
+  },
+  "featureAiSearchDescription": {
+    "id": "landing.features.aiSearch.description",
+    "defaultMessage": "SSR auth, server/client adapters, migrations и безопасный baseline для данных"
+  },
+  "featureCampaignsTitle": {
+    "id": "landing.features.guardrails.title",
+    "defaultMessage": "Guardrails"
+  },
+  "featureCampaignsDescription": {
+    "id": "landing.features.guardrails.description",
+    "defaultMessage": "ESLint boundaries, docs, AGENTS, skills и MCP baseline для новой команды"
+  },
+  "featureAnalyticsTitle": {
+    "id": "landing.features.analytics.title",
+    "defaultMessage": "Testing & CI"
+  },
+  "featureAnalyticsDescription": {
+    "id": "landing.features.analytics.description",
+    "defaultMessage": "Lint, typecheck, unit tests и E2E smoke suite уже настроены"
+  },
+  "footerText": {
+    "id": "landing.footer.text",
+    "defaultMessage": "Уже есть аккаунт?"
+  },
+  "footerLogin": {
+    "id": "landing.footer.login",
+    "defaultMessage": "Войти в систему"
+  }
+}

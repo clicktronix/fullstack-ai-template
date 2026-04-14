@@ -1,0 +1,14 @@
+{
+  "language": {
+    "id": "ui.localeSelector.language",
+    "defaultMessage": "Язык"
+  },
+  "russian": {
+    "id": "ui.localeSelector.russian",
+    "defaultMessage": "Русский"
+  },
+  "english": {
+    "id": "ui.localeSelector.english",
+    "defaultMessage": "English"
+  }
+}

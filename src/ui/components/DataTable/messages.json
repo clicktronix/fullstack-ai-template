@@ -1,0 +1,78 @@
+{
+  "tableSettings": {
+    "id": "dataTable.tableSettings",
+    "defaultMessage": "Настройки таблицы"
+  },
+  "stripedRows": {
+    "id": "dataTable.stripedRows",
+    "defaultMessage": "Чередующиеся строки"
+  },
+  "highlightOnHover": {
+    "id": "dataTable.highlightOnHover",
+    "defaultMessage": "Подсветка при наведении"
+  },
+  "showColumnGrid": {
+    "id": "dataTable.showColumnGrid",
+    "defaultMessage": "Показать сетку колонок"
+  },
+  "resetToDefault": {
+    "id": "dataTable.resetToDefault",
+    "defaultMessage": "Сбросить по умолчанию"
+  },
+  "close": {
+    "id": "dataTable.close",
+    "defaultMessage": "Закрыть"
+  },
+  "editLabel": {
+    "id": "dataTable.editLabel",
+    "defaultMessage": "Редактировать"
+  },
+  "deleteLabel": {
+    "id": "dataTable.deleteLabel",
+    "defaultMessage": "Удалить"
+  },
+  "refreshLabel": {
+    "id": "dataTable.refreshLabel",
+    "defaultMessage": "Обновить"
+  },
+  "settingsLabel": {
+    "id": "dataTable.settingsLabel",
+    "defaultMessage": "Настройки"
+  },
+  "generalTab": {
+    "id": "dataTable.generalTab",
+    "defaultMessage": "Основное"
+  },
+  "columnsTab": {
+    "id": "dataTable.columnsTab",
+    "defaultMessage": "Колонки"
+  },
+  "pageInfo": {
+    "id": "dataTable.pageInfo",
+    "defaultMessage": "Страница {current} из {total}"
+  },
+  "rowActionsLabel": {
+    "id": "dataTable.rowActionsLabel",
+    "defaultMessage": "Действия со строкой"
+  },
+  "emptyMessage": {
+    "id": "dataTable.emptyMessage",
+    "defaultMessage": "Нет данных"
+  },
+  "actionsLabel": {
+    "id": "dataTable.actionsLabel",
+    "defaultMessage": "Действия"
+  },
+  "dragColumnLabel": {
+    "id": "dataTable.dragColumnLabel",
+    "defaultMessage": "Перетащите для изменения порядка"
+  },
+  "paginationLabel": {
+    "id": "dataTable.paginationLabel",
+    "defaultMessage": "Пагинация"
+  },
+  "resizeColumnLabel": {
+    "id": "dataTable.resizeColumnLabel",
+    "defaultMessage": "Изменить размер колонки"
+  }
+}

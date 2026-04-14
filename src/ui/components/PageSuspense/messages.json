@@ -1,0 +1,6 @@
+{
+  "loading": {
+    "id": "pageSuspense.loading",
+    "defaultMessage": "Загрузка…"
+  }
+}

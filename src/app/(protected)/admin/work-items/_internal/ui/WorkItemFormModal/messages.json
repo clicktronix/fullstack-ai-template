@@ -1,0 +1,54 @@
+{
+  "createTitle": {
+    "id": "workItemForm.createTitle",
+    "defaultMessage": "Создать задачу"
+  },
+  "editTitle": {
+    "id": "workItemForm.editTitle",
+    "defaultMessage": "Редактировать задачу"
+  },
+  "titleLabel": {
+    "id": "workItemForm.titleLabel",
+    "defaultMessage": "Название"
+  },
+  "titlePlaceholder": {
+    "id": "workItemForm.titlePlaceholder",
+    "defaultMessage": "Например, подготовить onboarding flow"
+  },
+  "descriptionLabel": {
+    "id": "workItemForm.descriptionLabel",
+    "defaultMessage": "Описание"
+  },
+  "descriptionPlaceholder": {
+    "id": "workItemForm.descriptionPlaceholder",
+    "defaultMessage": "Коротко опишите ожидаемый результат"
+  },
+  "labelsLabel": {
+    "id": "workItemForm.labelsLabel",
+    "defaultMessage": "Метки"
+  },
+  "labelsPlaceholder": {
+    "id": "workItemForm.labelsPlaceholder",
+    "defaultMessage": "Выберите метки"
+  },
+  "priorityLabel": {
+    "id": "workItemForm.priorityLabel",
+    "defaultMessage": "Приоритетная задача"
+  },
+  "save": {
+    "id": "workItemForm.save",
+    "defaultMessage": "Сохранить"
+  },
+  "create": {
+    "id": "workItemForm.create",
+    "defaultMessage": "Создать"
+  },
+  "cancel": {
+    "id": "workItemForm.cancel",
+    "defaultMessage": "Отмена"
+  },
+  "validationTitleRequired": {
+    "id": "workItemForm.validationTitleRequired",
+    "defaultMessage": "Введите название задачи"
+  }
+}

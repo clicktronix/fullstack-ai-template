@@ -1,0 +1,34 @@
+{
+  "emailLabel": {
+    "id": "loginForm.emailLabel",
+    "defaultMessage": "Email"
+  },
+  "emailPlaceholder": {
+    "id": "loginForm.emailPlaceholder",
+    "defaultMessage": "ваш@email.com"
+  },
+  "passwordLabel": {
+    "id": "loginForm.passwordLabel",
+    "defaultMessage": "Пароль"
+  },
+  "passwordPlaceholder": {
+    "id": "loginForm.passwordPlaceholder",
+    "defaultMessage": "Ваш пароль"
+  },
+  "submitButton": {
+    "id": "loginForm.submitButton",
+    "defaultMessage": "Войти"
+  },
+  "errorTitle": {
+    "id": "loginForm.errorTitle",
+    "defaultMessage": "Ошибка входа"
+  },
+  "validationEmailInvalid": {
+    "id": "loginForm.validation.emailInvalid",
+    "defaultMessage": "Некорректный email адрес"
+  },
+  "validationPasswordMinLength": {
+    "id": "loginForm.validation.passwordMinLength",
+    "defaultMessage": "Пароль должен содержать минимум 8 символов"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "version": 3,
+  "skills": {
+    "tanstack-query": {
+      "source": "madappgang/claude-code",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/madappgang/claude-code.git",
+      "skillPath": "plugins/dev/skills/frontend/tanstack-query/SKILL.md",
+      "skillFolderHash": "9b5816bcf30da289752b2448374386c0fdd784ec",
+      "installedAt": "2026-03-16T09:24:55.369Z",
+      "updatedAt": "2026-03-16T09:25:37.036Z"
+    }
+  },
+  "dismissed": {}
+}

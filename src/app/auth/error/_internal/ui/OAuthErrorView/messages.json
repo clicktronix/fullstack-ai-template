@@ -1,0 +1,18 @@
+{
+  "errorTitle": {
+    "id": "auth.oauth.error.title",
+    "defaultMessage": "{errorType, select, access_denied {Доступ запрещён} session_establishment_failed {Не удалось создать сессию} invalid_state {Недействительное состояние} server_error {Ошибка сервера} other {Ошибка аутентификации}}"
+  },
+  "errorDescription": {
+    "id": "auth.oauth.error.description",
+    "defaultMessage": "{errorType, select, access_denied {Вы отменили процесс аутентификации или запретили доступ к аккаунту.} session_establishment_failed {Не удалось создать сессию после аутентификации. Попробуйте войти снова.} invalid_state {Состояние аутентификации недействительно или истекло.} server_error {Произошла ошибка на сервере аутентификации. Попробуйте позже.} other {Произошла непредвиденная ошибка при аутентификации.}}"
+  },
+  "detailsLabel": {
+    "id": "auth.oauth.error.detailsLabel",
+    "defaultMessage": "Подробности: {description}"
+  },
+  "returnToLoginButton": {
+    "id": "auth.oauth.error.returnToLoginButton",
+    "defaultMessage": "Вернуться на страницу входа"
+  }
+}

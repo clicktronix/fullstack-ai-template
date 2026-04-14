@@ -1,0 +1,42 @@
+{
+  "title": {
+    "id": "assistantSuggestionsPanel.title",
+    "defaultMessage": "AI Suggestions"
+  },
+  "description": {
+    "id": "assistantSuggestionsPanel.description",
+    "defaultMessage": "Небольшой AI-flavored flow: серверный action, use-case orchestration и optional external API поверх work-items."
+  },
+  "contextLabel": {
+    "id": "assistantSuggestionsPanel.contextLabel",
+    "defaultMessage": "Additional context"
+  },
+  "contextPlaceholder": {
+    "id": "assistantSuggestionsPanel.contextPlaceholder",
+    "defaultMessage": "Например, we need to ship onboarding this week"
+  },
+  "generate": {
+    "id": "assistantSuggestionsPanel.generate",
+    "defaultMessage": "Generate suggestions"
+  },
+  "generating": {
+    "id": "assistantSuggestionsPanel.generating",
+    "defaultMessage": "Generating suggestions…"
+  },
+  "empty": {
+    "id": "assistantSuggestionsPanel.empty",
+    "defaultMessage": "Run the assistant to get a few concrete next-step recommendations for the current filtered slice."
+  },
+  "highPriority": {
+    "id": "assistantSuggestionsPanel.highPriority",
+    "defaultMessage": "High"
+  },
+  "mediumPriority": {
+    "id": "assistantSuggestionsPanel.mediumPriority",
+    "defaultMessage": "Medium"
+  },
+  "lowPriority": {
+    "id": "assistantSuggestionsPanel.lowPriority",
+    "defaultMessage": "Low"
+  }
+}
