@@ -120,17 +120,17 @@ export function useWorkItems(filters: WorkItemFilters) {
 
 ## File Placement Guide
 
-| Need | Put it in |
-| --- | --- |
-| Business rule | `src/domain/<feature>/` |
-| Application scenario | `src/use-cases/<feature>/` |
-| Query keys / query hooks / SSR prefetch | `src/ui/server-state/<feature>/` |
-| One-off direct Server Action call from UI | feature-local `actions.ts` |
-| Server Action | `src/adapters/inbound/next/server-actions/` |
-| Route handler | `src/adapters/inbound/next/route-handlers/` |
-| Supabase persistence | `src/adapters/outbound/supabase/` |
-| External HTTP client | `src/adapters/outbound/api/` |
-| Presentation component | `src/ui/` or `src/app/**/_internal/ui/` |
+| Need                                      | Put it in                                   |
+| ----------------------------------------- | ------------------------------------------- |
+| Business rule                             | `src/domain/<feature>/`                     |
+| Application scenario                      | `src/use-cases/<feature>/`                  |
+| Query keys / query hooks / SSR prefetch   | `src/ui/server-state/<feature>/`            |
+| One-off direct Server Action call from UI | feature-local `actions.ts`                  |
+| Server Action                             | `src/adapters/inbound/next/server-actions/` |
+| Route handler                             | `src/adapters/inbound/next/route-handlers/` |
+| Supabase persistence                      | `src/adapters/outbound/supabase/`           |
+| External HTTP client                      | `src/adapters/outbound/api/`                |
+| Presentation component                    | `src/ui/` or `src/app/**/_internal/ui/`     |
 
 ## Checklist
 

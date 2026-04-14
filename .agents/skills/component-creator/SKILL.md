@@ -71,7 +71,9 @@ export function WorkItemCardView({
     <Card withBorder>
       <Stack gap="xs">
         <Text fw={600}>{title}</Text>
-        <Text size="sm" c="dimmed">{description}</Text>
+        <Text size="sm" c="dimmed">
+          {description}
+        </Text>
         {isPriority ? <TranslationText {...messages.priority} size="xs" /> : null}
         <Button onClick={onEdit} data-testid="work-item-card-edit-btn">
           <TranslationText {...messages.edit} />

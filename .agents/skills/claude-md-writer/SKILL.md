@@ -9,25 +9,25 @@ Creates and refactors AGENTS.md files following official Anthropic best practice
 
 ## Golden Rules
 
-| Rule                                  | Why                                  |
-| ------------------------------------- | ------------------------------------ |
-| **AGENTS.md < 200 lines**             | Loads on EVERY request, costs tokens |
-| **Rules files < 500 lines**           | Official recommendation per file     |
-| **Critical rules FIRST**              | Top = highest priority               |
+| Rule                                 | Why                                  |
+| ------------------------------------ | ------------------------------------ |
+| **AGENTS.md < 200 lines**            | Loads on EVERY request, costs tokens |
+| **Rules files < 500 lines**          | Official recommendation per file     |
+| **Critical rules FIRST**             | Top = highest priority               |
 | **Modular rules -> `.Codex/rules/`** | Conditional loading, organized       |
-| **Use `paths:` frontmatter**          | Load rules only for matching files   |
-| **No linting rules**                  | Use ESLint/Prettier/Biome instead    |
-| **Pointers over copies**              | Files change, references stay valid  |
+| **Use `paths:` frontmatter**         | Load rules only for matching files   |
+| **No linting rules**                 | Use ESLint/Prettier/Biome instead    |
+| **Pointers over copies**             | Files change, references stay valid  |
 
 ## Memory Hierarchy
 
-| Priority | Type       | Location                                            |
-| -------- | ---------- | --------------------------------------------------- |
+| Priority | Type       | Location                                       |
+| -------- | ---------- | ---------------------------------------------- |
 | Highest  | Enterprise | `/Library/Application Support/Codex/AGENTS.md` |
-| High     | Project    | `./AGENTS.md` or `./.Codex/AGENTS.md`              |
-| Medium   | Rules      | `./.Codex/rules/*.md` (conditional)                |
-| Low      | User       | `~/.Codex/AGENTS.md`                               |
-| Lowest   | Local      | `./Codex.local.md` (gitignored)                    |
+| High     | Project    | `./AGENTS.md` or `./.Codex/AGENTS.md`          |
+| Medium   | Rules      | `./.Codex/rules/*.md` (conditional)            |
+| Low      | User       | `~/.Codex/AGENTS.md`                           |
+| Lowest   | Local      | `./Codex.local.md` (gitignored)                |
 
 ## Structure Template
 
@@ -97,17 +97,17 @@ paths: 'src/api/**/*.ts'
 
 ## What Goes Where
 
-| Content               | Location                    |
-| --------------------- | --------------------------- |
-| Project description   | AGENTS.md                   |
-| Critical constraints  | AGENTS.md (top!)            |
-| Quick start commands  | AGENTS.md                   |
-| Architecture overview | AGENTS.md                   |
+| Content               | Location                   |
+| --------------------- | -------------------------- |
+| Project description   | AGENTS.md                  |
+| Critical constraints  | AGENTS.md (top!)           |
+| Quick start commands  | AGENTS.md                  |
+| Architecture overview | AGENTS.md                  |
 | SQL queries/schema    | `.Codex/rules/database.md` |
 | Deployment steps      | `.Codex/rules/deploy.md`   |
 | API documentation     | `.Codex/rules/api.md`      |
 | Personal preferences  | `Codex.local.md`           |
-| Code style rules      | Tool configs (NOT docs)     |
+| Code style rules      | Tool configs (NOT docs)    |
 
 ## Import Syntax
 

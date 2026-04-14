@@ -5,7 +5,6 @@ description: Comprehensive TanStack Query v5 patterns for async state management
 
 # TanStack Query v5 - Complete Guide
 
-
 **TanStack Query v5** (October 2023) is the async state manager for this project. It requires React 18+, features first-class Suspense support, improved TypeScript inference, and a 20% smaller bundle. This section covers production-ready patterns based on official documentation and community best practices.
 
 ### Breaking Changes in v5
@@ -13,6 +12,7 @@ description: Comprehensive TanStack Query v5 patterns for async state management
 **Key updates you need to know:**
 
 1. **Single Object Signature**: All hooks now accept one configuration object:
+
    ```typescript
    // ✅ v5 - single object
    useQuery({ queryKey, queryFn, ...options })
@@ -129,13 +129,13 @@ export function makeQueryClient() {
 
 **Server vs Client Defaults:**
 
-| Option | Client Default | Server Recommended | Why |
-|--------|---------------|-------------------|-----|
-| `retry` | 3 | 0 | Server should fail fast, not retry loops |
-| `staleTime` | 0 | 60_000+ | Server-rendered data is fresh |
-| `gcTime` | 5 min | Infinity | No garbage collection needed on server |
-| `refetchOnWindowFocus` | true | false | No window on server |
-| `refetchOnReconnect` | true | false | No reconnect on server |
+| Option                 | Client Default | Server Recommended | Why                                      |
+| ---------------------- | -------------- | ------------------ | ---------------------------------------- |
+| `retry`                | 3              | 0                  | Server should fail fast, not retry loops |
+| `staleTime`            | 0              | 60_000+            | Server-rendered data is fresh            |
+| `gcTime`               | 5 min          | Infinity           | No garbage collection needed on server   |
+| `refetchOnWindowFocus` | true           | false              | No window on server                      |
+| `refetchOnReconnect`   | true           | false              | No reconnect on server                   |
 
 **Important:** In SPA-only apps (TanStack Router + Vite), you don't need these server defaults. They're only relevant for SSR frameworks.
 
@@ -148,6 +148,7 @@ pnpm add @tanstack/react-query-next-experimental
 ```
 
 **Setup:**
+
 ```typescript
 // app/providers.tsx
 'use client'
@@ -184,6 +185,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 ```
 
 **Usage in Client Components:**
+
 ```typescript
 'use client'
 
@@ -201,11 +203,13 @@ export function UserProfile({ userId }: { userId: string }) {
 ```
 
 **Benefits:**
+
 - Skip manual prefetching in Server Components
 - Data streams to client as it resolves
 - Suspense boundaries show loading states naturally
 
 **Limitations:**
+
 - Next.js App Router only (experimental)
 - Not for TanStack Router SPAs (use route loaders instead)
 
@@ -217,20 +221,21 @@ export function UserProfile({ userId }: { userId: string }) {
 
 Think of Server Components as **another framework loader** (like route loaders):
 
-| Feature | Server Components | TanStack Query |
-|---------|-------------------|----------------|
-| Initial data fetch | Yes (server) | Yes (client prefetch) |
-| Client mutations | No | Yes |
-| Background refetch | No | Yes |
-| Optimistic updates | No | Yes |
-| Real-time updates | No | Yes |
-| Cache management | No | Yes |
+| Feature            | Server Components | TanStack Query        |
+| ------------------ | ----------------- | --------------------- |
+| Initial data fetch | Yes (server)      | Yes (client prefetch) |
+| Client mutations   | No                | Yes                   |
+| Background refetch | No                | Yes                   |
+| Optimistic updates | No                | Yes                   |
+| Real-time updates  | No                | Yes                   |
+| Cache management   | No                | Yes                   |
 
 #### When TanStack Query is Still Valuable
 
 Even in RSC-heavy apps, Query remains essential for:
 
 1. **Client-Side Mutations**
+
    ```typescript
    // Server Component fetches, Client handles mutations
    export default async function PostPage({ params }) {
@@ -246,12 +251,14 @@ Even in RSC-heavy apps, Query remains essential for:
    ```
 
 2. **Background Refetching After Initial Load**
+
    ```typescript
    // Initial: Server Component renders with fresh data
    // After: Query keeps data fresh on client
    ```
 
 3. **Optimistic Updates**
+
    ```typescript
    // Can't do optimistic updates with Server Components alone
    const likeMutation = useMutation({
@@ -326,26 +333,29 @@ async function createPostAction(formData: FormData) {
 }
 
 // After action succeeds, invalidate Query cache
-const [state, formAction] = useActionState(async (prev, formData) => {
-  const result = await createPostAction(formData)
-  if (result.success) {
-    queryClient.invalidateQueries({ queryKey: ['posts'] })
-  }
-  return result
-}, { success: false })
+const [state, formAction] = useActionState(
+  async (prev, formData) => {
+    const result = await createPostAction(formData)
+    if (result.success) {
+      queryClient.invalidateQueries({ queryKey: ['posts'] })
+    }
+    return result
+  },
+  { success: false }
+)
 ```
 
 #### Decision Matrix
 
-| Use Case | Recommendation |
-|----------|----------------|
-| Data fetching | Query (`useQuery`) |
-| List caching | Query |
-| Form submission | Action (`useActionState`) + Query invalidation |
-| Button click mutation | Query (`useMutation`) |
-| Optimistic update with rollback | Query (`useMutation`) |
-| Server-side validation | Action |
-| Complex multi-step mutations | Query (`useMutation`) |
+| Use Case                        | Recommendation                                 |
+| ------------------------------- | ---------------------------------------------- |
+| Data fetching                   | Query (`useQuery`)                             |
+| List caching                    | Query                                          |
+| Form submission                 | Action (`useActionState`) + Query invalidation |
+| Button click mutation           | Query (`useMutation`)                          |
+| Optimistic update with rollback | Query (`useMutation`)                          |
+| Server-side validation          | Action                                         |
+| Complex multi-step mutations    | Query (`useMutation`)                          |
 
 #### Rule of Thumb
 
@@ -397,6 +407,7 @@ export const useTodosQuery = (filters: string) => {
 ```
 
 **Benefits**:
+
 - Prevents key/function mismatches
 - Clean public API
 - Encapsulation and maintainability
@@ -408,13 +419,10 @@ export const useTodosQuery = (filters: string) => {
 
 ```typescript
 // ✅ Correct hierarchy
-['todos']                          // Invalidates everything
-['todos', 'list']                  // Invalidates all lists
-['todos', 'list', { filters }]     // Invalidates specific list
-['todos', 'detail', 1]             // Invalidates specific detail
-
-// ❌ Wrong - flat structure
-['todos-list-active']              // Can't partially invalidate
+;['todos'][('todos', 'list')][('todos', 'list', { filters })][('todos', 'detail', 1)][ // Invalidates everything // Invalidates all lists // Invalidates specific list // Invalidates specific detail
+  // ❌ Wrong - flat structure
+  'todos-list-active'
+] // Can't partially invalidate
 ```
 
 **Critical rule**: Query keys must include **ALL variables used in queryFn**. Treat query keys like dependency arrays:
@@ -458,6 +466,7 @@ queryClient.getQueryData(todoOptions(42).queryKey) // Fully typed!
 ```
 
 **Benefits**:
+
 - Single source of truth for query configuration
 - Full TypeScript inference for imperatively accessed data
 - Reusable across hooks and imperative methods
@@ -472,9 +481,9 @@ Choose the right approach based on your use case:
 ```typescript
 const fetchTodos = async (): Promise<Todo[]> => {
   const response = await axios.get('/api/todos')
-  return response.data.map(todo => ({
+  return response.data.map((todo) => ({
     ...todo,
-    name: todo.name.toUpperCase()
+    name: todo.name.toUpperCase(),
   }))
 }
 ```
@@ -487,7 +496,7 @@ export const useTodosQuery = (filters: string) =>
   useQuery({
     queryKey: ['todos'],
     queryFn: fetchTodos,
-    select: (data) => data.filter(todo => todo.status === filters),
+    select: (data) => data.filter((todo) => todo.status === filters),
   })
 
 // Only re-renders when count changes
@@ -563,10 +572,7 @@ Use `queryOptions` helper for maximum type safety across imperative methods.
 
 ```typescript
 // ✅ Recommended - custom hook with encapsulation
-export function usePost(
-  id: number,
-  options?: Omit<UseQueryOptions<Post>, 'queryKey' | 'queryFn'>
-) {
+export function usePost(id: number, options?: Omit<UseQueryOptions<Post>, 'queryKey' | 'queryFn'>) {
   return useQuery({
     queryKey: ['posts', id],
     queryFn: () => getPost(id),
@@ -579,6 +585,7 @@ const { data } = usePost(42, { staleTime: 10_000 })
 ```
 
 **Benefits**:
+
 - Centralizes query logic
 - Easy to update all usages
 - Consistent configuration
@@ -666,6 +673,7 @@ function App() {
 ```
 
 **Benefits**:
+
 - Eliminates loading state management
 - Data always defined (TypeScript enforced)
 - Cleaner component code
@@ -680,8 +688,7 @@ export function useCreateTodo() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (newTodo: CreateTodoDTO) =>
-      api.post('/todos', newTodo).then(res => res.data),
+    mutationFn: (newTodo: CreateTodoDTO) => api.post('/todos', newTodo).then((res) => res.data),
     onSuccess: (data) => {
       // Set detail query immediately
       queryClient.setQueryData(['todos', data.id], data)
@@ -724,7 +731,7 @@ useMutation({
 
     // Optimistically update cache
     queryClient.setQueryData(['todos'], (old: Todo[]) =>
-      old?.map(todo => todo.id === newTodo.id ? newTodo : todo)
+      old?.map((todo) => (todo.id === newTodo.id ? newTodo : todo))
     )
 
     // Return context for rollback
@@ -743,6 +750,7 @@ useMutation({
 ```
 
 **Key principles**:
+
 - Cancel ongoing queries in `onMutate` to prevent race conditions
 - Snapshot previous data before updating
 - Restore snapshot on error
@@ -1001,9 +1009,7 @@ import { http, HttpResponse } from 'msw'
 
 export const handlers = [
   http.get('/api/todos', () => {
-    return HttpResponse.json([
-      { id: 1, text: 'Test todo', completed: false },
-    ])
+    return HttpResponse.json([{ id: 1, text: 'Test todo', completed: false }])
   }),
 
   http.post('/api/todos', async ({ request }) => {
@@ -1083,6 +1089,7 @@ test('shows error state', async () => {
 ```
 
 **Critical testing principles**:
+
 - Create new QueryClient per test for isolation
 - Set `retry: false` to prevent timeouts
 - Use async queries (`findBy*`) for data that loads
@@ -1091,11 +1098,13 @@ test('shows error state', async () => {
 ### Anti-Patterns to Avoid
 
 **❌ Don't store query data in Redux/Context**:
+
 - Creates dual sources of truth
 - Loses automatic cache invalidation
 - Triggers unnecessary renders
 
 **❌ Don't call refetch() with different parameters**:
+
 ```typescript
 // ❌ Wrong - breaks declarative pattern
 const { data, refetch } = useQuery({
@@ -1114,10 +1123,12 @@ const { data } = useQuery({
 ```
 
 **❌ Don't use queries for local state**:
+
 - Query Cache expects refetchable data
 - Use useState/useReducer for client-only state
 
 **❌ Don't create QueryClient inside components**:
+
 ```typescript
 // ❌ Wrong - new cache every render
 function App() {
@@ -1141,12 +1152,14 @@ function App() {
 ### Cache Timing Guidelines
 
 **staleTime** - How long data is considered fresh:
+
 - `0` (default) - Always stale, refetch on mount/focus
 - `30_000` (30s) - Good for user-generated content
 - `120_000` (2min) - Good for profile data
 - `600_000` (10min) - Good for static reference data
 
 **gcTime** (formerly cacheTime) - How long unused data stays in cache:
+
 - `300_000` (5min, default) - Good for most cases
 - `Infinity` - Keep forever (useful with persistence)
 - `0` - Immediate garbage collection (not recommended)
@@ -1172,6 +1185,7 @@ Seamlessly integrate TanStack Router with TanStack Query for optimal SPA perform
 The key pattern: Use route loaders to prefetch queries BEFORE navigation completes.
 
 **Benefits:**
+
 - Loaders run before render, eliminating waterfall
 - Fast SPA navigations (instant perceived performance)
 - Queries still benefit from cache deduplication
@@ -1285,14 +1299,10 @@ function Dashboard() {
 export const Route = createFileRoute('/users/$userId/posts')({
   loader: async ({ params }) => {
     // First ensure user data
-    const user = await queryClient.ensureQueryData(
-      userQueryOptions(params.userId)
-    )
+    const user = await queryClient.ensureQueryData(userQueryOptions(params.userId))
 
     // Then fetch user's posts
-    return queryClient.ensureQueryData(
-      userPostsQueryOptions(user.id)
-    )
+    return queryClient.ensureQueryData(userPostsQueryOptions(user.id))
   },
   component: UserPostsPage,
 })
@@ -1301,6 +1311,7 @@ export const Route = createFileRoute('/users/$userId/posts')({
 ### Prefetch vs Ensure
 
 **`prefetchQuery`** - Fire and forget, don't wait:
+
 ```typescript
 loader: ({ params }) => {
   // Don't await - just start fetching
@@ -1310,6 +1321,7 @@ loader: ({ params }) => {
 ```
 
 **`ensureQueryData`** - Wait for data (recommended):
+
 ```typescript
 loader: async ({ params }) => {
   // Await - navigation waits until data is ready
@@ -1318,6 +1330,7 @@ loader: async ({ params }) => {
 ```
 
 **`fetchQuery`** - Always fetches fresh:
+
 ```typescript
 loader: async ({ params }) => {
   // Ignores cache, always fetches
