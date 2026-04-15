@@ -13,7 +13,50 @@ const config: KnipConfig = {
 
   project: ['src/**/*.{ts,tsx}', 'tests/**/*.ts', 'scripts/**/*.ts'],
 
-  ignore: ['src/**/*.d.ts'],
+  ignore: [
+    'src/**/*.d.ts',
+    // Template library surface: intentionally shipped for new app features even when
+    // the neutral demo slice does not import every reusable component yet.
+    'src/adapters/supabase/admin.ts',
+    'src/domain/shared/countries.ts',
+    'src/domain/shared/crud-types.ts',
+    'src/infrastructure/http/stream-headers.ts',
+    'src/lib/countries.ts',
+    'src/lib/errors/to-error-message.ts',
+    'src/lib/format-phone.ts',
+    'src/lib/rate-limiter.ts',
+    'src/lib/stream/stream-error-utils.ts',
+    'src/lib/test-helpers/react-intl-mock.ts',
+    'src/lib/validators/code-validator.ts',
+    'src/ui/components/ActionIconButton/**',
+    'src/ui/components/ActionPopover/**',
+    'src/ui/components/BadgeGroup/**',
+    'src/ui/components/CrudTable/**',
+    'src/ui/components/DataTable/**',
+    'src/ui/components/EditPopover/**',
+    'src/ui/components/FloatingInput/**',
+    'src/ui/components/GridEmptyState/**',
+    'src/ui/components/LazyMarkdown/**',
+    'src/ui/components/MetricCard/**',
+    'src/ui/components/MetricsGrid/**',
+    'src/ui/components/PlatformToggleGroup/**',
+    'src/ui/components/PrimaryItemMultiSelect/**',
+    'src/ui/components/SimplePagination/**',
+    'src/ui/components/TableEmptyState/**',
+    'src/ui/components/TableSkeleton/**',
+    'src/ui/components/ViewSection/**',
+    'src/ui/hooks/use-confirm-action.ts',
+    'src/ui/hooks/use-confirm-delete.ts',
+    'src/ui/hooks/use-crud-modal-handler.ts',
+    'src/ui/hooks/use-editable-cell.ts',
+    'src/ui/hooks/use-form-state.ts',
+    'src/ui/hooks/use-modal-form.ts',
+    'src/ui/hooks/use-select-options.ts',
+    'src/ui/hooks/use-settings-modal-state.ts',
+    'src/ui/hooks/use-sidebar-resize.ts',
+    'src/ui/layout/SidebarPageLayout/**',
+    'src/ui/providers/ModalsProvider/**',
+  ],
 
   ignoreDependencies: [
     // ESLint plugin used in config
@@ -23,8 +66,20 @@ const config: KnipConfig = {
     'happy-dom',
     // Type reference used in tsconfig.json types array
     'bun-types',
-    // Used in e2e/playwright.config.ts (loaded at runtime)
-    'dotenv',
+    // Optional reusable component families included in the template library surface
+    '@dnd-kit/core',
+    '@dnd-kit/sortable',
+    '@dnd-kit/utilities',
+    'exceljs',
+    'i18n-iso-countries',
+    'libphonenumber-js',
+    'react-diff-viewer-continued',
+    'react-markdown',
+    'remark-gfm',
+    'zustand',
+    // MCP CLIs referenced from .mcp.json
+    '@playwright/mcp',
+    'chrome-devtools-mcp',
   ],
 
   ignoreBinaries: [
@@ -56,7 +111,9 @@ const config: KnipConfig = {
     'src/ui/widgets/**': ['exports'],
     'src/ui/charts/**': ['exports'],
     'src/ui/hooks/**': ['exports'],
+    'src/ui/layout/**': ['exports'],
     'src/ui/layouts/**': ['exports'],
+    'src/ui/server-state/**': ['exports'],
     'src/app/**/ui/**': ['exports'],
     // Theme exports - palette functions exported for customization
     'src/ui/themes/**': ['exports'],
@@ -64,6 +121,8 @@ const config: KnipConfig = {
     'src/lib/**': ['exports'],
     // Infrastructure layer
     'src/infrastructure/**': ['exports'],
+    // Locale cookie and localStorage keys intentionally share the same template placeholder.
+    'src/lib/constants.ts': ['duplicates'],
   },
 
   next: {

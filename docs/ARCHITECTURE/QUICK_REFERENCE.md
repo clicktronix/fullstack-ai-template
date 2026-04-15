@@ -1,9 +1,22 @@
 # Quick Reference
 
+One-page cheatsheet. For rationale and exceptions, see [`ARCHITECTURE.md`](./ARCHITECTURE.md).
+
 ## Dependency Flow
 
+```mermaid
+flowchart LR
+    UI["app/ • ui/"] --> SS["ui/server-state/"]
+    UI -.->|actions.ts| IN["adapters/inbound/next/"]
+    SS --> IN
+    IN --> UC["use-cases/"]
+    UC --> OUT["adapters/outbound/"]
+    UC --> D["domain/"]
+    OUT --> D
+```
+
 ```text
-app/ui -> ui/server-state | feature-local actions.ts -> inbound adapters -> use-cases -> outbound adapters -> domain
+app/ui -> ui/server-state | actions.ts -> inbound adapters -> use-cases -> outbound adapters -> domain
 ```
 
 ## Layer Map
@@ -18,27 +31,14 @@ app/ui -> ui/server-state | feature-local actions.ts -> inbound adapters -> use-
 | UI             | `src/app/`, `src/ui/`        | Next entrypoints and presentation                 |
 | Infrastructure | `src/infrastructure/`        | Auth, i18n, config, logging                       |
 
-## Demo Slice
-
-The template ships with one reference vertical slice:
-
-- `work-items`
-- `labels`
-
-This slice demonstrates:
-
-- domain schemas
-- use-case ports
-- Supabase outbound adapters
-- Server Actions
-- React Query integration
-- SSR prefetch
-- UI composition with `composeHooks`
-
 ## Rules
 
 - `src/use-cases/**` must not import `app`, `ui`, or inbound adapters
 - `src/ui/server-state/**` is the only UI-facing layer allowed to call inbound adapters
-- feature-local `actions.ts` are allowed only for thin direct Server Action wrappers
+- feature-local `actions.ts` allowed only for thin direct Server Action wrappers
 - UI must not import outbound adapters directly
 - `app/` entrypoints stay thin
+
+## Demo Slice
+
+`work-items` + `labels` — the canonical reference. Exercises every layer: domain schemas, use-case ports, Supabase outbound, Server Actions, TanStack Query, SSR prefetch, `composeHooks` UI.

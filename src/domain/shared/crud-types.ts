@@ -1,30 +1,30 @@
 /**
- * Вспомогательные типы для CRUD операций с domain сущностями.
+ * Helper types for CRUD operations on domain entities.
  *
- * Устраняет дублирование паттерна:
+ * Removes duplication of the pattern:
  * type CreateEntity = Omit<Entity, 'id' | 'created_at' | 'updated_at'>
  * type UpdateEntity = Partial<CreateEntity>
  */
 
 /**
- * Базовые поля, которые есть у всех сущностей с timestamps.
+ * Base fields that every entity with timestamps carries.
  */
 type BaseEntityFields = 'id' | 'created_at' | 'updated_at'
 
 /**
- * Тип для создания сущности - без id и timestamps.
+ * Input type for creating an entity — without id and timestamps.
  *
  * @example
- * type CreateBlogger = CreateInput<Blogger>
- * // Результат: Omit<Blogger, 'id' | 'created_at' | 'updated_at'>
+ * type CreateWorkItem = CreateInput<WorkItem>
+ * // Result: Omit<WorkItem, 'id' | 'created_at' | 'updated_at'>
  */
 export type CreateInput<T> = Omit<T, BaseEntityFields>
 
 /**
- * Тип для обновления сущности - частичный, без id и timestamps.
+ * Input type for updating an entity — partial, without id and timestamps.
  *
  * @example
- * type UpdateBlogger = UpdateInput<Blogger>
- * // Результат: Partial<Omit<Blogger, 'id' | 'created_at' | 'updated_at'>>
+ * type UpdateWorkItem = UpdateInput<WorkItem>
+ * // Result: Partial<Omit<WorkItem, 'id' | 'created_at' | 'updated_at'>>
  */
 export type UpdateInput<T> = Partial<CreateInput<T>>

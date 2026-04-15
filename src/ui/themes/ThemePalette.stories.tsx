@@ -752,9 +752,9 @@ function TableBench({ palette }: { palette: ResolvedPalette }) {
         </Group>
 
         <Box className={styles.tableHeader} c={palette.colors.muted}>
-          <Text size="xs">Blogger</Text>
+          <Text size="xs">Item</Text>
           <Text size="xs">Status</Text>
-          <Text size="xs">Match</Text>
+          <Text size="xs">Owner</Text>
         </Box>
 
         <Paper

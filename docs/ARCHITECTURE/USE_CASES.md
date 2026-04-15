@@ -52,6 +52,18 @@ export type WorkItemRepository = {
 
 The use-case depends on the contract. Outbound adapters implement it.
 
+```mermaid
+flowchart LR
+    UC["listWorkItems (use-case)"] -->|depends on| Port["WorkItemRepository (port type)"]
+    Supabase["supabaseWorkItemRepository"] -->|implements| Port
+    Fake["fakeWorkItemRepository (tests)"] -->|implements| Port
+    Supabase -->|used by| UC
+    Fake -->|used by| UC
+
+    classDef port fill:#2a3a2a,stroke:#5a8a5a,color:#fff
+    class Port port
+```
+
 ## Relationship to Server-State
 
 React Query integration does not live in `use-cases`.

@@ -1,6 +1,5 @@
 /**
- * Поддерживаемые коды стран CIS/Near — основной рынок платформы.
- * Используются для фильтрации аудитории блогеров.
+ * Supported ISO country codes for reusable country selectors and filters.
  */
 import { type InferOutput, picklist } from 'valibot'
 

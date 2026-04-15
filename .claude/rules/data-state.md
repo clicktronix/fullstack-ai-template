@@ -19,13 +19,13 @@ app/ui -> ui/server-state|feature-local actions.ts -> inbound adapters -> use-ca
 
 ## State Decision Tree
 
-| State Type       | Tool                    | Location            | Example                        |
-| ---------------- | ----------------------- | ------------------- | ------------------------------ |
-| **Server State** | TanStack Query          | `ui/server-state/`  | User data, portfolio positions |
-| **Global State** | React Context           | `ui/providers/`     | User, theme, locale            |
-| **Dashboard UI** | Zustand (persisted)     | Feature-local store | Widget layout, settings        |
-| **Form State**   | Mantine Forms + Valibot | Component-local     | Edit forms, filters            |
-| **Component UI** | useState/useReducer     | Component-local     | Modals, dropdowns, toggles     |
+| State Type       | Tool                    | Location            | Example                    |
+| ---------------- | ----------------------- | ------------------- | -------------------------- |
+| **Server State** | TanStack Query          | `ui/server-state/`  | User data, work items      |
+| **Global State** | React Context           | `ui/providers/`     | User, theme, locale        |
+| **Dashboard UI** | Zustand (persisted)     | Feature-local store | Widget layout, settings    |
+| **Form State**   | Mantine Forms + Valibot | Component-local     | Edit forms, filters        |
+| **Component UI** | useState/useReducer     | Component-local     | Modals, dropdowns, toggles |
 
 ## Server State (TanStack Query)
 

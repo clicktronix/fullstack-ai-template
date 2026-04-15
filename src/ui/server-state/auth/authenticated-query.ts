@@ -28,10 +28,10 @@ import { useCurrentUser } from './queries'
  * @example
  * ```ts
  * // Before:
- * useQuery({ queryKey: ['data'], queryFn: fetchData, enabled: !!symbol })
+ * useQuery({ queryKey: ['data'], queryFn: fetchData, enabled: !!resourceId })
  *
  * // After:
- * useAuthenticatedQuery({ queryKey: ['data'], queryFn: fetchData, enabled: !!symbol })
+ * useAuthenticatedQuery({ queryKey: ['data'], queryFn: fetchData, enabled: !!resourceId })
  * ```
  *
  * @remarks

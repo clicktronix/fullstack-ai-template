@@ -1,22 +1,21 @@
 # Architecture
 
+> For a one-page cheatsheet (layer table, allowed imports, demo slice), see [`QUICK_REFERENCE.md`](./QUICK_REFERENCE.md). This document covers **why** the template is structured this way and where the boundaries are enforced.
+
 ## Purpose
 
-This template provides a reusable baseline for full-stack B2B and AI products built with:
+Reusable baseline for full-stack B2B and AI products built with:
 
-- Next.js App Router
-- React
-- Supabase
+- Next.js App Router, React 19
+- Supabase (Postgres + Auth)
 - TanStack Query
 - Hybrid Clean Architecture
 
-It is not a domain-specific starter. The business vocabulary is intentionally minimal.
+The business vocabulary is intentionally minimal — the template is not a domain-specific starter.
 
-## Why This Hybrid Model
+## Why a Hybrid Model
 
-Pure frontend clean architecture is usually too abstract for a real Next.js app, and framework-first codebases often blur business logic with transport and UI wiring.
-
-This template keeps the useful separation:
+Pure frontend Clean Architecture is usually too abstract for a real Next.js app. Framework-first codebases blur business logic with transport and UI wiring. This template keeps only the useful separations:
 
 - business core in `domain`
 - application orchestration in `use-cases`
@@ -24,75 +23,65 @@ This template keeps the useful separation:
 - infrastructure and persistence in outbound adapters
 - server data concerns in `ui/server-state`
 
-## Layers
+## Layer Diagram
 
-### Domain
+```mermaid
+flowchart LR
+    subgraph UI["UI Layer"]
+        App["app/ (App Router)"]
+        UIcmp["ui/ (components, hooks)"]
+        ServerState["ui/server-state/ (TanStack Query)"]
+    end
 
-`src/domain/`
+    Inbound["adapters/inbound/next/<br/>Server Actions, route handlers"]
+    UseCases["use-cases/<br/>application scenarios"]
+    Outbound["adapters/outbound/<br/>Supabase, external APIs"]
+    Domain["domain/<br/>Valibot schemas, pure rules"]
+    Infra["infrastructure/<br/>auth, i18n, logging"]
 
-Contains runtime schemas, inferred types, invariants, and pure helpers.
+    App --> ServerState
+    App --> UIcmp
+    UIcmp --> ServerState
+    ServerState --> Inbound
+    App -.->|feature-local actions.ts<br/>direct Server Action wrapper| Inbound
+    Inbound --> UseCases
+    UseCases --> Outbound
+    UseCases --> Domain
+    Outbound --> Domain
+    Inbound --> Infra
+    UseCases --> Infra
 
-### Use-Cases
+    classDef domain fill:#2f2f3a,stroke:#6a6a7a,color:#fff
+    classDef ui fill:#1f3a4a,stroke:#4a7a9a,color:#fff
+    class Domain domain
+    class App,UIcmp,ServerState ui
+```
 
-`src/use-cases/`
+## Layer Responsibilities
 
-Contains application scenarios and ports. These files coordinate work but stay independent from Next.js.
-
-### Server-State
-
-`src/ui/server-state/`
-
-Contains React Query hooks, query keys, prefetch helpers, and cache invalidation logic. This is an integration layer between UI and inbound adapters.
-
-### Inbound Adapters
-
-`src/adapters/inbound/next/`
-
-Contains Server Actions and route-handler logic. This is where auth/session context, request mapping, and cache invalidation belong.
-
-### Outbound Adapters
-
-`src/adapters/outbound/`
-
-Contains Supabase repositories, HTTP clients, and transport helpers.
-
-### UI
-
-`src/app/`, `src/ui/`
-
-Contains App Router entrypoints, components, view hooks, providers, themes, and layout code.
-
-### Infrastructure
-
-`src/infrastructure/`
-
-Contains cross-cutting technical support such as auth helpers, locale wiring, and config access.
-
-## Reference Slice
-
-The `work-items` and `labels` features form the template's reference slice.
-
-Use them as the model for new features:
-
-1. add a domain schema
-2. add use-cases and ports
-3. implement Supabase operations/repositories
-4. expose Server Actions
-5. add `ui/server-state`
-6. build page-specific UI
-
-## Allowed Dependency Directions
-
-- `domain` -> nothing
-- `use-cases` -> `domain`, `infrastructure`, outbound ports/types
-- `adapters/outbound` -> `domain`, `use-cases`
-- `adapters/inbound` -> `use-cases`, `adapters/outbound`, `infrastructure`
-- `ui/server-state` -> `adapters/inbound`, `use-cases`, client-safe helpers
-- `ui/app` -> `ui/server-state`, feature-local `actions.ts`, `domain`, local UI helpers
+| Layer              | What it does                                                                              | What it must NOT do                                        |
+| ------------------ | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| **Domain**         | Valibot schemas, inferred types, invariants, pure helpers                                 | Import anything outside `domain`                           |
+| **Use-Cases**      | Application scenarios, ports (repository types), orchestration                            | Use `use server`, `NextRequest/Response`, `revalidatePath` |
+| **Outbound**       | Supabase repositories, HTTP clients, transport                                            | Depend on inbound or UI                                    |
+| **Inbound**        | Server Actions, route handlers, auth/session context, request mapping, cache invalidation | Contain business logic (delegate to use-cases)             |
+| **Server-State**   | TanStack Query keys/hooks, SSR prefetch, cache orchestration                              | Be imported by non-UI code                                 |
+| **UI**             | App Router pages, components, view hooks, providers, themes                               | Import outbound adapters directly                          |
+| **Infrastructure** | Cross-cutting glue: auth helpers, locale wiring, config access, logging                   | Contain feature logic                                      |
 
 ## Intentional Exceptions
 
-- feature-local `actions.ts` are allowed for thin direct Server Action calls without TanStack Query
-- `ui/server-state` is allowed to depend on inbound adapters
+- **feature-local `actions.ts`** — thin direct Server Action wrappers are allowed in UI segments without going through `ui/server-state`. Use only for one-off operations that do not need TanStack Query semantics.
+- **`ui/server-state` depends on inbound adapters** — necessary to call Server Actions inside `queryFn`. This is the one layer permitted to cross the UI ↔ adapter boundary.
 
-Those exceptions are deliberate and enforced through ESLint boundaries.
+Both exceptions are enforced by ESLint boundaries (`eslint.config.ts`).
+
+## Reference Slice
+
+The `work-items` + `labels` vertical slice is the canonical example. Follow its layer order when adding features — see [`USE_CASES.md`](./USE_CASES.md) and [`DATA_ACCESS.md`](./DATA_ACCESS.md).
+
+## Where Rules Live
+
+- **Runtime**: ESLint boundary rules in `eslint.config.ts` catch leaks at build time
+- **Agents**: `.claude/rules/architecture.md` and `.claude/rules/core.md` are auto-loaded by Claude Code for relevant paths
+- **Humans**: This document + `QUICK_REFERENCE.md`

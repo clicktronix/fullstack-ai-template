@@ -6,8 +6,7 @@ import { Container, Divider, Group, Skeleton, Stack } from '@mantine/core'
  * Matches the layout of ProfileView:
  * - Icon + Title header
  * - User info card
- * - Link Telegram button
- * - Investment profile form
+ * - Profile form
  */
 export default function ProfileLoading() {
   return (
@@ -22,12 +21,9 @@ export default function ProfileLoading() {
         {/* User info card skeleton */}
         <Skeleton height={120} radius="md" />
 
-        {/* Link Telegram button skeleton */}
-        <Skeleton height={36} width={180} radius="md" />
-
         <Divider />
 
-        {/* Investment profile form skeleton */}
+        {/* Profile form skeleton */}
         <Stack gap="md">
           <Skeleton height={28} width={200} />
           <Skeleton height={320} radius="md" />

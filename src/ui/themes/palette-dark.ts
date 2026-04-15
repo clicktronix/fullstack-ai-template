@@ -6,7 +6,7 @@
 // - green/red: positive/negative statuses
 // - teal/violet/yellow: additional data viz and emphasis colors
 export const darkColorScales = {
-  // Premium Slate: Deep blue-grey for a rich, modern financial feel
+  // Premium Slate: Deep blue-grey for rich, modern application surfaces
   dark: [
     '#C1C2C5', // 0: Text (High Contrast)
     '#A6A7AB', // 1: Text (Dimmed)

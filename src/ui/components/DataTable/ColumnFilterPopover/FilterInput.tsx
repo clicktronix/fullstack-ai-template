@@ -1,8 +1,6 @@
 'use client'
 
 import { MultiSelect, NumberInput, Select, Stack, TextInput } from '@mantine/core'
-import type { GenderRangeValue, PriceRangesValue } from '../interfaces'
-import { PriceRangesFilter } from './PriceRangesFilter'
 import type { FilterInputProps, NumberRangeValue, SelectPairFilterValue } from './interfaces'
 import styles from './styles.module.css'
 import type { FilterInputViewProps } from './useFilterInputProps'
@@ -26,11 +24,7 @@ function FilterInputView({
   onMultiSelectChange,
   onNumberRangeChange,
   onSearchChange,
-  onPriceRangesChange,
   onSelectPairChange,
-  onGenderSelectChange,
-  onGenderMinChange,
-  onGenderMaxChange,
 }: FilterInputViewProps) {
   switch (filterConfig.type) {
     case 'select': {
@@ -159,73 +153,6 @@ function FilterInputView({
           value={typeof value === 'string' ? value : ''}
           onChange={onSearchChange}
         />
-      )
-    }
-
-    case 'price-ranges': {
-      return (
-        <PriceRangesFilter
-          priceTypeOptions={filterConfig.priceTypeOptions}
-          platformOptions={filterConfig.platformOptions}
-          filterInputTestId={filterInputTestId}
-          // Safe: filterConfig.type === 'price-ranges' guarantees PriceRangesValue shape
-          value={value as PriceRangesValue | undefined}
-          onChange={onPriceRangesChange}
-          onDropdownOpen={onDropdownOpen}
-          onDropdownClose={onDropdownClose}
-        />
-      )
-    }
-
-    case 'gender-range': {
-      // Safe: filterConfig.type === 'gender-range' guarantees GenderRangeValue shape
-      const genderValue: Partial<GenderRangeValue> = (value as GenderRangeValue | undefined) ?? {}
-      return (
-        <Stack gap="xs">
-          <Select
-            data-testid={filterInputTestId}
-            size="xs"
-            placeholder={filterConfig.placeholder}
-            data={filterConfig.genderOptions}
-            searchable
-            withScrollArea
-            maxDropdownHeight={FILTER_DROPDOWN_MAX_HEIGHT}
-            value={genderValue.gender ?? null}
-            onChange={onGenderSelectChange}
-            clearable
-            comboboxProps={FILTER_COMBOBOX_PROPS}
-            onDropdownOpen={onDropdownOpen}
-            onDropdownClose={onDropdownClose}
-          />
-          {genderValue.gender && (
-            <div className={styles.numberRangeGroup}>
-              <NumberInput
-                data-testid={`${filterInputTestId}-min`}
-                size="xs"
-                placeholder={minPlaceholder}
-                aria-label={minValueAriaLabel}
-                value={genderValue.min ?? ''}
-                onChange={onGenderMinChange}
-                min={0}
-                max={100}
-                suffix="%"
-                className={styles.numberInput}
-              />
-              <NumberInput
-                data-testid={`${filterInputTestId}-max`}
-                size="xs"
-                placeholder={maxPlaceholder}
-                aria-label={maxValueAriaLabel}
-                value={genderValue.max ?? ''}
-                onChange={onGenderMaxChange}
-                min={0}
-                max={100}
-                suffix="%"
-                className={styles.numberInput}
-              />
-            </div>
-          )}
-        </Stack>
       )
     }
 

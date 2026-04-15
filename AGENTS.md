@@ -2,10 +2,6 @@
 
 Next.js 16 template for AI products and full-stack B2B apps.
 
-## Language
-
-**Always respond in Russian (Русский язык).**
-
 ## Commands
 
 | Command             | Purpose               |

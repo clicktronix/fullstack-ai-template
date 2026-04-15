@@ -64,7 +64,7 @@ function stripTrailingZeros(numStr: string): string {
 
 /**
  * Format large numbers in compact notation (B/M/K) with currency symbol.
- * Used for charts and financial data visualization.
+ * Used for compact dashboards and data visualizations.
  *
  * @param value - The numeric value to format
  * @param options - Formatting options (currency, locale, maxDecimals)
@@ -148,7 +148,7 @@ export function formatCurrencySmart(
 /**
  * Format currency with null handling.
  * Returns 'N/A' for null/undefined values.
- * Simple USD formatting for charts.
+ * Simple USD formatting with null handling.
  *
  * @example
  * formatCurrencyNullable(1234.56) // "$1,234.56"

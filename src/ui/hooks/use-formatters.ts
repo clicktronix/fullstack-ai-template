@@ -24,7 +24,7 @@ const LOCALE_MAP: Record<Locale, string> = {
 }
 
 /**
- * Default currency for financial data.
+ * Default currency for currency formatting.
  * Currency is independent from locale - it's determined by the data source.
  */
 const DEFAULT_CURRENCY = 'USD'
@@ -45,8 +45,8 @@ export type UseFormattersOptions = {
  * }
  *
  * @example
- * // For chart valueFormatter (returns a function safe to use)
- * function ChartComponent() {
+ * // For data visualization valueFormatter (returns a function safe to use)
+ * function MetricsChart() {
  *   const { compactCurrencyFormatter } = useFormatters()
  *   return <BarChart valueFormatter={compactCurrencyFormatter} />
  * }
@@ -107,11 +107,11 @@ export function useFormatters(options: UseFormattersOptions = {}) {
     locale,
     /** Current currency code (e.g., 'USD', 'RUB') */
     currencyCode: currency,
-    /** Stable function for chart valueFormatter (compact currency) */
+    /** Stable function for visualization valueFormatter (compact currency) */
     compactCurrencyFormatter: formatters.compactCurrency,
-    /** Stable function for chart valueFormatter (ratio) */
+    /** Stable function for visualization valueFormatter (ratio) */
     ratioFormatter: formatRatio,
-    /** Stable function for chart valueFormatter (percentage) */
+    /** Stable function for visualization valueFormatter (percentage) */
     percentageFormatter: formatPercentage,
   }
 }

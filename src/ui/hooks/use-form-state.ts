@@ -7,15 +7,15 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  *
  * @example
  * ```tsx
- * const initialValues = { campaignId: '', priceTypeCode: 'post', price: undefined }
+ * const initialValues = { title: '', status: 'open', priority: undefined }
  * const { values, setField, createFieldHandler, reset } = useFormState(initialValues)
  *
  * // Direct field update
- * setField('campaignId', '123')
+ * setField('title', 'New item')
  *
  * // Create handler for onChange prop
- * const onCampaignChange = createFieldHandler('campaignId')
- * <Select onChange={onCampaignChange} />
+ * const onStatusChange = createFieldHandler('status')
+ * <Select onChange={onStatusChange} />
  * ```
  */
 export function useFormState<T extends Record<string, unknown>>(initialValues: T) {

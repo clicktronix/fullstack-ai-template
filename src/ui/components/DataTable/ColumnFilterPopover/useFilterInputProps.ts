@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 import { useIntl } from 'react-intl'
-import type { ColumnFilterValue, GenderRangeValue } from '../interfaces'
 import type { FilterInputProps, NumberRangeValue, SelectPairFilterValue } from './interfaces'
 import messages from './messages.json'
 
@@ -17,11 +16,7 @@ export type FilterInputViewProps = FilterInputProps & {
     rangeValue: NumberRangeValue
   ) => (val: string | number) => void
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  onPriceRangesChange: (val: ColumnFilterValue | undefined) => void
   onSelectPairChange: (field: 'first' | 'second') => (val: string | null) => void
-  onGenderSelectChange: (val: string | null) => void
-  onGenderMinChange: (val: string | number) => void
-  onGenderMaxChange: (val: string | number) => void
 }
 
 export function useFilterInputProps(props: FilterInputProps): FilterInputViewProps {
@@ -50,11 +45,6 @@ export function useFilterInputProps(props: FilterInputProps): FilterInputViewPro
     [onChange]
   )
 
-  const onPriceRangesChange = useCallback(
-    (val: ColumnFilterValue | undefined) => onChange(val),
-    [onChange]
-  )
-
   const onSelectPairChange = useCallback(
     (field: 'first' | 'second') => (val: string | null) => {
       const pairValue: SelectPairFilterValue = (value as SelectPairFilterValue | undefined) ?? {}
@@ -73,44 +63,6 @@ export function useFilterInputProps(props: FilterInputProps): FilterInputViewPro
     [onChange, value]
   )
 
-  const onGenderSelectChange = useCallback(
-    (val: string | null) => {
-      if (!val) {
-        onChange(undefined) // eslint-disable-line unicorn/no-useless-undefined
-        return
-      }
-      const gv = (value as GenderRangeValue | undefined) ?? ({} as Partial<GenderRangeValue>)
-      onChange({ gender: val, min: gv.min, max: gv.max })
-    },
-    [onChange, value]
-  )
-
-  const onGenderMinChange = useCallback(
-    (val: string | number) => {
-      const gv = (value as GenderRangeValue | undefined) ?? ({} as Partial<GenderRangeValue>)
-      const newValue: GenderRangeValue = {
-        gender: gv.gender!,
-        min: typeof val === 'number' ? val : undefined,
-        max: gv.max,
-      }
-      onChange(newValue)
-    },
-    [onChange, value]
-  )
-
-  const onGenderMaxChange = useCallback(
-    (val: string | number) => {
-      const gv = (value as GenderRangeValue | undefined) ?? ({} as Partial<GenderRangeValue>)
-      const newValue: GenderRangeValue = {
-        gender: gv.gender!,
-        min: gv.min,
-        max: typeof val === 'number' ? val : undefined,
-      }
-      onChange(newValue)
-    },
-    [onChange, value]
-  )
-
   return {
     ...props,
     minPlaceholder: formatMessage(messages.minPlaceholder),
@@ -122,10 +74,6 @@ export function useFilterInputProps(props: FilterInputProps): FilterInputViewPro
     onMultiSelectChange,
     onNumberRangeChange,
     onSearchChange,
-    onPriceRangesChange,
     onSelectPairChange,
-    onGenderSelectChange,
-    onGenderMinChange,
-    onGenderMaxChange,
   }
 }

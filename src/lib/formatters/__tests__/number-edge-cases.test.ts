@@ -233,9 +233,9 @@ describe('formatPercentageSmart - edge cases', () => {
 })
 
 describe('edge cases - real-world scenarios', () => {
-  test('handles financial ratios', () => {
-    const pe_ratio = 25.456
-    expect(formatRatio(pe_ratio, 2)).toBe('25.46')
+  test('handles ratio values', () => {
+    const ratio = 25.456
+    expect(formatRatio(ratio, 2)).toBe('25.46')
   })
 
   test('handles growth rates', () => {
@@ -243,7 +243,7 @@ describe('edge cases - real-world scenarios', () => {
     expect(formatPercentage(growth, 1)).toBe('125.7%')
   })
 
-  test('handles market cap abbreviations', () => {
+  test('handles very large compact values', () => {
     expect(formatCompactNumber(3_200_000_000_000)).toBe('3.2T')
     expect(formatCompactNumber(45_600_000_000)).toBe('45.6B')
   })

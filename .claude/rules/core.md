@@ -5,8 +5,6 @@ paths:
 
 # Frontend Core Rules
 
-**CRITICAL**: Always respond in Russian (Русский язык) when working on this project.
-
 ## Critical Constraints
 
 ### TypeScript & Code Style

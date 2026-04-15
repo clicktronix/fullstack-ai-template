@@ -37,10 +37,10 @@ describe('withAuth', () => {
     const fn = mock(async (_supabase: unknown, id: string) => ({ ok: id }))
     const wrapped = withAuth(fn)
 
-    const result = await wrapped('campaign-1')
+    const result = await wrapped('item-1')
 
-    expect(result).toEqual({ ok: 'campaign-1' })
-    expect(fn).toHaveBeenCalledWith(ctx.supabase, 'campaign-1')
+    expect(result).toEqual({ ok: 'item-1' })
+    expect(fn).toHaveBeenCalledWith(ctx.supabase, 'item-1')
   })
 
   test('rethrows coded errors as-is', async () => {

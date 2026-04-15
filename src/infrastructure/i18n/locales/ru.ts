@@ -42,14 +42,11 @@ export const ruMessages = {
   'dataTable.columnFilter.apply': 'Применить',
   'dataTable.columnFilter.filter': 'Фильтр',
   'dataTable.columnFilter.maxPlaceholder': 'До',
-  'dataTable.columnFilter.maxPriceLabel': 'Максимальная цена',
   'dataTable.columnFilter.maxValueLabel': 'Максимальное значение',
   'dataTable.columnFilter.minPlaceholder': 'От',
-  'dataTable.columnFilter.minPriceLabel': 'Минимальная цена',
   'dataTable.columnFilter.minValueLabel': 'Минимальное значение',
   'dataTable.columnFilter.reset': 'Сбросить',
   'dataTable.columnFilter.searchFilterLabel': 'Поиск фильтра',
-  'dataTable.columnFilter.selectPlatform': 'Выберите платформу',
   'dataTable.columnFilter.sort': 'Сортировка',
   'dataTable.columnsTab': 'Колонки',
   'dataTable.deleteLabel': 'Удалить',
@@ -136,12 +133,12 @@ export const ruMessages = {
   'labelsPanel.title': 'Метки',
   'labelsPanel.validationNameRequired': 'Введите название метки',
   'landing.cta': 'Войти',
-  'landing.features.aiSearch.description':
+  'landing.features.supabase.description':
     'Supabase auth, SSR-safe adapters и готовый baseline для серверных интеграций уже настроены.',
-  'landing.features.aiSearch.title': 'Supabase + Auth',
-  'landing.features.analytics.description':
+  'landing.features.supabase.title': 'Supabase + Auth',
+  'landing.features.testing.description':
     'Lint, typecheck, unit tests и E2E smoke suite уже подключены к CI.',
-  'landing.features.analytics.title': 'Тесты и CI',
+  'landing.features.testing.title': 'Тесты и CI',
   'landing.features.verticalSlice.description':
     'Готовый пример feature, проходящей через domain, use-cases, adapters, server-state и UI.',
   'landing.features.verticalSlice.title': 'Vertical slice',
@@ -199,11 +196,15 @@ export const ruMessages = {
   'signup.title': 'Регистрация',
   'signupForm.confirmPasswordLabel': 'Подтвердите пароль',
   'signupForm.confirmPasswordPlaceholder': 'Повторите пароль',
+  'signupForm.confirmationDescription':
+    'Мы отправили письмо с подтверждением на {email}. Откройте его, чтобы завершить регистрацию.',
+  'signupForm.confirmationTitle': 'Подтвердите email',
   'signupForm.emailLabel': 'Email',
   'signupForm.emailPlaceholder': 'ваш@email.com',
   'signupForm.errorTitle': 'Ошибка регистрации',
   'signupForm.fullNameLabel': 'Полное имя',
   'signupForm.fullNamePlaceholder': 'Иван Иванов',
+  'signupForm.loginLinkLabel': 'Перейти ко входу',
   'signupForm.passwordLabel': 'Пароль',
   'signupForm.passwordPlaceholder': 'Минимум 8 символов',
   'signupForm.submitButton': 'Создать аккаунт',

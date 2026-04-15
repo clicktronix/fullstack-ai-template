@@ -23,10 +23,6 @@
     "id": "dataTable.columnFilter.apply",
     "defaultMessage": "Применить"
   },
-  "selectPlatform": {
-    "id": "dataTable.columnFilter.selectPlatform",
-    "defaultMessage": "Выберите платформу"
-  },
   "minValueLabel": {
     "id": "dataTable.columnFilter.minValueLabel",
     "defaultMessage": "Минимальное значение"
@@ -38,13 +34,5 @@
   "searchFilterLabel": {
     "id": "dataTable.columnFilter.searchFilterLabel",
     "defaultMessage": "Поиск фильтра"
-  },
-  "minPriceLabel": {
-    "id": "dataTable.columnFilter.minPriceLabel",
-    "defaultMessage": "Минимальная цена"
-  },
-  "maxPriceLabel": {
-    "id": "dataTable.columnFilter.maxPriceLabel",
-    "defaultMessage": "Максимальная цена"
   }
 }

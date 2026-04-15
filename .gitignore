@@ -74,4 +74,12 @@ playwright-report/
 .windsurf/
 .agent/
 .tmp/
+.claude/projects/
 .claude/scheduled_tasks.lock
+.claude/settings.local.json
+
+# Vercel agent-skills installs into .claude/skills via `npx skills add`.
+# Track only bespoke project skills; generated installs stay local.
+.claude/skills/vercel-react-best-practices/
+.claude/skills/vercel-composition-patterns/
+.claude/skills/web-design-guidelines/

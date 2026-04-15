@@ -12,13 +12,6 @@ type GroupedOption = { group: string; items: SimpleOption[] }
 // Combined options type supporting both formats
 export type FilterOptions = SimpleOption[] | GroupedOption[]
 
-// Price type option with platform info
-export type PriceTypeOption = {
-  id: string
-  name: string
-  platforms: string[] | null // null = all platforms
-}
-
 export type SelectPairValue = {
   first?: string
   second?: string
@@ -39,32 +32,8 @@ export type ColumnFilterConfig =
     }
   | { type: 'number-range'; min?: number; max?: number; step?: number; allowDecimal?: boolean }
   | { type: 'search'; placeholder?: string }
-  | { type: 'price-ranges'; priceTypeOptions: PriceTypeOption[]; platformOptions: SimpleOption[] }
-  | { type: 'gender-range'; genderOptions: SimpleOption[]; placeholder?: string }
 
-// Price range for a single price type
-export type PriceRange = { min?: number; max?: number }
-
-// Price ranges filter value with platform selection
-export type PriceRangesValue = {
-  platform: string
-  ranges: Record<string, PriceRange>
-}
-
-// Gender range filter value
-export type GenderRangeValue = {
-  gender: string
-  min?: number
-  max?: number
-}
-
-export type ColumnFilterValue =
-  | string
-  | string[]
-  | SelectPairValue
-  | { min?: number; max?: number }
-  | PriceRangesValue
-  | GenderRangeValue
+export type ColumnFilterValue = string | string[] | SelectPairValue | { min?: number; max?: number }
 
 export type ColumnConfig<T> = {
   key: string

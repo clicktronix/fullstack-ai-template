@@ -4,7 +4,17 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  assigned_role text;
 begin
+  perform pg_advisory_xact_lock(hashtext('public.handle_new_auth_user'));
+
+  assigned_role :=
+    case
+      when exists (select 1 from public.users) then 'pending'
+      else 'owner'
+    end;
+
   insert into public.users (id, email, full_name, role)
   values (
     new.id,
@@ -14,7 +24,7 @@ begin
       new.raw_user_meta_data->>'name',
       ''
     ),
-    'pending'
+    assigned_role
   )
   on conflict (id) do nothing;
 

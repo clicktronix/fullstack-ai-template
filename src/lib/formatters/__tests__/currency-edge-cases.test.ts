@@ -178,22 +178,22 @@ describe('formatCurrencySmart - edge cases', () => {
 })
 
 describe('edge cases - real-world scenarios', () => {
-  test('handles crypto prices with many decimals', () => {
-    const btcPrice = 45_123.456_789
-    expect(formatCurrency(btcPrice, { minimumFractionDigits: 2, maximumFractionDigits: 6 })).toBe(
-      '$45,123.456789'
-    )
+  test('handles values with many decimals', () => {
+    const preciseValue = 45_123.456_789
+    expect(
+      formatCurrency(preciseValue, { minimumFractionDigits: 2, maximumFractionDigits: 6 })
+    ).toBe('$45,123.456789')
   })
 
-  test('handles penny stocks', () => {
+  test('handles tiny currency values', () => {
     expect(formatCurrency(0.0001, { minimumFractionDigits: 4, maximumFractionDigits: 4 })).toBe(
       '$0.0001'
     )
   })
 
-  test('handles market cap in trillions', () => {
-    const marketCap = 3_200_000_000_000
-    expect(formatCompactCurrency(marketCap)).toBe('$3.2T')
+  test('handles trillion-scale compact values', () => {
+    const value = 3_200_000_000_000
+    expect(formatCompactCurrency(value)).toBe('$3.2T')
   })
 
   test('handles negative balances', () => {

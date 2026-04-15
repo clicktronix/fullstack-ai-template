@@ -13,8 +13,7 @@ const mockSignUp =
 const mockSignOut = mock<() => Promise<void>>()
 
 // Import after mocking
-const { useSignIn, useSignUp, useSignOut, useLinkTelegram, useUnlinkTelegram } =
-  await import('@/ui/server-state/auth/mutations')
+const { useSignIn, useSignUp, useSignOut } = await import('@/ui/server-state/auth/mutations')
 
 // Helper to create mock session
 function createMockSession(overrides?: Partial<Session>): Session {
@@ -224,63 +223,5 @@ describe('useSignOut', () => {
 
     // Cache should still be cleared
     expect(clearSpy).toHaveBeenCalled()
-  })
-})
-
-describe('useLinkTelegram', () => {
-  let queryClient: QueryClient
-
-  beforeEach(() => {
-    queryClient = new QueryClient({
-      defaultOptions: {
-        queries: { retry: false },
-        mutations: { retry: false },
-      },
-    })
-  })
-
-  test('throws not implemented error', async () => {
-    const { result } = renderHook(() => useLinkTelegram(), {
-      wrapper: createWrapper(queryClient),
-    })
-
-    act(() => {
-      result.current.mutate()
-    })
-
-    await waitFor(() => {
-      expect(result.current.isError).toBe(true)
-    })
-
-    expect(result.current.error?.message).toBe('Telegram linking not implemented yet')
-  })
-})
-
-describe('useUnlinkTelegram', () => {
-  let queryClient: QueryClient
-
-  beforeEach(() => {
-    queryClient = new QueryClient({
-      defaultOptions: {
-        queries: { retry: false },
-        mutations: { retry: false },
-      },
-    })
-  })
-
-  test('throws not implemented error', async () => {
-    const { result } = renderHook(() => useUnlinkTelegram(), {
-      wrapper: createWrapper(queryClient),
-    })
-
-    act(() => {
-      result.current.mutate()
-    })
-
-    await waitFor(() => {
-      expect(result.current.isError).toBe(true)
-    })
-
-    expect(result.current.error?.message).toBe('Telegram unlinking not implemented yet')
   })
 })

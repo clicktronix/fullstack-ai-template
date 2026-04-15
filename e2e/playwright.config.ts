@@ -32,7 +32,7 @@ const E2E_PORT = Number.parseInt(process.env.E2E_PORT ?? '3100', 10)
 const IS_CI = process.env.CI === 'true'
 const E2E_WEB_SERVER_COMMAND =
   process.env.E2E_WEB_SERVER_COMMAND ?? `bun run build && PORT=${E2E_PORT} bun run start`
-const E2E_REUSE_SERVER = process.env.E2E_REUSE_SERVER !== 'false'
+const E2E_REUSE_SERVER = process.env.E2E_REUSE_SERVER === 'true'
 
 process.env.E2E_RUN_ID = E2E_RUN_ID
 

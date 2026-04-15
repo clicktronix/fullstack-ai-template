@@ -1,6 +1,7 @@
 'use client'
 
-import { Button, Stack } from '@mantine/core'
+import { Alert, Anchor, Button, Stack, Text } from '@mantine/core'
+import Link from 'next/link'
 import { FloatingPasswordInput } from '@/ui/components/FloatingInput/FloatingPasswordInput'
 import { FloatingTextInput } from '@/ui/components/FloatingInput/FloatingTextInput'
 import { FormErrorAlert } from '@/ui/components/FormErrorAlert'
@@ -13,11 +14,29 @@ export function SignupFormView({
   passwordLabel,
   confirmPasswordLabel,
   submitButtonLabel,
+  confirmationTitle,
+  confirmationDescription,
+  loginLinkLabel,
   form,
   isSubmitting,
   error,
+  confirmationEmail,
   onSubmit,
 }: SignupFormViewProps) {
+  if (confirmationEmail) {
+    return (
+      <Stack gap="lg">
+        <Alert color="teal" title={confirmationTitle} variant="light">
+          <Text size="sm">{confirmationDescription}</Text>
+        </Alert>
+
+        <Anchor component={Link} href="/login" size="sm">
+          {loginLinkLabel}
+        </Anchor>
+      </Stack>
+    )
+  }
+
   return (
     <form onSubmit={onSubmit}>
       <Stack gap="lg">

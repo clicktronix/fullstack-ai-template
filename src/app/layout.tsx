@@ -2,6 +2,7 @@ import { ColorSchemeScript } from '@mantine/core'
 import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { appContextModals } from '@/app/_internal/modals/context-modals'
+import { LOCALE_COOKIE_NAME } from '@/lib/constants'
 import { ClientProviders } from '@/ui/layout/ClientProviders'
 import type { Locale } from '@/ui/providers/LocaleContext'
 import './globals.css'
@@ -50,7 +51,7 @@ const SUPPORTED_LOCALES = new Set(['ru', 'en'])
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()
-  const localeCookie = cookieStore.get('fullstack-ai-template-locale')?.value
+  const localeCookie = cookieStore.get(LOCALE_COOKIE_NAME)?.value
   const initialLocale: Locale =
     localeCookie && SUPPORTED_LOCALES.has(localeCookie) ? (localeCookie as Locale) : 'ru'
 

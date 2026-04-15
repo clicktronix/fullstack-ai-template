@@ -42,14 +42,11 @@ export const enMessages = {
   'dataTable.columnFilter.apply': 'Apply',
   'dataTable.columnFilter.filter': 'Filter',
   'dataTable.columnFilter.maxPlaceholder': 'To',
-  'dataTable.columnFilter.maxPriceLabel': 'Maximum price',
   'dataTable.columnFilter.maxValueLabel': 'Maximum value',
   'dataTable.columnFilter.minPlaceholder': 'From',
-  'dataTable.columnFilter.minPriceLabel': 'Minimum price',
   'dataTable.columnFilter.minValueLabel': 'Minimum value',
   'dataTable.columnFilter.reset': 'Reset',
   'dataTable.columnFilter.searchFilterLabel': 'Search filter',
-  'dataTable.columnFilter.selectPlatform': 'Select platform',
   'dataTable.columnFilter.sort': 'Sort',
   'dataTable.columnsTab': 'Columns',
   'dataTable.deleteLabel': 'Delete',
@@ -137,12 +134,12 @@ export const enMessages = {
   'labelsPanel.title': 'Labels',
   'labelsPanel.validationNameRequired': 'Enter the label name',
   'landing.cta': 'Sign In',
-  'landing.features.aiSearch.description':
+  'landing.features.supabase.description':
     'Supabase auth, SSR-safe adapters, and a production-ready backend integration baseline.',
-  'landing.features.aiSearch.title': 'Supabase + Auth',
-  'landing.features.analytics.description':
+  'landing.features.supabase.title': 'Supabase + Auth',
+  'landing.features.testing.description':
     'Lint, typecheck, unit tests, and E2E smoke coverage are already wired into CI.',
-  'landing.features.analytics.title': 'Testing & CI',
+  'landing.features.testing.title': 'Testing & CI',
   'landing.features.verticalSlice.description':
     'A ready-to-study feature that flows through domain, use-cases, adapters, server-state, and UI.',
   'landing.features.verticalSlice.title': 'Vertical Slice',
@@ -200,11 +197,15 @@ export const enMessages = {
   'signup.title': 'Create Account',
   'signupForm.confirmPasswordLabel': 'Confirm Password',
   'signupForm.confirmPasswordPlaceholder': 'Repeat password',
+  'signupForm.confirmationDescription':
+    'We sent a confirmation email to {email}. Open it to complete your registration.',
+  'signupForm.confirmationTitle': 'Confirm your email',
   'signupForm.emailLabel': 'Email',
   'signupForm.emailPlaceholder': 'your@email.com',
   'signupForm.errorTitle': 'Registration failed',
   'signupForm.fullNameLabel': 'Full Name',
   'signupForm.fullNamePlaceholder': 'John Doe',
+  'signupForm.loginLinkLabel': 'Go to login',
   'signupForm.passwordLabel': 'Password',
   'signupForm.passwordPlaceholder': 'Minimum 8 characters',
   'signupForm.submitButton': 'Create Account',

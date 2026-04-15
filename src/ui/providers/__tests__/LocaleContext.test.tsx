@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, test } from 'bun:test'
 import { type ReactNode } from 'react'
+import { LOCALE_STORAGE_KEY } from '@/lib/constants'
 import { LocaleProvider, useLocale, type Locale } from '../LocaleContext'
 
 // Хелпер для создания wrapper с указанной локалью
@@ -56,7 +57,7 @@ describe('LocaleProvider', () => {
         result.current.setLocale('en')
       })
 
-      const stored = localStorage.getItem('influra-locale')
+      const stored = localStorage.getItem(LOCALE_STORAGE_KEY)
       expect(stored).toBe('"en"')
     })
   })
@@ -69,13 +70,13 @@ describe('LocaleProvider', () => {
 
       // useEffect с saveToStorage вызовется после рендера
       await waitFor(() => {
-        const stored = localStorage.getItem('influra-locale')
+        const stored = localStorage.getItem(LOCALE_STORAGE_KEY)
         expect(stored).toBe('"en"')
       })
     })
 
     test('восстанавливает локаль из localStorage при валидном значении', () => {
-      localStorage.setItem('influra-locale', '"en"')
+      localStorage.setItem(LOCALE_STORAGE_KEY, '"en"')
 
       const { result } = renderHook(() => useLocale(), {
         wrapper: createWrapper('ru'),
@@ -85,7 +86,7 @@ describe('LocaleProvider', () => {
     })
 
     test('игнорирует некорректный JSON в localStorage', () => {
-      localStorage.setItem('influra-locale', 'not-json')
+      localStorage.setItem(LOCALE_STORAGE_KEY, 'not-json')
 
       const { result } = renderHook(() => useLocale(), {
         wrapper: createWrapper('ru'),

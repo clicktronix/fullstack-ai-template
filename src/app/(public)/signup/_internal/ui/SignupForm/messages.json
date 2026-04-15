@@ -35,6 +35,18 @@
     "id": "signupForm.submitButton",
     "defaultMessage": "Создать аккаунт"
   },
+  "confirmationTitle": {
+    "id": "signupForm.confirmationTitle",
+    "defaultMessage": "Подтвердите email"
+  },
+  "confirmationDescription": {
+    "id": "signupForm.confirmationDescription",
+    "defaultMessage": "Мы отправили письмо с подтверждением на {email}. Откройте его, чтобы завершить регистрацию."
+  },
+  "loginLinkLabel": {
+    "id": "signupForm.loginLinkLabel",
+    "defaultMessage": "Перейти ко входу"
+  },
   "errorTitle": {
     "id": "signupForm.errorTitle",
     "defaultMessage": "Ошибка регистрации"

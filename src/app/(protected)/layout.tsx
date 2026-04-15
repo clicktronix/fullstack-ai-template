@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 /**
  * Protected routes layout with authentication and query hydration.
  *
- * This layout wraps all protected routes (dashboard, profile, portfolio)
+ * This layout wraps all protected routes (dashboard, profile, admin)
  * and ensures user is authenticated before rendering.
  *
  * Architecture:

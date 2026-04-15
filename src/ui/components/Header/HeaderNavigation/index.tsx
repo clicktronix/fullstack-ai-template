@@ -27,7 +27,7 @@ const ADMIN_NAVIGATION_ITEMS: NavigationItem[] = [
   { path: '/admin/settings', icon: 'settings', messageKey: 'settings', ownerOnly: true },
 ]
 
-const CUSTOMER_NAVIGATION_ITEMS: NavigationItem[] = [
+const MEMBER_NAVIGATION_ITEMS: NavigationItem[] = [
   { path: '/profile', icon: 'profile', messageKey: 'profile' },
 ]
 
@@ -59,14 +59,8 @@ export const HeaderNavigation = memo(function HeaderNavigation({
     return <div className={styles.spacer} />
   }
 
-  // На /app/* routes показываем пользовательскую навигацию.
-  // На /admin/* routes показываем внутреннюю admin navigation.
-  const isCustomerRoute = pathname.startsWith('/app/')
-  const navigationItems = isCustomerRoute
-    ? CUSTOMER_NAVIGATION_ITEMS
-    : hasAccess(user)
-      ? ADMIN_NAVIGATION_ITEMS
-      : CUSTOMER_NAVIGATION_ITEMS
+  // Show admin navigation on /admin/* routes for users with access, otherwise member navigation.
+  const navigationItems = hasAccess(user) ? ADMIN_NAVIGATION_ITEMS : MEMBER_NAVIGATION_ITEMS
 
   return (
     <Group gap="xs" className={styles.noShrink}>

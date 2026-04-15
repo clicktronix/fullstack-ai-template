@@ -1,23 +1,52 @@
 {
   "permissions": {
     "deny": ["Bash(git commit:*)", "Bash(git push:*)"],
-    "defaultMode": "bypassPermissions"
+    "defaultMode": "default"
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": ["langsmith", "supabase", "chrome-devtools", "playwright"],
-  "enabledPlugins": {
-    "superpowers@superpowers-marketplace": true
-  },
+  "enabledMcpjsonServers": ["supabase", "chrome-devtools", "playwright"],
   "hooks": {
     "Stop": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "cd /Users/clicktronix/Projects/ai/native/platform && if ! git diff --quiet -- . ':(exclude).claude/settings.json'; then bun run check; fi"
+            "command": "ROOT=$(git rev-parse --show-toplevel 2>/dev/null) && cd \"$ROOT\" && if ! git diff --quiet -- . ':(exclude).claude/settings.json'; then bun run format && bun run check; fi"
           }
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "superpowers@superpowers-marketplace": true,
+    "postgres-best-practices@supabase-agent-skills": true,
+    "tanstack-query@tanstack-skills": true,
+    "react-clean-skills@react-clean-skills": true
+  },
+  "extraKnownMarketplaces": {
+    "supabase-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "supabase/agent-skills"
+      }
+    },
+    "tanstack-skills": {
+      "source": {
+        "source": "github",
+        "repo": "tanstack-skills/tanstack-skills"
+      }
+    },
+    "superpowers-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "obra/superpowers-marketplace"
+      }
+    },
+    "react-clean-skills": {
+      "source": {
+        "source": "github",
+        "repo": "clicktronix/react-clean-skills"
+      }
+    }
   }
 }

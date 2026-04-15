@@ -9,6 +9,7 @@ It updates:
 - `package.json`
 - `README.md`
 - `AGENTS.md`
+- `CLAUDE.md`
 - app metadata in `src/app/layout.tsx`
 - landing page title/copy
 - locale cookie key
@@ -25,6 +26,22 @@ Bootstrap does not replace product domain decisions. Review these areas yourself
 - `src/ui/server-state/`
 - `src/app/(protected)/admin/work-items`
 - locale strings that still mention the demo slice
+
+## Replace the starter role bootstrap early
+
+The template ships with a pragmatic default:
+
+- first signed-up user becomes `owner`
+- every later user becomes `pending`
+
+That is useful for a starter, but it should not stay implicit in a real product.
+
+Decide early:
+
+- who can create the first owner in production
+- how admins are promoted
+- whether `pending` users should see a waiting screen or be blocked completely
+- whether invitations should replace open signup
 
 ## Replacing the demo slice
 

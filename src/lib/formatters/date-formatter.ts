@@ -15,7 +15,7 @@ export function getYearFromDate(date: string): number {
 }
 
 /**
- * Format a financial statement date and period into a display label.
+ * Format a reporting date and period into a display label.
  * @param date - ISO date string (e.g., "2024-03-31")
  * @param period - Optional period label (e.g., "Q1", "FY")
  * @returns Formatted period string (e.g., "Q1 2024" or "2024")

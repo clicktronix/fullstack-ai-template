@@ -1,5 +1,7 @@
 # Component Patterns
 
+> This document is the **in-repo reference** for Smart/Dumb component patterns in this template. For interactive scaffolding of new components, the `component-creator` skill (installed via the [`react-clean-skills`](https://github.com/clicktronix/react-clean-skills) marketplace) applies the same conventions programmatically. This doc is the rationale; the skill is the executor.
+
 ## Philosophy
 
 Components in the application follow the **Smart/Dumb** separation principle through the `composeHooks` pattern. This ensures:
@@ -186,54 +188,61 @@ When a component has many types (> 5), extract them to a separate `interfaces.ts
 
 ```tsx
 // Component/interfaces.ts
-export type UserCardProps = {
-  userId: number
-  showAvatar?: boolean
-  onEdit?: () => void
+export type WorkItemCardProps = {
+  workItemId: string
+  showLabels?: boolean
+  onEdit?: (id: string) => void
 }
 
-export type UserCardViewProps = {
-  displayName: string
-  avatarUrl: string | null
-  isOnline: boolean
+export type WorkItemCardViewProps = {
+  title: string
+  description: string
+  status: WorkItemStatus
+  isPriority: boolean
   isLoading: boolean
   onEdit: () => void
-  onMessage: () => void
+  onArchive: () => void
 }
 
-export type UserStatus = 'online' | 'offline' | 'away' | 'busy'
+export type WorkItemStatus = 'open' | 'in_progress' | 'blocked' | 'done'
 
-export type UserCardConfig = {
-  showStatus: boolean
+export type WorkItemCardConfig = {
+  showLabels: boolean
   showActions: boolean
-  theme: 'light' | 'dark'
+  density: 'compact' | 'comfortable'
 }
 
-export type UserCardActions = {
+export type WorkItemCardActions = {
   onEdit: () => void
-  onMessage: () => void
-  onBlock: () => void
+  onArchive: () => void
+  onAssignLabel: () => void
 }
 ```
 
 ```tsx
 // Component/lib.ts
-import type { User } from '@/domain/user'
-import { getUserFullName } from '@/domain/user'
-import { useWorkItems } from '@/ui/server-state/work-items/queries'
-import type { UserCardProps, UserCardViewProps } from './interfaces'
+import { useCallback } from 'react'
+import { useWorkItem } from '@/ui/server-state/work-items/queries'
+import type { WorkItemCardProps, WorkItemCardViewProps } from './interfaces'
 
-export function useUserCardProps({ userId, showAvatar = true }: UserCardProps): UserCardViewProps {
-  const { data, isLoading } = useWorkItems()
-  const user = data?.items.find((item) => item.id === userId)
+export function useWorkItemCardProps({
+  workItemId,
+  onEdit,
+}: WorkItemCardProps): WorkItemCardViewProps {
+  const { data, isLoading } = useWorkItem(workItemId)
+
+  const handleEdit = useCallback(() => {
+    onEdit?.(workItemId)
+  }, [onEdit, workItemId])
 
   return {
-    displayName: user ? getUserFullName(user) : '',
-    avatarUrl: showAvatar && user ? user.avatar_url : null,
-    isOnline: user?.is_online ?? false,
+    title: data?.title ?? '',
+    description: data?.description ?? '',
+    status: data?.status ?? 'open',
+    isPriority: data?.is_priority ?? false,
     isLoading,
-    onEdit: () => console.log('Edit user'),
-    onMessage: () => console.log('Message user'),
+    onEdit: handleEdit,
+    onArchive: () => console.log('Archive', workItemId),
   }
 }
 ```
@@ -241,23 +250,24 @@ export function useUserCardProps({ userId, showAvatar = true }: UserCardProps): 
 ```tsx
 // Component/index.tsx
 import { composeHooks } from '@/ui/hooks/compose-hooks'
-import type { UserCardViewProps } from './interfaces'
-import { useUserCardProps } from './lib'
+import type { WorkItemCardProps, WorkItemCardViewProps } from './interfaces'
+import { useWorkItemCardProps } from './lib'
 
-export function UserCardView({
-  displayName,
-  avatarUrl,
-  isOnline,
+export function WorkItemCardView({
+  title,
+  description,
+  status,
+  isPriority,
   isLoading,
   onEdit,
-  onMessage,
-}: UserCardViewProps) {
+  onArchive,
+}: WorkItemCardViewProps) {
   // ... render logic
 }
 
-export const UserCard = composeHooks<UserCardViewProps, UserCardProps>(UserCardView)(
-  useUserCardProps
-)
+export const WorkItemCard = composeHooks<WorkItemCardViewProps, WorkItemCardProps>(
+  WorkItemCardView
+)(useWorkItemCardProps)
 ```
 
 **Benefits**:
@@ -443,39 +453,39 @@ import type { ComponentType } from 'react'
 
 // Type of external props (what the parent passes)
 export type ExternalProps = {
-  symbol: string
-  range?: string
+  ownerId: string
+  status?: WorkItemStatus
 }
 
 // Type of View component props (what is needed for rendering)
-export type PriceChartViewProps = {
-  data: OHLCVData[]
+export type WorkItemsListViewProps = {
+  items: WorkItem[]
   isLoading: boolean
   error: string | null
 }
 
 // Dumb component
-export function PriceChartView({ data, isLoading, error }: PriceChartViewProps) {
+export function WorkItemsListView({ items, isLoading, error }: WorkItemsListViewProps) {
   // ...
 }
 
-// Hook accepts ExternalProps, returns PriceChartViewProps
-export function usePriceChartProps({ symbol, range = '1Y' }: ExternalProps): PriceChartViewProps {
+// Hook accepts ExternalProps, returns WorkItemsListViewProps
+export function useWorkItemsListProps({ ownerId, status }: ExternalProps): WorkItemsListViewProps {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['ohlcv', symbol, range],
-    queryFn: () => marketService.getOHLCV(symbol, range),
+    queryKey: ['work-items', ownerId, status],
+    queryFn: () => listWorkItems({ ownerId, status }),
   })
 
   return {
-    data: data?.candles ?? [],
+    items: data?.items ?? [],
     isLoading,
     error: error?.message ?? null,
   }
 }
 
 // Smart component with explicit generics (MANDATORY when ExternalProps !== ViewProps)
-export const PriceChart = composeHooks<PriceChartViewProps, ExternalProps>(PriceChartView)(
-  usePriceChartProps
+export const WorkItemsList = composeHooks<WorkItemsListViewProps, ExternalProps>(WorkItemsListView)(
+  useWorkItemsListProps
 )
 ```
 
@@ -487,10 +497,10 @@ export const PriceChart = composeHooks<PriceChartViewProps, ExternalProps>(Price
 
 ```tsx
 // Parent component passes props
-;<PriceChart symbol="AAPL" range="1Y" />
+;<WorkItemsList ownerId={user.id} status="open" />
 
 // Hook receives these props
-function usePriceChartProps({ symbol, range }: ExternalProps) {
+function useWorkItemsListProps({ ownerId, status }: ExternalProps) {
   // ...
 }
 ```
@@ -499,7 +509,7 @@ function usePriceChartProps({ symbol, range }: ExternalProps) {
 
 ```tsx
 // The parent can override the props returned by the hook
-<PriceChart symbol="AAPL" isLoading={true} />
+<WorkItemsList ownerId={user.id} isLoading={true} />
 
 // If the hook returned isLoading: false, but the parent passed isLoading: true,
 // then the View will receive isLoading: true (passed props have priority)
@@ -884,20 +894,20 @@ type TranslationTextProps = {
 // Component/messages.json
 {
   "title": {
-    "id": "priceChart.title",
-    "defaultMessage": "Price Chart"
+    "id": "workItemsPanel.title",
+    "defaultMessage": "Work Items"
   },
   "loading": {
-    "id": "priceChart.loading",
-    "defaultMessage": "Loading data..."
+    "id": "workItemsPanel.loading",
+    "defaultMessage": "Loading work items..."
   },
   "error": {
-    "id": "priceChart.error",
+    "id": "workItemsPanel.error",
     "defaultMessage": "Error: {error}"
   },
   "noData": {
-    "id": "priceChart.noData",
-    "defaultMessage": "No data available for {symbol}"
+    "id": "workItemsPanel.noData",
+    "defaultMessage": "No work items yet"
   }
 }
 ```
@@ -916,9 +926,12 @@ export function useComponentProps() {
   const ariaLabel = intl.formatMessage({ id: 'button.save', defaultMessage: 'Save' })
 
   // ✅ Для передачи в библиотеки, которые принимают string
-  const chartTitle = intl.formatMessage({ id: 'chart.title', defaultMessage: 'Chart' })
+  const dialogTitle = intl.formatMessage({
+    id: 'workItems.dialogTitle',
+    defaultMessage: 'Work item',
+  })
 
-  return { ariaLabel, chartTitle }
+  return { ariaLabel, dialogTitle }
 }
 ```
 
@@ -1189,10 +1202,10 @@ import { useUrlState, useUrlStateWithStorage } from '@/ui/hooks/use-url-state'
 const { value, setValue, clear } = useUrlState<string>({ param: 'q' })
 
 // С localStorage fallback
-const ticker = useUrlStateWithStorage({
-  param: 'ticker',
-  storageKey: 'current-ticker',
-  defaultValue: 'AAPL',
+const viewMode = useUrlStateWithStorage({
+  param: 'view',
+  storageKey: 'work-items-view',
+  defaultValue: 'list',
 })
 ```
 
@@ -1220,13 +1233,13 @@ export function useSearchProps() {
 
 // С localStorage fallback
 export function useDashboardProps() {
-  const { value: ticker } = useUrlState<string>({
-    param: 'ticker',
-    fallback: () => localStorage.getItem('current-ticker'),
-    onChange: (t) => t && localStorage.setItem('current-ticker', t),
+  const { value: viewMode } = useUrlState<string>({
+    param: 'view',
+    fallback: () => localStorage.getItem('work-items-view'),
+    onChange: (value) => value && localStorage.setItem('work-items-view', value),
   })
 
-  return { ticker: ticker ?? 'AAPL' }
+  return { viewMode: viewMode ?? 'list' }
 }
 ```
 
@@ -1251,144 +1264,34 @@ export function useDashboardProps() {
 
 ---
 
-## Widget Patterns
+## Reusable UI Patterns
 
-### withWidgetStates HOC
-
-HOC для обработки стандартных состояний виджетов (loading, error, no data, no symbol):
+Reusable UI blocks in this template are plain components and hooks, not a separate widget framework. Keep state mapping in `lib.ts`/`use*Props` and render states explicitly in the View:
 
 ```tsx
-import { withWidgetStates, type WithWidgetStatesProps } from '@/ui/hooks/with-widget-states'
-
-type MyWidgetViewProps = WithWidgetStatesProps<MyData[]> & {
-  title: string
-}
-
-// View компонент — рендерит только когда есть данные
-function MyWidgetView({ data, title }: MyWidgetViewProps) {
-  return (
-    <div>
-      <h1>{title}</h1>
-      {data.map((item) => (
-        <Item key={item.id} {...item} />
-      ))}
-    </div>
-  )
-}
-
-// Оборачиваем в HOC — он сам обработает loading/error/empty
-export const MyWidget = withWidgetStates<MyData[], MyWidgetViewProps>(MyWidgetView, {
-  hasData: (data) => data.length > 0,
-  requireSymbol: true, // Показывать "No symbol selected" если нет символа
-  messages: {
-    loading: { id: 'myWidget.loading', defaultMessage: 'Loading...' },
-    noData: { id: 'myWidget.noData', defaultMessage: 'No data' },
-  },
-})
-```
-
-**WithWidgetStatesProps:**
-
-```tsx
-type WithWidgetStatesProps<TData> = {
-  data: TData
+export type WorkItemsPanelViewProps = {
+  items: WorkItem[]
   isLoading: boolean
-  error: Error | null
-  symbol?: string | null
-  onRetry?: () => void
+  error: string | null
+  onRetry: () => void
+}
+
+export function WorkItemsPanelView({ items, isLoading, error, onRetry }: WorkItemsPanelViewProps) {
+  if (isLoading) return <TableSkeleton rowCount={5} />
+  if (error)
+    return <ApiErrorBoundary fallback={<Alert color="red">{error}</Alert>} onRetry={onRetry} />
+  if (items.length === 0) return <TableEmptyState message="No work items yet" />
+
+  return <DataTable data={items} columns={columns} keyExtractor={(item) => item.id} />
 }
 ```
 
-### Chart Hooks
+Use this approach for dashboards, admin panels, tables, and feature cards:
 
-Хуки для работы с цветами и размерами шрифтов в графиках:
-
-```tsx
-import { useChartColors, getColorByIndex } from '@/ui/hooks/use-chart-colors'
-import { useChartFontSizes } from '@/ui/hooks/use-chart-font-sizes'
-
-export function useChartProps() {
-  const { palette, pnl, grid, tooltip, scheme } = useChartColors()
-  const { fontSizes } = useChartFontSizes()
-
-  return {
-    // Цвета для серий данных
-    series: [
-      { name: 'Revenue', color: palette[0] }, // По индексу
-      { name: 'Profit', color: getColorByIndex(palette, 1) }, // С оберткой
-    ],
-    // P&L цвета
-    positiveColor: pnl.positive,
-    negativeColor: pnl.negative,
-    // Размеры шрифтов
-    labelSize: fontSizes.label,
-    tickSize: fontSizes.tick,
-    tooltipSize: fontSizes.tooltip,
-  }
-}
-```
-
-**useChartColors возвращает:**
-
-| Свойство          | Описание                                                 |
-| ----------------- | -------------------------------------------------------- |
-| `palette`         | Массив из 7 цветов (выбранная палитра)                   |
-| `extendedPalette` | Расширенная палитра (10 цветов)                          |
-| `pnl`             | Цвета прибыли/убытка (`positive`, `negative`, `neutral`) |
-| `grid`            | Цвета сетки (`stroke`, `tick`)                           |
-| `tooltip`         | Цвета тултипа (`background`, `border`, `text`)           |
-| `scheme`          | Текущая тема (`'dark'` \| `'light'`)                     |
-
-**useChartFontSizes возвращает:**
-
-| Свойство         | Описание                                                  |
-| ---------------- | --------------------------------------------------------- |
-| `fontSizes`      | Объект с размерами (`label`, `tick`, `tooltip`, `legend`) |
-| `sizePreference` | Текущий размер (`'sm'` \| `'md'` \| `'lg'`)               |
-
-### composeChartWidget
-
-Композиция для chart-виджетов, объединяющая `composeHooks`, `withWidgetStates` и `withResizePlaceholder`:
-
-```tsx
-import { composeChartWidget } from '@/ui/widgets/lib/chart-widget-helpers'
-import type { WithWidgetStatesProps } from '@/ui/hooks/with-widget-states'
-import messages from './messages.json'
-
-// 1. View props = WithWidgetStatesProps<TData> + widgetId + кастомные props
-type RevenueChartViewProps = WithWidgetStatesProps<RevenueData[]> & {
-  widgetId: string
-  config: FinancialChartConfig
-}
-
-// 2. View компонент — рендерит только когда данные есть
-function RevenueChartView({ data, config }: RevenueChartViewProps) {
-  return <BarChart data={data} series={config.series} />
-}
-
-// 3. Hook — преобразует props виджета в ViewProps
-function useRevenueChartProps({ widgetId, config, symbol }: WidgetInputProps) {
-  const { data, isLoading, error, refetch } = useRevenueData(symbol, config)
-
-  return {
-    data: data ?? [],
-    isLoading,
-    error,
-    symbol,
-    config,
-    widgetId,
-    onRetry: refetch,
-  }
-}
-
-// 4. Композиция — объединяет всё вместе
-export const RevenueChartWidget = memo(
-  composeChartWidget<RevenueData[], RevenueChartViewProps>(RevenueChartView, useRevenueChartProps, {
-    messages,
-    hasData: (data) => data.length > 0,
-  })
-)
-```
+- prefer local composition over generic HOCs
+- keep loading/error/empty states visible in the View contract
+- reuse `DataTable`, `TableSkeleton`, `TableEmptyState`, `ApiErrorBoundary`, and feature-local components
+- add a new abstraction only after two or more real feature slices need the same behavior
 
 ---
 
@@ -1640,14 +1543,14 @@ function MessageView({ displayContent, isUser }: MessageViewProps) {
 export const Message = composeHooks(MessageView)(useMessageProps)
 ```
 
-### Chart Value Formatters
+### Visualization Value Formatters
 
-For charts, use `formatCompactCurrency` from `lib/format-currency.ts`:
+For compact numeric visualizations, use reusable formatters from `lib/formatters`:
 
 ```tsx
-import { formatCompactCurrency } from '@/lib/format-currency'
+import { formatCompactNumber } from '@/lib/formatters/number'
 ;<BarChart
-  valueFormatter={formatCompactCurrency}
+  valueFormatter={formatCompactNumber}
   // ...
 />
 ```

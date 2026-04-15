@@ -35,7 +35,7 @@ function MantineButton({ label }: { label: string }) {
 function IntlComponent() {
   return (
     <Text data-testid="intl-text">
-      <FormattedMessage id="nav.home" defaultMessage="Home" />
+      <FormattedMessage id="common.save" defaultMessage="Save" />
     </Text>
   )
 }
@@ -70,7 +70,7 @@ describe('Custom Render Utilities', () => {
       const screen = within(container)
 
       const text = screen.getByTestId('intl-text')
-      expect(text.textContent).toBe('Home')
+      expect(text.textContent).toBe('Save')
     })
 
     test('renders component with i18n (Russian)', () => {
@@ -78,7 +78,7 @@ describe('Custom Render Utilities', () => {
       const screen = within(container)
 
       const text = screen.getByTestId('intl-text')
-      expect(text.textContent).toContain('Главная')
+      expect(text.textContent).toBe('Сохранить')
     })
 
     test('renders component with TanStack Query', async () => {

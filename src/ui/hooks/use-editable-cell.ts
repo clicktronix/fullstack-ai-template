@@ -27,8 +27,8 @@ function areDepsEqual(a: unknown[], b: unknown[]): boolean {
  * @example
  * ```tsx
  * const { opened, value, setValue, open, close } = useEditableCell({
- *   initializer: () => blog.tags?.map((t) => t.id) ?? [],
- *   dependencies: [blog.tags],
+ *   initializer: () => workItem.labels?.map((l) => l.id) ?? [],
+ *   dependencies: [workItem.labels],
  * })
  * ```
  */

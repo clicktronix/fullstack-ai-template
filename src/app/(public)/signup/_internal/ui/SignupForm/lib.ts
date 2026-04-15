@@ -1,6 +1,6 @@
 import { useForm } from '@mantine/form'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { type IntlShape, useIntl } from 'react-intl'
 import { email, minLength, object, pipe, string } from 'valibot'
 import { getPostLoginRedirect } from '@/lib/auth-routes'
@@ -41,9 +41,13 @@ export type SignupFormViewProps = {
   passwordLabel: string
   confirmPasswordLabel: string
   submitButtonLabel: string
+  confirmationTitle: string
+  confirmationDescription: string
+  loginLinkLabel: string
   form: ReturnType<typeof useForm<SignupFormValues>>
   isSubmitting: boolean
   error: string | null
+  confirmationEmail: string | null
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
 }
 
@@ -52,6 +56,7 @@ export function useSignupFormProps(): SignupFormViewProps {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { mutate: signUp, isPending, error } = useSignUp()
+  const [confirmationEmail, setConfirmationEmail] = useState<string | null>(null)
 
   // Create localized schema once per locale change (intl object is unstable)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -76,6 +81,7 @@ export function useSignupFormProps(): SignupFormViewProps {
 
   const handleSubmit = useCallback(
     (values: SignupFormValues) => {
+      setConfirmationEmail(null)
       signUp(
         {
           email: values.email,
@@ -87,14 +93,16 @@ export function useSignupFormProps(): SignupFormViewProps {
             if (session) {
               const redirectTo = getPostLoginRedirect(searchParams)
               router.push(redirectTo)
+              return
             }
-            // If session is null, email confirmation is required
-            // Follow-up: show confirmation message to user
+
+            form.reset()
+            setConfirmationEmail(values.email)
           },
         }
       )
     },
-    [signUp, router, searchParams]
+    [signUp, router, searchParams, form]
   )
 
   return {
@@ -103,9 +111,15 @@ export function useSignupFormProps(): SignupFormViewProps {
     passwordLabel: intl.formatMessage(messages.passwordLabel),
     confirmPasswordLabel: intl.formatMessage(messages.confirmPasswordLabel),
     submitButtonLabel: intl.formatMessage(messages.submitButton),
+    confirmationTitle: intl.formatMessage(messages.confirmationTitle),
+    confirmationDescription: intl.formatMessage(messages.confirmationDescription, {
+      email: confirmationEmail ?? '',
+    }),
+    loginLinkLabel: intl.formatMessage(messages.loginLinkLabel),
     form,
     isSubmitting: isPending,
     error: error?.message ?? null,
+    confirmationEmail,
     onSubmit: form.onSubmit(handleSubmit),
   }
 }

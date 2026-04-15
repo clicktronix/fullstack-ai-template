@@ -2,8 +2,6 @@ import type React from 'react'
 import type {
   ColumnFilterConfig,
   ColumnFilterValue,
-  PriceRangesValue,
-  PriceTypeOption,
   SelectPairValue,
   SortDirection,
 } from '../interfaces'
@@ -58,16 +56,6 @@ export type FilterInputProps = {
   value: ColumnFilterValue | undefined
   filterInputTestId?: string
   onChange: (value?: ColumnFilterValue) => void
-  onDropdownOpen: () => void
-  onDropdownClose: () => void
-}
-
-export type PriceRangesFilterProps = {
-  priceTypeOptions: PriceTypeOption[]
-  platformOptions: Array<{ value: string; label: string }>
-  value: PriceRangesValue | undefined
-  filterInputTestId?: string
-  onChange: (value: ColumnFilterValue | undefined) => void
   onDropdownOpen: () => void
   onDropdownClose: () => void
 }

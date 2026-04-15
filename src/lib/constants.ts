@@ -8,6 +8,14 @@
 export const DEFAULT_AUTHENTICATED_ROUTE = '/admin/work-items'
 
 /**
+ * Shared key for locale persistence in cookies and localStorage.
+ * The bootstrap script rewrites this template placeholder per project.
+ */
+export const LOCALE_PERSISTENCE_KEY = 'template-locale'
+export const LOCALE_COOKIE_NAME = LOCALE_PERSISTENCE_KEY
+export const LOCALE_STORAGE_KEY = LOCALE_PERSISTENCE_KEY
+
+/**
  * Route configuration for authentication and authorization
  */
 export const ROUTES = {

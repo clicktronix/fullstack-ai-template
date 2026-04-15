@@ -11,14 +11,13 @@ import {
 } from 'react'
 import { defaultMessages, loadMessages } from '@/infrastructure/i18n'
 import type { Messages } from '@/infrastructure/i18n'
+import { LOCALE_COOKIE_NAME, LOCALE_STORAGE_KEY } from '@/lib/constants'
 import dayjs from '@/lib/dayjs'
 import { logger } from '@/lib/logger'
 import { loadFromStorage, saveToStorage } from '@/lib/storage'
 
 export type Locale = 'ru' | 'en'
 
-const LOCALE_STORAGE_KEY = 'influra-locale'
-const LOCALE_COOKIE_NAME = 'influra-locale'
 const COOKIE_MAX_AGE = 31_536_000 // 1 year in seconds
 const SUPPORTED_LOCALES = new Set<Locale>(['ru', 'en'])
 

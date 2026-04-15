@@ -24,6 +24,7 @@ import { composeHooks } from '@/ui/hooks/compose-hooks'
 import type { WorkItemsDashboardProps, WorkItemsDashboardViewProps } from './lib'
 import { useWorkItemsDashboardProps } from './lib'
 import messages from './messages.json'
+import styles from './styles.module.css'
 
 export function WorkItemsDashboardView({
   status,
@@ -88,7 +89,7 @@ export function WorkItemsDashboardView({
         </Group>
 
         <SimpleGrid cols={{ base: 1, lg: 3 }} spacing="lg">
-          <Box style={{ gridColumn: 'span 2' }}>
+          <Box className={styles.primaryColumn}>
             <SectionCard title={messages.itemsSection}>
               <Stack gap="md">
                 <Group align="end" grow>

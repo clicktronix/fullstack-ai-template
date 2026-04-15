@@ -15,36 +15,36 @@
     "id": "landing.features.title",
     "defaultMessage": "Что входит в шаблон"
   },
-  "featureBlogsTitle": {
+  "featureSliceTitle": {
     "id": "landing.features.verticalSlice.title",
     "defaultMessage": "Vertical slice"
   },
-  "featureBlogsDescription": {
+  "featureSliceDescription": {
     "id": "landing.features.verticalSlice.description",
     "defaultMessage": "Готовый пример feature через domain, use-cases, adapters, server-state и UI"
   },
-  "featureAiSearchTitle": {
-    "id": "landing.features.aiSearch.title",
+  "featureSupabaseTitle": {
+    "id": "landing.features.supabase.title",
     "defaultMessage": "Supabase + Auth"
   },
-  "featureAiSearchDescription": {
-    "id": "landing.features.aiSearch.description",
+  "featureSupabaseDescription": {
+    "id": "landing.features.supabase.description",
     "defaultMessage": "SSR auth, server/client adapters, migrations и безопасный baseline для данных"
   },
-  "featureCampaignsTitle": {
+  "featureGuardrailsTitle": {
     "id": "landing.features.guardrails.title",
     "defaultMessage": "Guardrails"
   },
-  "featureCampaignsDescription": {
+  "featureGuardrailsDescription": {
     "id": "landing.features.guardrails.description",
     "defaultMessage": "ESLint boundaries, docs, AGENTS, skills и MCP baseline для новой команды"
   },
-  "featureAnalyticsTitle": {
-    "id": "landing.features.analytics.title",
+  "featureTestingTitle": {
+    "id": "landing.features.testing.title",
     "defaultMessage": "Testing & CI"
   },
-  "featureAnalyticsDescription": {
-    "id": "landing.features.analytics.description",
+  "featureTestingDescription": {
+    "id": "landing.features.testing.description",
     "defaultMessage": "Lint, typecheck, unit tests и E2E smoke suite уже настроены"
   },
   "footerText": {

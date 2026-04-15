@@ -26,34 +26,34 @@ import messages from './messages.json'
 import styles from './styles.module.css'
 
 type FeatureItem = {
-  titleMessage: (typeof messages)['featureBlogsTitle']
-  descriptionMessage: (typeof messages)['featureBlogsDescription']
+  titleMessage: (typeof messages)['featureSliceTitle']
+  descriptionMessage: (typeof messages)['featureSliceDescription']
   icon: React.ReactNode
   color: MantineColor
 }
 
 const features: FeatureItem[] = [
   {
-    titleMessage: messages.featureBlogsTitle,
-    descriptionMessage: messages.featureBlogsDescription,
+    titleMessage: messages.featureSliceTitle,
+    descriptionMessage: messages.featureSliceDescription,
     icon: <IconUsers size={28} aria-hidden="true" />,
     color: 'sky',
   },
   {
-    titleMessage: messages.featureAiSearchTitle,
-    descriptionMessage: messages.featureAiSearchDescription,
+    titleMessage: messages.featureSupabaseTitle,
+    descriptionMessage: messages.featureSupabaseDescription,
     icon: <IconBrain size={28} aria-hidden="true" />,
     color: 'teal',
   },
   {
-    titleMessage: messages.featureCampaignsTitle,
-    descriptionMessage: messages.featureCampaignsDescription,
+    titleMessage: messages.featureGuardrailsTitle,
+    descriptionMessage: messages.featureGuardrailsDescription,
     icon: <IconLayoutKanban size={28} aria-hidden="true" />,
     color: 'teal',
   },
   {
-    titleMessage: messages.featureAnalyticsTitle,
-    descriptionMessage: messages.featureAnalyticsDescription,
+    titleMessage: messages.featureTestingTitle,
+    descriptionMessage: messages.featureTestingDescription,
     icon: <IconChartBar size={28} aria-hidden="true" />,
     color: 'amber',
   },

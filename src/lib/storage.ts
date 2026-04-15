@@ -84,14 +84,14 @@ export function removeFromStorage(key: string): void {
  * Useful for creating typed storage helpers.
  *
  * @example
- * const chartPrefsStorage = createStorageAccessor({
- *   key: 'stokli-chart-preferences',
- *   defaultValue: { palette: 'vibrant', fontSize: 'md' },
- *   validate: isValidChartPreferences,
+ * const sidebarStorage = createStorageAccessor({
+ *   key: 'template-sidebar-preferences',
+ *   defaultValue: { collapsed: false },
+ *   validate: isValidSidebarPreferences,
  * })
  *
- * const prefs = chartPrefsStorage.load()
- * chartPrefsStorage.save({ ...prefs, palette: 'pastel' })
+ * const prefs = sidebarStorage.load()
+ * sidebarStorage.save({ ...prefs, collapsed: true })
  */
 export function createStorageAccessor<T>(options: StorageOptions<T>) {
   return {

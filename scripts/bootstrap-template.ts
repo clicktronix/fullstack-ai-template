@@ -14,6 +14,9 @@ const TEMPLATE_COOKIE = 'template-locale'
 const TEXT_FILES = [
   'README.md',
   'AGENTS.md',
+  'CLAUDE.md',
+  '.claude/settings.json',
+  'src/lib/constants.ts',
   'src/app/layout.tsx',
   'src/app/(public)/page.tsx',
   'src/app/(public)/_internal/ui/LandingView/messages.json',
@@ -101,8 +104,9 @@ async function main() {
   console.log(`Updated cookie key: ${cookieKey}`)
   console.log('Next steps:')
   console.log('1. Copy .env.example to .env.local and fill credentials')
-  console.log('2. Review README.md and AGENTS.md')
-  console.log('3. Replace the demo work-items slice with your domain')
+  console.log('2. Run bun run setup:mcp')
+  console.log('3. Review README.md, AGENTS.md, and CLAUDE.md')
+  console.log('4. Replace the demo work-items slice with your domain')
 }
 
 try {
