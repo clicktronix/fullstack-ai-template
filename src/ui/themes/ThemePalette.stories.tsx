@@ -685,7 +685,7 @@ function ChatBench({ palette }: { palette: ResolvedPalette }) {
             <Text size="xs" fw={600}>
               User
             </Text>
-            <Text size="sm">Find creators for an urban skincare launch in Almaty.</Text>
+            <Text size="sm">Review the top pilot candidates for the Q2 rollout.</Text>
           </Box>
         </Group>
       </Paper>
@@ -700,7 +700,7 @@ function ChatBench({ palette }: { palette: ResolvedPalette }) {
               Agent
             </Text>
             <Text size="sm" c={palette.colors.muted}>
-              Ranking audience overlap, reach quality and content fit.
+              Ranking implementation fit, confidence, and expected rollout impact.
             </Text>
             <Group gap={6} mt="xs">
               <Badge
@@ -736,7 +736,7 @@ function TableBench({ palette }: { palette: ResolvedPalette }) {
       <Stack gap="sm">
         <Group justify="space-between">
           <TextInput
-            value="beauty creator"
+            value="pilot candidate"
             readOnly
             leftSection={<IconSearch size={14} />}
             className={styles.search}
@@ -754,7 +754,7 @@ function TableBench({ palette }: { palette: ResolvedPalette }) {
         <Box className={styles.tableHeader} c={palette.colors.muted}>
           <Text size="xs">Item</Text>
           <Text size="xs">Status</Text>
-          <Text size="xs">Owner</Text>
+          <Text size="xs">Score</Text>
         </Box>
 
         <Paper
@@ -769,10 +769,10 @@ function TableBench({ palette }: { palette: ResolvedPalette }) {
               <IconSparkles size={14} color={palette.colors.info} />
               <Box>
                 <Text size="sm" fw={600}>
-                  @city_editor
+                  Operations workspace
                 </Text>
                 <Text size="xs" c={palette.colors.muted}>
-                  88k followers
+                  Internal adoption playbook
                 </Text>
               </Box>
             </Group>
@@ -781,7 +781,7 @@ function TableBench({ palette }: { palette: ResolvedPalette }) {
               bg={`color-mix(in srgb, ${palette.colors.success} 16%, transparent)`}
               c={palette.colors.success}
             >
-              confirmed
+              validated
             </Badge>
             <Text size="sm" fw={700} c={palette.colors.brand}>
               92%
@@ -801,10 +801,10 @@ function TableBench({ palette }: { palette: ResolvedPalette }) {
               <IconStar size={14} color={palette.colors.warning} />
               <Box>
                 <Text size="sm" fw={600}>
-                  @north_signal
+                  Support copilot
                 </Text>
                 <Text size="xs" c={palette.colors.muted}>
-                  245k followers
+                  Escalation workflow
                 </Text>
               </Box>
             </Group>
@@ -813,7 +813,7 @@ function TableBench({ palette }: { palette: ResolvedPalette }) {
               bg={`color-mix(in srgb, ${palette.colors.warning} 16%, transparent)`}
               c={palette.colors.warning}
             >
-              pending
+              review
             </Badge>
             <Text size="sm" fw={700} c={palette.colors.info}>
               78%
@@ -836,9 +836,9 @@ function SidebarBench({ palette }: { palette: ResolvedPalette }) {
             <IconUser size={18} color="white" />
           </Center>
           <Box>
-            <Text fw={700}>@city_editor</Text>
+            <Text fw={700}>Alex Morgan</Text>
             <Text size="xs" c={palette.colors.muted}>
-              lifestyle / skincare
+              program manager
             </Text>
           </Box>
         </Group>

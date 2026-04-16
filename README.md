@@ -1,169 +1,155 @@
 # fullstack-ai-template
 
-Opinionated full-stack template for AI products and B2B apps.
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green?logo=supabase)](https://supabase.com)
+[![CI](https://github.com/clicktronix/fullstack-ai-template/actions/workflows/ci.yml/badge.svg)](https://github.com/clicktronix/fullstack-ai-template/actions)
+
+Opinionated full-stack template for AI products and B2B apps, designed for rapid bootstrapping with coding agents (Claude Code, Codex, Cursor).
+
+## Quick Start
+
+```bash
+# 1. Create from template
+gh repo create my-app --template clicktronix/fullstack-ai-template --clone
+cd my-app
+
+# 2. Install
+bun install
+cp .env.example .env.local          # fill in Supabase keys
+
+# 3. Agent tooling (optional — Claude Code auto-prompts on trust)
+bun run setup:mcp                   # MCP servers
+bun run setup:skills                # marketplace plugins + Vercel skills
+
+# 4. Rename template
+bun run bootstrap -- --name=my-app --title="My App"
+
+# 5. Run
+bun run dev                         # http://localhost:3000
+```
 
 ## Stack
 
-- Next.js 16
-- React 19
-- TypeScript
-- Bun
-- Mantine
-- Valibot
-- TanStack Query
-- Zustand
-- Supabase
+| Layer           | Technology                                    |
+| --------------- | --------------------------------------------- |
+| Framework       | Next.js 16 (App Router), React 19, TypeScript |
+| UI              | Mantine 8, CSS Modules                        |
+| Validation      | Valibot (domain schemas + inferred types)     |
+| Server State    | TanStack Query                                |
+| Page UI State   | Zustand                                       |
+| Database        | Supabase (PostgreSQL + Auth)                  |
+| i18n            | React Intl                                    |
+| Package Manager | Bun                                           |
 
 ## Architecture
 
-Hybrid Clean Architecture:
+Hybrid Clean Architecture with strict layer boundaries:
 
-```text
-app/ui -> ui/server-state | feature-local actions.ts -> inbound adapters -> use-cases -> outbound adapters -> domain
+```
+app/ui → ui/server-state | actions.ts → inbound adapters → use-cases → outbound adapters → domain
 ```
 
-## What this template includes
+```mermaid
+flowchart LR
+    subgraph UI["UI Layer"]
+        App["app/"]
+        Cmp["ui/"]
+        SS["server-state/"]
+    end
+    IN["adapters/inbound/next/"]
+    UC["use-cases/"]
+    OUT["adapters/outbound/"]
+    D["domain/"]
 
-- full-stack app shell
-- auth baseline
-- Supabase adapter setup
-- `ui/server-state`
-- import boundary lint rules
-- CI baseline
-- unit + e2e baseline
-- Storybook baseline for the demo slice
-- optional Sentry wiring
-- a small AI-flavored assistant suggestions flow
-- reusable agent tooling:
-  - `AGENTS.md`
-  - `.agents`
-  - `.claude`
-  - `.mcp.json`
-- one demo vertical slice
-
-## Documentation
-
-- `AGENTS.md`
-- `docs/ARCHITECTURE/*`
-- `docs/TEMPLATE_GUIDE/*`
-
-## MCP References
-
-The template includes `.mcp.json` with:
-
-- Supabase MCP
-- Playwright MCP
-- Chrome DevTools MCP
-
-Official references:
-
-- MCP client/server concepts:
-  https://modelcontextprotocol.io/docs/learn/client-concepts
-- MCP tools specification:
-  https://modelcontextprotocol.io/specification/2025-03-26/server/tools
-- Supabase MCP:
-  https://supabase.com/mcp
-- Playwright MCP:
-  https://github.com/microsoft/playwright-mcp
-- Chrome DevTools MCP:
-  https://github.com/ChromeDevTools/chrome-devtools-mcp
-
-## Bootstrap
-
-Create your project identity before changing the demo domain:
-
-```bash
-bun run bootstrap -- --name=my-new-app --title="My New App"
+    App --> SS --> IN --> UC --> OUT --> D
+    App -.->|actions.ts| IN
+    UC --> D
 ```
 
-What it updates automatically:
+| Layer          | Path                         | Purpose                              |
+| -------------- | ---------------------------- | ------------------------------------ |
+| Domain         | `src/domain/`                | Valibot schemas, pure business rules |
+| Use-Cases      | `src/use-cases/`             | Application scenarios, ports         |
+| Outbound       | `src/adapters/outbound/`     | Supabase, external APIs              |
+| Inbound        | `src/adapters/inbound/next/` | Server Actions, route handlers       |
+| Server-State   | `src/ui/server-state/`       | TanStack Query hooks, cache          |
+| UI             | `src/app/`, `src/ui/`        | Pages, components, hooks             |
+| Infrastructure | `src/infrastructure/`        | Auth, i18n, logging                  |
 
-- `package.json` package name
-- app title and metadata
-- `README.md`
-- `AGENTS.md`
-- `CLAUDE.md`
-- landing page title/copy
-- locale cookie key
-- core template guide files
+Full architecture guide: [`docs/ARCHITECTURE/ARCHITECTURE.md`](docs/ARCHITECTURE/ARCHITECTURE.md)
 
-## Agent Tooling Setup Flow
+## Agent Tooling
 
-Use this flow for local agent tooling:
+This template ships with complete AI agent configuration:
 
-1. `bun install`
-2. `bun run bootstrap -- --name=my-new-app --title="My New App"`
-3. `bun run setup:mcp`
-4. `bun run setup:skills`
-5. If needed, `bun run setup:mcp -- --install-browsers`
+| Component               | What it does                                         |
+| ----------------------- | ---------------------------------------------------- |
+| `CLAUDE.md`             | Project context for Claude Code (188 lines, modular) |
+| `AGENTS.md`             | Project context for Codex / Cursor                   |
+| `.claude/rules/`        | 6 path-scoped rule files auto-loaded by context      |
+| `.claude/agents/`       | Code reviewer subagent                               |
+| `.claude/settings.json` | Marketplace plugins + hooks + MCP approval           |
+| `.mcp.json`             | Supabase, Playwright, Chrome DevTools MCP servers    |
 
-### Skills and plugin marketplaces
+### Marketplace Plugins (auto-install on repo trust)
 
-`bun run setup:skills` registers these upstream marketplaces and installs the corresponding plugins at project scope:
+| Marketplace                       | Plugin                    | Provides                                           |
+| --------------------------------- | ------------------------- | -------------------------------------------------- |
+| `clicktronix/react-clean-skills`  | `react-clean-skills`      | Clean Architecture + composeHooks component skills |
+| `supabase/agent-skills`           | `postgres-best-practices` | Supabase Postgres guidance                         |
+| `tanstack-skills/tanstack-skills` | `tanstack-query`          | TanStack Query patterns                            |
+| `obra/superpowers-marketplace`    | `superpowers`             | TDD, debugging, collaboration workflows            |
 
-| Source                            | Plugin                                          | Provides                                     |
-| --------------------------------- | ----------------------------------------------- | -------------------------------------------- |
-| `supabase/agent-skills`           | `postgres-best-practices@supabase-agent-skills` | Supabase Postgres best practices             |
-| `tanstack-skills/tanstack-skills` | `tanstack-query@tanstack-skills`                | TanStack Query guidance                      |
-| `obra/superpowers-marketplace`    | `superpowers@superpowers-marketplace`           | Agent workflow and discipline skills         |
-| `clicktronix/react-clean-skills`  | `react-clean-skills@react-clean-skills`         | Clean Architecture and Smart/Dumb components |
+Vercel agent-skills (installed via `bun run setup:skills`): `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`.
 
-Vercel agent-skills (no public marketplace yet) are installed via `npx skills add vercel-labs/agent-skills` and tracked in `skills-lock.json`:
+Details: [`docs/TEMPLATE_GUIDE/SKILLS_AND_PLUGINS.md`](docs/TEMPLATE_GUIDE/SKILLS_AND_PLUGINS.md)
 
-- `vercel-react-best-practices`
-- `vercel-composition-patterns`
-- `web-design-guidelines`
+## Commands
 
-Update flow:
+| Command                 | Purpose                               |
+| ----------------------- | ------------------------------------- |
+| `bun run dev`           | Development server (port 3000)        |
+| `bun run build`         | Production build                      |
+| `bun run check`         | Lint + typecheck + format + i18n sync |
+| `bun test`              | Unit tests (935 tests)                |
+| `bun run test:e2e`      | Playwright E2E                        |
+| `bun run storybook`     | Component explorer (port 6006)        |
+| `bun run bootstrap`     | Rename/rebrand template               |
+| `bun run skills:doctor` | Verify plugin install state           |
+| `bun run mcp:doctor`    | Verify MCP server state               |
 
-```bash
-claude plugin update            # marketplace plugins
-npx skills update --project     # Vercel skills
-```
+Full list: see `CLAUDE.md` → Commands section.
 
-Project-local skills live in `.agents/skills/` (mirrored to `.claude/skills/` via symlinks): `e2e-testing`, `claude-md-writer`, `project-onboarding`.
+## What's Included
 
-What this gives you:
-
-- local `@playwright/mcp`
-- local `chrome-devtools-mcp`
-- a readiness check for `.mcp.json`, Playwright browsers, and Chrome debugging
-
-Expected manual steps:
-
-1. start Chrome with `--remote-debugging-port=9222` for the Chrome DevTools MCP server
-2. connect or authenticate Supabase MCP in your MCP client if your tool requires an explicit sign-in step
+- Auth baseline (Supabase Auth, role-based access, owner auto-promotion)
+- Demo vertical slice (`work-items` + `labels` + optional AI suggestions)
+- Smart/Dumb component pattern via `composeHooks(View)(useProps)`
+- i18n with `en` + `ru` locales and auto-sync script
+- ESLint boundary rules enforcing architecture layers
+- Unit tests (Bun + Testing Library), E2E (Playwright)
+- Storybook with theme palette stories
+- CI workflow (lint, typecheck, test, e2e)
+- Docker baseline
+- Optional integrations: [Sentry](docs/TEMPLATE_GUIDE/OPTIONAL_SENTRY.md), [AI endpoint](docs/TEMPLATE_GUIDE/OPTIONAL_AI_ENDPOINT.md), [Storybook](docs/TEMPLATE_GUIDE/OPTIONAL_STORYBOOK.md)
 
 ## Environment
 
-Copy `.env.example` to `.env.local` and fill Supabase credentials.
+Copy `.env.example` to `.env.local` and fill in Supabase credentials. All other env vars are optional — see `.env.example` for documentation.
 
-Optional integrations:
+The first signed-up user becomes `owner` automatically; subsequent users start as `pending`.
 
-- Storybook: `bun run storybook`
-- Storybook guide: `docs/TEMPLATE_GUIDE/OPTIONAL_STORYBOOK.md`
-- Sentry guide: `docs/TEMPLATE_GUIDE/OPTIONAL_SENTRY.md`
-- AI suggestions endpoint:
-  - if `AI_SUGGESTIONS_API_URL` is empty, the assistant panel uses deterministic local suggestions
-  - if it is configured, the template calls your external AI service
-  - endpoint contract: `docs/TEMPLATE_GUIDE/OPTIONAL_AI_ENDPOINT.md`
+## Documentation
 
-E2E auth credentials are optional in the baseline template:
+| Document                                       | Purpose                                                             |
+| ---------------------------------------------- | ------------------------------------------------------------------- |
+| [`CLAUDE.md`](CLAUDE.md)                       | Agent project context                                               |
+| [`docs/ARCHITECTURE/`](docs/ARCHITECTURE/)     | Architecture guide, quick reference, component patterns, theming    |
+| [`docs/TESTING/`](docs/TESTING/)               | Testing strategy, patterns by layer, mocking rules                  |
+| [`docs/TEMPLATE_GUIDE/`](docs/TEMPLATE_GUIDE/) | Getting started, customization, skills setup, optional integrations |
 
-- if `E2E_USER_EMAIL` and `E2E_USER_PASSWORD` are configured, login/logout auth flows run;
-- if they are omitted, baseline E2E still verifies anonymous access control for protected routes.
+## License
 
-## First User Bootstrap
-
-- the first signed-up user becomes `owner` automatically
-- every next user is created with role `pending`
-- use the first owner account to decide how your real product should approve or promote users
-
-## Recommended Flow
-
-1. Run the bootstrap command.
-2. Fill `.env.local`.
-3. Start the app with `bun run dev`.
-4. Verify the baseline with `bun run check` and `bun run test:e2e`.
-5. Explore Storybook with `bun run storybook`.
-6. Replace the demo `work-items` slice with your own domain.
+[MIT](LICENSE)
