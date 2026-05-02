@@ -35,7 +35,7 @@ Native Claude plugins and marketplaces are declared in `.claude/settings.json` (
 | `bun run gen:types`             | Generate Supabase TypeScript types            |
 | `bun run bootstrap`             | Rename/rebrand template to a new project      |
 | `bun run setup:mcp`             | Configure MCP servers                         |
-| `bun run setup:skills`          | Install bundled Claude skills                 |
+| `bun run setup:skills`          | Install marketplace plugins + Vercel skills   |
 | `bun run skills:doctor`         | Verify skills/plugins state without changes   |
 | `bun run mcp:doctor`            | Verify MCP servers state without changes      |
 
