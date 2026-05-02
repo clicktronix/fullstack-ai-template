@@ -1,11 +1,9 @@
 import { useForm } from '@mantine/form'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useMemo, useState } from 'react'
+import { useActionState, useMemo } from 'react'
 import { type IntlShape, useIntl } from 'react-intl'
 import { email, minLength, object, pipe, string } from 'valibot'
-import { getPostLoginRedirect } from '@/lib/auth-routes'
 import { createMantineValidator } from '@/lib/create-mantine-validator'
-import { useSignUp } from '@/ui/server-state/auth/mutations'
+import { initialSignupFormState, submitSignupForm } from './actions'
 import messages from './messages.json'
 
 /**
@@ -33,7 +31,9 @@ type SignupFormValues = {
   confirmPassword: string
 }
 
-export type SignupFormProps = Record<string, never>
+export type SignupFormProps = {
+  redirectTo?: string
+}
 
 export type SignupFormViewProps = {
   fullNameLabel: string
@@ -48,15 +48,13 @@ export type SignupFormViewProps = {
   isSubmitting: boolean
   error: string | null
   confirmationEmail: string | null
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
+  formAction: (formData: FormData) => void
+  redirectTo: string
 }
 
-export function useSignupFormProps(): SignupFormViewProps {
+export function useSignupFormProps({ redirectTo = '' }: SignupFormProps): SignupFormViewProps {
   const intl = useIntl()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { mutate: signUp, isPending, error } = useSignUp()
-  const [confirmationEmail, setConfirmationEmail] = useState<string | null>(null)
+  const [state, formAction, isPending] = useActionState(submitSignupForm, initialSignupFormState)
 
   // Create localized schema once per locale change (intl object is unstable)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,31 +77,10 @@ export function useSignupFormProps(): SignupFormViewProps {
     },
   })
 
-  const handleSubmit = useCallback(
-    (values: SignupFormValues) => {
-      setConfirmationEmail(null)
-      signUp(
-        {
-          email: values.email,
-          password: values.password,
-          fullName: values.fullName,
-        },
-        {
-          onSuccess: (session) => {
-            if (session) {
-              const redirectTo = getPostLoginRedirect(searchParams)
-              router.push(redirectTo)
-              return
-            }
-
-            form.reset()
-            setConfirmationEmail(values.email)
-          },
-        }
-      )
-    },
-    [signUp, router, searchParams, form]
-  )
+  const localizedError =
+    state.errorKey === 'PASSWORDS_DO_NOT_MATCH'
+      ? intl.formatMessage(messages.validationPasswordsDoNotMatch)
+      : state.error
 
   return {
     fullNameLabel: intl.formatMessage(messages.fullNameLabel),
@@ -113,13 +90,14 @@ export function useSignupFormProps(): SignupFormViewProps {
     submitButtonLabel: intl.formatMessage(messages.submitButton),
     confirmationTitle: intl.formatMessage(messages.confirmationTitle),
     confirmationDescription: intl.formatMessage(messages.confirmationDescription, {
-      email: confirmationEmail ?? '',
+      email: state.confirmationEmail ?? '',
     }),
     loginLinkLabel: intl.formatMessage(messages.loginLinkLabel),
     form,
     isSubmitting: isPending,
-    error: error?.message ?? null,
-    confirmationEmail,
-    onSubmit: form.onSubmit(handleSubmit),
+    error: localizedError,
+    confirmationEmail: state.confirmationEmail,
+    formAction,
+    redirectTo,
   }
 }

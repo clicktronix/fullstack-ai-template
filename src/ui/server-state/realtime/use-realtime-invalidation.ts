@@ -42,9 +42,9 @@ export function useRealtimeInvalidation() {
       clearTimeout(timerRef.current)
       timerRef.current = setTimeout(() => {
         for (const queryKey of pendingKeys.current) {
-          // cancelRefetch: false — если рефетч уже в полёте (например от onSettled мутации),
-          // не отменять его и не запускать новый. Только пометить кеш stale.
-          // Для изменений от других пользователей (нет in-flight запросов) — рефетчит нормально.
+          // cancelRefetch: false keeps an in-flight refetch running, for example
+          // one started from mutation onSettled. It only marks the cache stale.
+          // Changes from other users still refetch normally when no request is in flight.
           queryClient.invalidateQueries({ queryKey }, { cancelRefetch: false })
         }
         pendingKeys.current.clear()

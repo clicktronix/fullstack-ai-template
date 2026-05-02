@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test'
 import { throwIfError, withRetry } from '../throw-supabase-error'
 
-// Хелпер для создания PostgrestError-подобных объектов
+// Helper for creating PostgrestError-like objects.
 const createPostgrestError = (
   overrides: Partial<{
     code: string

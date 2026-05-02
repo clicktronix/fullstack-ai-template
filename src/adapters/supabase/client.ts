@@ -12,24 +12,8 @@
  */
 
 import { createBrowserClient } from '@supabase/ssr'
+import { getClientEnv } from '@/infrastructure/env/client'
 import type { Database } from './types'
-
-// Environment variables with validation
-function getSupabaseUrl(): string {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  if (!url) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
-  }
-  return url
-}
-
-function getSupabaseAnonKey(): string {
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  if (!key) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
-  }
-  return key
-}
 
 /**
  * Create Supabase browser client.
@@ -41,7 +25,12 @@ function getSupabaseAnonKey(): string {
  * @returns Supabase client configured for browser environment with typed Database
  */
 export function createClient() {
-  return createBrowserClient<Database>(getSupabaseUrl(), getSupabaseAnonKey())
+  const env = getClientEnv()
+
+  return createBrowserClient<Database>(
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  )
 }
 
 /**

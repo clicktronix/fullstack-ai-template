@@ -73,12 +73,12 @@ describe('Custom Render Utilities', () => {
       expect(text.textContent).toBe('Save')
     })
 
-    test('renders component with i18n (Russian)', () => {
-      const { container } = render(<IntlComponent />, { locale: 'ru' })
+    test('renders component with explicit English locale', () => {
+      const { container } = render(<IntlComponent />, { locale: 'en' })
       const screen = within(container)
 
       const text = screen.getByTestId('intl-text')
-      expect(text.textContent).toBe('Сохранить')
+      expect(text.textContent).toBe('Save')
     })
 
     test('renders component with TanStack Query', async () => {

@@ -4,7 +4,6 @@ import {
   saveToStorage,
   removeFromStorage,
   createStorageAccessor,
-  zustandStorage,
 } from '../storage'
 
 // Mock localStorage
@@ -72,14 +71,14 @@ describe('loadFromStorage', () => {
   })
 
   test('loads string value from storage', () => {
-    mockStorage['locale'] = JSON.stringify('ru')
+    mockStorage['locale'] = JSON.stringify('en')
 
     const result = loadFromStorage({
       key: 'locale',
       defaultValue: 'en',
     })
 
-    expect(result).toBe('ru')
+    expect(result).toBe('en')
   })
 
   test('loads array from storage', () => {
@@ -137,9 +136,9 @@ describe('saveToStorage', () => {
   })
 
   test('saves string value', () => {
-    saveToStorage('locale', 'ru')
+    saveToStorage('locale', 'en')
 
-    expect(mockStorage['locale']).toBe(JSON.stringify('ru'))
+    expect(mockStorage['locale']).toBe(JSON.stringify('en'))
   })
 
   test('saves array value', () => {
@@ -253,43 +252,5 @@ describe('createStorageAccessor', () => {
     // Corrupt storage with invalid value
     mockStorage['config'] = JSON.stringify({ theme: 'invalid' })
     expect(accessor.load()).toEqual({ theme: 'light' }) // Returns default
-  })
-})
-
-describe('zustandStorage', () => {
-  test('getItem returns stored value', () => {
-    mockStorage['zustand-key'] = 'stored value'
-
-    const result = zustandStorage.getItem('zustand-key')
-
-    expect(result).toBe('stored value')
-  })
-
-  test('getItem returns null for missing key', () => {
-    const result = zustandStorage.getItem('missing')
-
-    expect(result).toBeNull()
-  })
-
-  test('setItem stores value', () => {
-    zustandStorage.setItem('zustand-key', 'new value')
-
-    expect(mockStorage['zustand-key']).toBe('new value')
-  })
-
-  test('removeItem removes value', () => {
-    mockStorage['to-remove'] = 'value'
-
-    zustandStorage.removeItem('to-remove')
-
-    expect(mockStorage['to-remove']).toBeUndefined()
-  })
-
-  test('handles errors gracefully', () => {
-    mockLocalStorage.getItem.mockImplementationOnce(() => {
-      throw new Error('Storage error')
-    })
-
-    expect(zustandStorage.getItem('key')).toBeNull()
   })
 })

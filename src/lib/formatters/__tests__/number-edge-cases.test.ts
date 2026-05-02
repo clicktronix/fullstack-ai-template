@@ -50,9 +50,9 @@ describe('formatNumber - edge cases', () => {
     )
   })
 
-  test('formats with Russian locale (space separator)', () => {
-    const result = formatNumber(1_234_567, { locale: 'ru-RU' })
-    // Russian uses space for thousands
+  test('formats with French locale (space separator)', () => {
+    const result = formatNumber(1_234_567, { locale: 'fr-FR' })
+    // French uses space/nbsp for thousands
     expect(result).toMatch(/1[\s\u00A0]234[\s\u00A0]567/)
   })
 

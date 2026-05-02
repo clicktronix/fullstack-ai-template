@@ -3,14 +3,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, mock, spyOn, test } from 'bun:test'
 import { type ReactNode } from 'react'
-import * as authApi from '@/adapters/outbound/api/auth'
+import * as authActions from '@/adapters/inbound/next/server-actions/auth'
+import * as authEvents from '@/adapters/outbound/supabase/auth-events'
 import type { User } from '@/domain/user/user'
 import { useSession, useCurrentUser } from '@/ui/server-state/auth/queries'
 
 // Mock API calls
-const mockGetSession = spyOn(authApi, 'getSession')
-const mockGetCurrentUser = spyOn(authApi, 'getCurrentUser')
-const mockOnAuthStateChange = spyOn(authApi, 'onAuthStateChange')
+const mockGetSession = spyOn(authActions, 'getSessionAction')
+const mockGetCurrentUser = spyOn(authActions, 'getCurrentUserAction')
+const mockOnAuthStateChange = spyOn(authEvents, 'onAuthStateChange')
 
 // Test fixtures
 const mockSession: Session = {
@@ -133,7 +134,7 @@ describe('useSession', () => {
   test('updates cache when auth state changes', async () => {
     mockGetSession.mockResolvedValueOnce(mockSession)
     const queryClient = createTestQueryClient()
-    let authCallback: authApi.AuthStateChangeCallback | null = null
+    let authCallback: authEvents.AuthStateChangeCallback | null = null
 
     mockOnAuthStateChange.mockImplementation((callback) => {
       authCallback = callback
@@ -239,10 +240,10 @@ describe('useCurrentUser', () => {
     // Reset the mock implementation from previous test
     mockGetCurrentUser.mockReset()
     const error = new Error('Failed to get user')
-    mockGetCurrentUser.mockRejectedValueOnce(error)
+    mockGetCurrentUser.mockRejectedValue(error)
     const queryClient = createTestQueryClient()
 
-    const { result } = renderHook(() => useCurrentUser(), {
+    const { result } = renderHook(() => useCurrentUser({ retry: false }), {
       wrapper: createWrapper(queryClient),
     })
 

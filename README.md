@@ -38,7 +38,7 @@ bun run dev                         # http://localhost:3000
 | UI              | Mantine 8, CSS Modules                        |
 | Validation      | Valibot (domain schemas + inferred types)     |
 | Server State    | TanStack Query                                |
-| Page UI State   | Zustand                                       |
+| Page UI State   | React state / reducer in feature-local hooks  |
 | Database        | Supabase (PostgreSQL + Auth)                  |
 | i18n            | React Intl                                    |
 | Package Manager | Bun                                           |
@@ -73,10 +73,20 @@ flowchart LR
 | Domain         | `src/domain/`                | Valibot schemas, pure business rules |
 | Use-Cases      | `src/use-cases/`             | Application scenarios, ports         |
 | Outbound       | `src/adapters/outbound/`     | Supabase, external APIs              |
-| Inbound        | `src/adapters/inbound/next/` | Server Actions, route handlers       |
+| Inbound        | `src/adapters/inbound/next/` | Safe Server Actions, route handlers  |
 | Server-State   | `src/ui/server-state/`       | TanStack Query hooks, cache          |
 | UI             | `src/app/`, `src/ui/`        | Pages, components, hooks             |
 | Infrastructure | `src/infrastructure/`        | Auth, i18n, logging                  |
+
+Next.js 16 defaults in this template:
+
+- `src/proxy.ts` handles session refresh, auth redirects, and security headers
+- Server Actions use `next-safe-action` with Valibot input schemas
+- Route Handlers expose service APIs with request-id envelopes and idempotent POST commands
+- cache invalidation uses centralized tags: Server Actions may call `updateTag()`, Route Handlers use `revalidateTag(tag, profile)`
+- `bun run build` uses the default Turbopack production build
+
+`src/proxy.ts` is not the authorization boundary. Server-side data access re-checks auth/authz through server-only DAL helpers and safe Server Action middleware.
 
 Full architecture guide: [`docs/ARCHITECTURE/ARCHITECTURE.md`](docs/ARCHITECTURE/ARCHITECTURE.md)
 
@@ -95,12 +105,12 @@ This template ships with complete AI agent configuration:
 
 ### Marketplace Plugins (auto-install on repo trust)
 
-| Marketplace                       | Plugin                    | Provides                                           |
-| --------------------------------- | ------------------------- | -------------------------------------------------- |
-| `clicktronix/react-clean-skills`  | `react-clean-skills`      | Clean Architecture + composeHooks component skills |
-| `supabase/agent-skills`           | `postgres-best-practices` | Supabase Postgres guidance                         |
-| `tanstack-skills/tanstack-skills` | `tanstack-query`          | TanStack Query patterns                            |
-| `obra/superpowers-marketplace`    | `superpowers`             | TDD, debugging, collaboration workflows            |
+| Marketplace                       | Plugin                    | Provides                                                              |
+| --------------------------------- | ------------------------- | --------------------------------------------------------------------- |
+| `clicktronix/nextjs-clean-skills` | `nextjs-clean-skills`     | Next.js 16 Hybrid Clean Architecture + Server/Client component skills |
+| `supabase/agent-skills`           | `postgres-best-practices` | Supabase Postgres guidance                                            |
+| `tanstack-skills/tanstack-skills` | `tanstack-query`          | TanStack Query patterns                                               |
+| `obra/superpowers-marketplace`    | `superpowers`             | TDD, debugging, collaboration workflows                               |
 
 Vercel agent-skills (installed via `bun run setup:skills`): `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`.
 
@@ -113,7 +123,7 @@ Details: [`docs/TEMPLATE_GUIDE/SKILLS_AND_PLUGINS.md`](docs/TEMPLATE_GUIDE/SKILL
 | `bun run dev`           | Development server (port 3000)        |
 | `bun run build`         | Production build                      |
 | `bun run check`         | Lint + typecheck + format + i18n sync |
-| `bun test`              | Unit tests (935 tests)                |
+| `bun test`              | Unit tests                            |
 | `bun run test:e2e`      | Playwright E2E                        |
 | `bun run storybook`     | Component explorer (port 6006)        |
 | `bun run bootstrap`     | Rename/rebrand template               |
@@ -126,8 +136,10 @@ Full list: see `CLAUDE.md` → Commands section.
 
 - Auth baseline (Supabase Auth, role-based access, owner auto-promotion)
 - Demo vertical slice (`work-items` + `labels` + optional AI suggestions)
+- Service API example (`GET/POST /api/work-items`) with idempotency and JSON error envelopes
+- Webhook example with HMAC signature verification
 - Smart/Dumb component pattern via `composeHooks(View)(useProps)`
-- i18n with `en` + `ru` locales and auto-sync script
+- i18n via React Intl with `en` baseline + auto-sync script (extensible to additional locales)
 - ESLint boundary rules enforcing architecture layers
 - Unit tests (Bun + Testing Library), E2E (Playwright)
 - Storybook with theme palette stories
@@ -139,6 +151,8 @@ Full list: see `CLAUDE.md` → Commands section.
 
 Copy `.env.example` to `.env.local` and fill in Supabase credentials. All other env vars are optional — see `.env.example` for documentation.
 
+Runtime code reads env only through `src/infrastructure/env/*`; direct `process.env` access is intentionally blocked by ESLint outside env helpers and tests.
+
 The first signed-up user becomes `owner` automatically; subsequent users start as `pending`.
 
 ## Documentation
@@ -149,6 +163,7 @@ The first signed-up user becomes `owner` automatically; subsequent users start a
 | [`docs/ARCHITECTURE/`](docs/ARCHITECTURE/)     | Architecture guide, quick reference, component patterns, theming    |
 | [`docs/TESTING/`](docs/TESTING/)               | Testing strategy, patterns by layer, mocking rules                  |
 | [`docs/TEMPLATE_GUIDE/`](docs/TEMPLATE_GUIDE/) | Getting started, customization, skills setup, optional integrations |
+| [`CHANGELOG.md`](CHANGELOG.md)                 | Template baseline release notes                                     |
 
 ## License
 

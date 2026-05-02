@@ -14,31 +14,34 @@ export function LoginFormView({
   form,
   isSubmitting,
   error,
-  onSubmit,
+  formAction,
+  redirectTo,
 }: LoginFormViewProps) {
   return (
-    <form onSubmit={onSubmit}>
+    <form action={formAction}>
       <Stack gap="lg">
         <FormErrorAlert error={error} />
 
+        <input type="hidden" name="redirect" value={redirectTo} />
+
         <FloatingTextInput
           label={emailLabel}
-          name="email"
           type="email"
           autoComplete="email"
           spellCheck={false}
           data-testid="login-email"
           key={form.key('email')}
           {...form.getInputProps('email')}
+          name="email"
         />
 
         <FloatingPasswordInput
           label={passwordLabel}
-          name="current-password"
           autoComplete="current-password"
           data-testid="login-password"
           key={form.key('password')}
           {...form.getInputProps('password')}
+          name="password"
         />
 
         <Button type="submit" loading={isSubmitting} fullWidth mt="sm" data-testid="login-submit">

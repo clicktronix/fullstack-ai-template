@@ -3,10 +3,13 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import { init } from '@sentry/nextjs'
+import { getPublicEnv } from '@/infrastructure/env/public'
 import { getSentrySendDefaultPii, getSentryTracesSampleRate } from '@/lib/sentry/config'
 
+const env = getPublicEnv()
+
 init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  dsn: env.NEXT_PUBLIC_SENTRY_DSN,
 
   // Define how likely traces are sampled. Adjust via env vars if needed.
   tracesSampleRate: getSentryTracesSampleRate(),

@@ -44,6 +44,10 @@ Optional:
 
 If E2E credentials are omitted, the template still runs anonymous access-control smoke tests.
 
+### Production environment requirements
+
+Production metadata requires an absolute site URL. Set `NEXT_PUBLIC_SITE_URL` to the public canonical URL of the deployed app. On Vercel production deployments the template can derive it from `VERCEL_PROJECT_PRODUCTION_URL` or `VERCEL_URL`; outside Vercel, missing `NEXT_PUBLIC_SITE_URL` throws during production rendering instead of silently falling back to `example.com`.
+
 ## 2.5 First user role bootstrap
 
 The baseline template promotes the first signed-up user to `owner` automatically.
@@ -69,7 +73,7 @@ If Playwright MCP browsers are missing, run:
 bun run setup:mcp -- --install-browsers
 ```
 
-`bun run setup:skills` registers four plugin marketplaces (`supabase/agent-skills`, `tanstack-skills/tanstack-skills`, `obra/superpowers-marketplace`, `clicktronix/react-clean-skills`) and installs three Vercel agent-skills via `npx skills add vercel-labs/agent-skills`. Re-run anytime to refresh. Update later with:
+`bun run setup:skills` registers four Claude Code plugin marketplaces (`supabase/agent-skills`, `tanstack-skills/tanstack-skills`, `obra/superpowers-marketplace`, `clicktronix/nextjs-clean-skills`) and installs three Vercel agent-skills via `npx skills add vercel-labs/agent-skills`. Codex reads `.agents/plugins/marketplace.json` and installs `nextjs-clean-skills` from the Git-backed marketplace entry. Re-run anytime to refresh. Update later with:
 
 ```bash
 claude plugin update            # marketplace plugins

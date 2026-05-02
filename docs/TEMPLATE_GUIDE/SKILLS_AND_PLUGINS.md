@@ -2,15 +2,16 @@
 
 How this template wires Claude Code skills and plugin marketplaces, and how to add your own.
 
-## Two install mechanisms
+## Install mechanisms
 
-| Mechanism                  | Source                                 | Where it lives                                               | Declared in                    |
-| -------------------------- | -------------------------------------- | ------------------------------------------------------------ | ------------------------------ |
-| **Native Claude plugins**  | Marketplaces on GitHub                 | `~/.claude/plugins/cache/` (per-user, not committed)         | `.claude/settings.json`        |
-| **Vercel `agent-skills`**  | `vercel-labs/agent-skills` npm package | `.claude/skills/<name>/` (gitignored, per-user)              | `skills-lock.json` (committed) |
-| **Bespoke project skills** | This repo                              | `.agents/skills/<name>/` with symlink into `.claude/skills/` | Source-controlled              |
+| Mechanism                 | Source                                  | Where it lives                                       | Declared in                        |
+| ------------------------- | --------------------------------------- | ---------------------------------------------------- | ---------------------------------- |
+| **Native Claude plugins** | Marketplaces on GitHub                  | `~/.claude/plugins/cache/` (per-user, not committed) | `.claude/settings.json`            |
+| **Codex plugins**         | Repo-local marketplace with Git sources | `~/.codex/plugins/cache/`                            | `.agents/plugins/marketplace.json` |
+| **Vercel `agent-skills`** | `vercel-labs/agent-skills` npm package  | `.claude/skills/<name>/` (gitignored, per-user)      | `skills-lock.json` (committed)     |
+| **Project-only skills**   | This repo                               | `.agents/skills/<name>/`                             | Source-controlled                  |
 
-Committed local skills (`.agents/skills/*`) coexist with plugins — they use different namespaces, no conflicts.
+Reusable skills belong in plugins. Do not copy plugin-owned `skills/` folders into `.agents/skills/`; that creates a fork that drifts from the plugin release.
 
 ## Native plugins: auto-install on trust
 
@@ -19,8 +20,8 @@ Committed local skills (`.agents/skills/*`) coexist with plugins — they use di
 ```json
 {
   "extraKnownMarketplaces": {
-    "react-clean-skills": {
-      "source": { "source": "github", "repo": "clicktronix/react-clean-skills" }
+    "nextjs-clean-skills": {
+      "source": { "source": "github", "repo": "clicktronix/nextjs-clean-skills" }
     },
     "supabase-agent-skills": {
       "source": { "source": "github", "repo": "supabase/agent-skills" }
@@ -33,7 +34,7 @@ Committed local skills (`.agents/skills/*`) coexist with plugins — they use di
     }
   },
   "enabledPlugins": {
-    "react-clean-skills@react-clean-skills": true,
+    "nextjs-clean-skills@nextjs-clean-skills": true,
     "postgres-best-practices@supabase-agent-skills": true,
     "superpowers@superpowers-marketplace": true,
     "tanstack-query@tanstack-skills": true
@@ -41,7 +42,9 @@ Committed local skills (`.agents/skills/*`) coexist with plugins — they use di
 }
 ```
 
-`architector` and `component-creator` live inside the `react-clean-skills@react-clean-skills` plugin from [`clicktronix/react-clean-skills`](https://github.com/clicktronix/react-clean-skills) — reusable across projects, versioned independently from the template.
+`nextjs-architecture` and `react-component-creator` live inside the `nextjs-clean-skills@nextjs-clean-skills` plugin from [`clicktronix/nextjs-clean-skills`](https://github.com/clicktronix/nextjs-clean-skills) — reusable across projects, versioned independently from the template.
+
+Claude Code installs that plugin from the GitHub marketplace declared in `.claude/settings.json`. Codex consumes the same plugin through `.agents/plugins/marketplace.json`, using a Git-backed `git-subdir` source pointed at the plugin repo. Update the plugin repository first; do not vendor-copy its skill files into this template.
 
 When a teammate clones the repo and trusts the folder, Claude Code **prompts them** to install declared marketplaces and plugins. This is the canonical Anthropic flow — no setup script required for the happy path.
 
@@ -77,9 +80,10 @@ The script also installs Vercel `agent-skills` via `npx skills add`, which is no
    }
    ```
 
-4. Update `scripts/setup-skills.ts` → `MARKETPLACE_PLUGINS` to match (so the CLI fallback covers it too).
-5. Commit `.claude/settings.json` and `scripts/setup-skills.ts`.
-6. Next session, Claude prompts to install. Or run `bun run setup:skills`.
+4. For Codex, add the plugin to `.agents/plugins/marketplace.json`. Prefer `git-subdir` sources for reusable plugins; use local paths only while developing a plugin in the same repo.
+5. Update `scripts/setup-skills.ts` → `MARKETPLACE_PLUGINS` to match (so the CLI fallback covers it too).
+6. Commit the settings and marketplace manifest.
+7. Next session, Claude prompts to install. Or run `bun run setup:skills`.
 
 ## Adding a new Vercel agent-skill
 
@@ -87,11 +91,13 @@ The script also installs Vercel `agent-skills` via `npx skills add`, which is no
 2. Add the output directory to `.gitignore` (pattern: `.claude/skills/<name>/`).
 3. Run `bun run setup:skills`. Commit the resulting `skills-lock.json` update.
 
-## Adding a bespoke project skill
+## Adding a project-only skill
+
+Use this only for repository-specific instructions that are not reusable. If the behavior should travel to other projects, create or update a plugin instead.
 
 1. Create `.agents/skills/<skill-name>/SKILL.md` with frontmatter + instructions.
-2. Symlink into `.claude/skills/`: `ln -s ../../.agents/skills/<skill-name> .claude/skills/<skill-name>`.
-3. Commit both (the symlink works on macOS/Linux; on Windows use the plugin path instead).
+2. Keep it project-local; do not mirror plugin content into `.agents/skills/`.
+3. Promote it to a versioned plugin once it becomes reusable.
 
 See `.claude/agents/code-reviewer.md` for a bespoke agent example.
 
@@ -106,16 +112,17 @@ Commit `skills-lock.json` changes.
 
 ## Where things go on disk
 
-| Path                        | Committed?   | Purpose                                                            |
-| --------------------------- | ------------ | ------------------------------------------------------------------ |
-| `.claude/settings.json`     | ✅           | Marketplaces, enabled plugins, hooks, MCP approval list            |
-| `.claude/rules/*.md`        | ✅           | Path-scoped rules auto-loaded by Claude                            |
-| `.claude/agents/*.md`       | ✅           | Bespoke subagents (e.g. code-reviewer)                             |
-| `.claude/skills/<bespoke>/` | ✅ (symlink) | Project-owned skills (source of truth in `.agents/skills/`)        |
-| `.claude/skills/<vercel>/`  | ❌           | Installed by `npx skills add`; regenerated from `skills-lock.json` |
-| `.claude/projects/`         | ❌           | Claude Code session memory (gitignored)                            |
-| `~/.claude/plugins/cache/`  | n/a          | Per-user native plugin cache outside the repo                      |
-| `skills-lock.json`          | ✅           | Vercel skill version pins                                          |
+| Path                       | Committed? | Purpose                                                            |
+| -------------------------- | ---------- | ------------------------------------------------------------------ |
+| `.claude/settings.json`    | ✅         | Marketplaces, enabled plugins, hooks, MCP approval list            |
+| `.claude/rules/*.md`       | ✅         | Path-scoped rules auto-loaded by Claude                            |
+| `.claude/agents/*.md`      | ✅         | Bespoke subagents (e.g. code-reviewer)                             |
+| `.agents/plugins/`         | ✅         | Codex plugin marketplace declarations                              |
+| `.agents/skills/<name>/`   | ✅         | Project-only Codex skills                                          |
+| `.claude/skills/<vercel>/` | ❌         | Installed by `npx skills add`; regenerated from `skills-lock.json` |
+| `.claude/projects/`        | ❌         | Claude Code session memory (gitignored)                            |
+| `~/.claude/plugins/cache/` | n/a        | Per-user native plugin cache outside the repo                      |
+| `skills-lock.json`         | ✅         | Vercel skill version pins                                          |
 
 ## References
 

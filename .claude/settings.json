@@ -21,7 +21,7 @@
     "superpowers@superpowers-marketplace": true,
     "postgres-best-practices@supabase-agent-skills": true,
     "tanstack-query@tanstack-skills": true,
-    "react-clean-skills@react-clean-skills": true
+    "nextjs-clean-skills@nextjs-clean-skills": true
   },
   "extraKnownMarketplaces": {
     "supabase-agent-skills": {
@@ -42,10 +42,10 @@
         "repo": "obra/superpowers-marketplace"
       }
     },
-    "react-clean-skills": {
+    "nextjs-clean-skills": {
       "source": {
         "source": "github",
-        "repo": "clicktronix/react-clean-skills"
+        "repo": "clicktronix/nextjs-clean-skills"
       }
     }
   }

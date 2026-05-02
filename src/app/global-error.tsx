@@ -17,7 +17,7 @@ type GlobalErrorPageProps = {
  */
 export default function GlobalErrorPage({ reset }: GlobalErrorPageProps) {
   return (
-    <html lang="ru" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#1a1b1e" media="(prefers-color-scheme: dark)" />
@@ -27,10 +27,10 @@ export default function GlobalErrorPage({ reset }: GlobalErrorPageProps) {
         <MantineProvider defaultColorScheme="dark">
           <Center h="100dvh">
             <Stack align="center" gap="md">
-              <Title order={1}>Что-то пошло не так</Title>
-              <Text c="dimmed">Произошла критическая ошибка</Text>
+              <Title order={1}>Something went wrong</Title>
+              <Text c="dimmed">A critical error occurred</Text>
               <Button onClick={reset} variant="outline">
-                Попробовать снова
+                Try again
               </Button>
             </Stack>
           </Center>

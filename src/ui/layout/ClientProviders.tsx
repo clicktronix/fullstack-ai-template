@@ -3,7 +3,7 @@
 import { MantineProvider } from '@mantine/core'
 import { ModalsProvider } from '@mantine/modals'
 import { NavigationProgress } from '@mantine/nprogress'
-import type { ComponentProps, ReactNode } from 'react'
+import { Suspense, type ComponentProps, type ReactNode } from 'react'
 import { IntlProvider } from 'react-intl'
 import { Notifications } from '@/lib/mantine-notifications'
 import { ErrorBoundary } from '@/ui/components/ErrorBoundary'
@@ -27,13 +27,13 @@ function IntlWrapper({ children }: { children: ReactNode }) {
 }
 
 // Outer fallback renders OUTSIDE IntlProvider/MantineProvider, so i18n and Mantine
-// are unavailable. Hardcoded Russian text is intentional (ru is the default locale).
+// are unavailable. Hardcoded English text is intentional because English is the default locale.
 const outerFallback = (
   <div className={classes.fallback}>
-    <h2>Что-то пошло не так</h2>
-    <p>Пожалуйста, перезагрузите страницу</p>
+    <h2>Something went wrong</h2>
+    <p>Please reload the page</p>
     <button type="button" onClick={() => globalThis.location.reload()}>
-      Перезагрузить
+      Reload
     </button>
   </div>
 )
@@ -55,13 +55,17 @@ export function ClientProviders({ children, modals, initialLocale }: ClientProvi
         >
           <IntlWrapper>
             <NavigationProgress />
-            <RouterProgress />
+            <Suspense fallback={null}>
+              <RouterProgress />
+            </Suspense>
             <Notifications position="top-right" zIndex={1000} />
             <QueryProvider>
               <AuthProvider>
                 <ModalsProvider modals={modals}>
                   <ErrorBoundary>
-                    <AppShell>{children}</AppShell>
+                    <Suspense fallback={children}>
+                      <AppShell>{children}</AppShell>
+                    </Suspense>
                   </ErrorBoundary>
                 </ModalsProvider>
               </AuthProvider>

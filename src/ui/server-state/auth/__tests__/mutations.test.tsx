@@ -4,13 +4,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, spyOn, test } from 'bun:test'
 import { type ReactNode } from 'react'
-import * as authApi from '@/adapters/outbound/api/auth'
+import * as authActions from '@/adapters/inbound/next/server-actions/auth'
 import { useSignIn, useSignUp, useSignOut } from '@/ui/server-state/auth/mutations'
 
 // Mock API calls
-const mockSignIn = spyOn(authApi, 'signIn')
-const mockSignUp = spyOn(authApi, 'signUp')
-const mockSignOut = spyOn(authApi, 'signOut')
+const mockSignIn = spyOn(authActions, 'signInAction')
+const mockSignUp = spyOn(authActions, 'signUpAction')
+const mockSignOut = spyOn(authActions, 'signOutAction')
 
 // Test fixtures
 const mockSession: Session = {
@@ -77,7 +77,10 @@ describe('useSignIn', () => {
       expect(result.current.isSuccess).toBe(true)
     })
 
-    expect(mockSignIn).toHaveBeenCalledWith('test@example.com', 'testCredential')
+    expect(mockSignIn).toHaveBeenCalledWith({
+      email: 'test@example.com',
+      password: 'testCredential',
+    })
     expect(mockSignIn).toHaveBeenCalledTimes(1)
   })
 
@@ -231,7 +234,11 @@ describe('useSignUp', () => {
       expect(result.current.isSuccess).toBe(true)
     })
 
-    expect(mockSignUp).toHaveBeenCalledWith('new@example.com', 'testCredential', 'New User')
+    expect(mockSignUp).toHaveBeenCalledWith({
+      email: 'new@example.com',
+      password: 'testCredential',
+      fullName: 'New User',
+    })
   })
 
   test('calls signUp without fullName when not provided', async () => {
@@ -253,7 +260,10 @@ describe('useSignUp', () => {
       expect(result.current.isSuccess).toBe(true)
     })
 
-    expect(mockSignUp).toHaveBeenCalledWith('new@example.com', 'testCredential', undefined)
+    expect(mockSignUp).toHaveBeenCalledWith({
+      email: 'new@example.com',
+      password: 'testCredential',
+    })
   })
 
   test('updates cache when session is returned', async () => {

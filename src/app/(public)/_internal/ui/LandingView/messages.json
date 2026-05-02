@@ -5,23 +5,23 @@
   },
   "subtitle": {
     "id": "landing.subtitle",
-    "defaultMessage": "Стартовая кодовая база для AI-продуктов и full-stack B2B приложений"
+    "defaultMessage": "Starter codebase for AI products and full-stack B2B applications"
   },
   "cta": {
     "id": "landing.cta",
-    "defaultMessage": "Войти"
+    "defaultMessage": "Sign In"
   },
   "featuresTitle": {
     "id": "landing.features.title",
-    "defaultMessage": "Что входит в шаблон"
+    "defaultMessage": "What the template includes"
   },
   "featureSliceTitle": {
     "id": "landing.features.verticalSlice.title",
-    "defaultMessage": "Vertical slice"
+    "defaultMessage": "Vertical Slice"
   },
   "featureSliceDescription": {
     "id": "landing.features.verticalSlice.description",
-    "defaultMessage": "Готовый пример feature через domain, use-cases, adapters, server-state и UI"
+    "defaultMessage": "A ready-to-study feature that flows through domain, use-cases, adapters, server-state, and UI."
   },
   "featureSupabaseTitle": {
     "id": "landing.features.supabase.title",
@@ -29,7 +29,7 @@
   },
   "featureSupabaseDescription": {
     "id": "landing.features.supabase.description",
-    "defaultMessage": "SSR auth, server/client adapters, migrations и безопасный baseline для данных"
+    "defaultMessage": "Supabase auth, SSR-safe adapters, and a production-ready backend integration baseline."
   },
   "featureGuardrailsTitle": {
     "id": "landing.features.guardrails.title",
@@ -37,7 +37,7 @@
   },
   "featureGuardrailsDescription": {
     "id": "landing.features.guardrails.description",
-    "defaultMessage": "ESLint boundaries, docs, AGENTS, skills и MCP baseline для новой команды"
+    "defaultMessage": "AGENTS, skills, MCP config, and import-boundary enforcement ship with the template."
   },
   "featureTestingTitle": {
     "id": "landing.features.testing.title",
@@ -45,14 +45,14 @@
   },
   "featureTestingDescription": {
     "id": "landing.features.testing.description",
-    "defaultMessage": "Lint, typecheck, unit tests и E2E smoke suite уже настроены"
+    "defaultMessage": "Lint, typecheck, unit tests, and E2E smoke coverage are already wired into CI."
   },
   "footerText": {
     "id": "landing.footer.text",
-    "defaultMessage": "Уже есть аккаунт?"
+    "defaultMessage": "Already have an account?"
   },
   "footerLogin": {
     "id": "landing.footer.login",
-    "defaultMessage": "Войти в систему"
+    "defaultMessage": "Sign in"
   }
 }

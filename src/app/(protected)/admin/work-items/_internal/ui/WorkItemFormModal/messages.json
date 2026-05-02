@@ -1,54 +1,54 @@
 {
   "createTitle": {
     "id": "workItemForm.createTitle",
-    "defaultMessage": "Создать задачу"
+    "defaultMessage": "Create work item"
   },
   "editTitle": {
     "id": "workItemForm.editTitle",
-    "defaultMessage": "Редактировать задачу"
+    "defaultMessage": "Edit work item"
   },
   "titleLabel": {
     "id": "workItemForm.titleLabel",
-    "defaultMessage": "Название"
+    "defaultMessage": "Title"
   },
   "titlePlaceholder": {
     "id": "workItemForm.titlePlaceholder",
-    "defaultMessage": "Например, подготовить onboarding flow"
+    "defaultMessage": "For example, prepare onboarding flow"
   },
   "descriptionLabel": {
     "id": "workItemForm.descriptionLabel",
-    "defaultMessage": "Описание"
+    "defaultMessage": "Description"
   },
   "descriptionPlaceholder": {
     "id": "workItemForm.descriptionPlaceholder",
-    "defaultMessage": "Коротко опишите ожидаемый результат"
+    "defaultMessage": "Describe the expected outcome briefly"
   },
   "labelsLabel": {
     "id": "workItemForm.labelsLabel",
-    "defaultMessage": "Метки"
+    "defaultMessage": "Labels"
   },
   "labelsPlaceholder": {
     "id": "workItemForm.labelsPlaceholder",
-    "defaultMessage": "Выберите метки"
+    "defaultMessage": "Select labels"
   },
   "priorityLabel": {
     "id": "workItemForm.priorityLabel",
-    "defaultMessage": "Приоритетная задача"
+    "defaultMessage": "Priority item"
   },
   "save": {
     "id": "workItemForm.save",
-    "defaultMessage": "Сохранить"
+    "defaultMessage": "Save"
   },
   "create": {
     "id": "workItemForm.create",
-    "defaultMessage": "Создать"
+    "defaultMessage": "Create"
   },
   "cancel": {
     "id": "workItemForm.cancel",
-    "defaultMessage": "Отмена"
+    "defaultMessage": "Cancel"
   },
   "validationTitleRequired": {
     "id": "workItemForm.validationTitleRequired",
-    "defaultMessage": "Введите название задачи"
+    "defaultMessage": "Enter the work item title"
   }
 }

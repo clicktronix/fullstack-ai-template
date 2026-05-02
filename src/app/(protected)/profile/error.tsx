@@ -13,10 +13,10 @@ type ErrorPageProps = {
 }
 
 /**
- * Error boundary для страницы профиля.
+ * Error boundary for the profile page.
  *
- * Рендерится внутри (protected) layout, сохраняя AppShell и навигацию.
- * Предоставляет кнопки для возврата к профилю и повторной попытки.
+ * Renders inside the (protected) layout, preserving AppShell and navigation.
+ * Provides buttons to return to the profile page and retry.
  */
 export default function ProfileErrorPage({ error, reset }: ErrorPageProps) {
   return (

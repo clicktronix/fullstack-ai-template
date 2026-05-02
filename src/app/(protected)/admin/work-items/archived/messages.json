@@ -1,10 +1,10 @@
 {
   "title": {
     "id": "archivedWorkItemsPage.title",
-    "defaultMessage": "Архив задач"
+    "defaultMessage": "Archived Work Items"
   },
   "description": {
     "id": "archivedWorkItemsPage.description",
-    "defaultMessage": "Вложенные admin-маршруты используются для архивных, детальных и вспомогательных экранов feature slice."
+    "defaultMessage": "Nested admin routes are used for archived, detail, and supporting screens inside a feature slice."
   }
 }

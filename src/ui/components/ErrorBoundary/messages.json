@@ -1,58 +1,58 @@
 {
   "title": {
     "id": "errorBoundary.title",
-    "defaultMessage": "Что-то пошло не так"
+    "defaultMessage": "Something went wrong"
   },
   "networkBadge": {
     "id": "errorBoundary.networkBadge",
-    "defaultMessage": "Сеть"
+    "defaultMessage": "Network"
   },
   "heading": {
     "id": "errorBoundary.heading",
-    "defaultMessage": "Упс! Что-то пошло не так"
+    "defaultMessage": "Oops! Something went wrong"
   },
   "defaultError": {
     "id": "errorBoundary.defaultError",
-    "defaultMessage": "Произошла непредвиденная ошибка"
+    "defaultMessage": "An unexpected error occurred"
   },
   "tryAgain": {
     "id": "errorBoundary.tryAgain",
-    "defaultMessage": "Попробовать снова"
+    "defaultMessage": "Try again"
   },
   "unknownError": {
     "id": "errorBoundary.unknownError",
-    "defaultMessage": "Неизвестная ошибка"
+    "defaultMessage": "Unknown Error"
   },
   "authRequired": {
     "id": "errorBoundary.authRequired",
-    "defaultMessage": "Требуется авторизация"
+    "defaultMessage": "Authentication Required"
   },
   "accessDenied": {
     "id": "errorBoundary.accessDenied",
-    "defaultMessage": "Доступ запрещён"
+    "defaultMessage": "Access Denied"
   },
   "notFound": {
     "id": "errorBoundary.notFound",
-    "defaultMessage": "Ресурс не найден"
+    "defaultMessage": "Resource Not Found"
   },
   "networkError": {
     "id": "errorBoundary.networkError",
-    "defaultMessage": "Ошибка сети"
+    "defaultMessage": "Network Error"
   },
   "serverError": {
     "id": "errorBoundary.serverError",
-    "defaultMessage": "Ошибка сервера"
+    "defaultMessage": "Server Error"
   },
   "requestError": {
     "id": "errorBoundary.requestError",
-    "defaultMessage": "Ошибка запроса"
+    "defaultMessage": "Request Error"
   },
   "apiError": {
     "id": "errorBoundary.apiError",
-    "defaultMessage": "Ошибка API"
+    "defaultMessage": "API Error"
   },
   "applicationError": {
     "id": "errorBoundary.applicationError",
-    "defaultMessage": "Ошибка приложения"
+    "defaultMessage": "Application Error"
   }
 }

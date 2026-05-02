@@ -36,12 +36,6 @@ describe('formatCurrency - edge cases', () => {
     )
   })
 
-  test('formats with Russian locale (space separator)', () => {
-    const result = formatCurrency(1_234_567.89, { locale: 'ru-RU', currency: 'RUB' })
-    // Russian uses space for thousands and comma for decimals
-    expect(result).toMatch(/1[\s\u00A0]234[\s\u00A0]567/)
-  })
-
   test('formats with French locale', () => {
     const result = formatCurrency(1_234_567.89, { locale: 'fr-FR', currency: 'EUR' })
     // French uses space/nbsp for thousands and comma for decimals

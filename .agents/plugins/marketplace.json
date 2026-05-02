@@ -1,0 +1,22 @@
+{
+  "name": "fullstack-ai-template-plugins",
+  "interface": {
+    "displayName": "Fullstack AI Template Plugins"
+  },
+  "plugins": [
+    {
+      "name": "nextjs-clean-skills",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/clicktronix/nextjs-clean-skills.git",
+        "path": "./plugins/nextjs-clean-skills",
+        "ref": "v1.1.0"
+      },
+      "policy": {
+        "installation": "INSTALLED_BY_DEFAULT",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -31,8 +31,8 @@ export const GC_TIME = {
   BACKGROUND_DATA: 15 * 60 * 1000,
 } as const
 
-/** Дефолтный размер страницы для серверной пагинации */
+/** Default page size for server-side pagination. */
 export const DEFAULT_PAGE_SIZE = 50
 
-/** Задержка дебаунса для фильтров (мс) */
+/** Filter debounce delay in milliseconds. */
 export const FILTER_DEBOUNCE_DELAY = 400

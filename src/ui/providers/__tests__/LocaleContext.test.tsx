@@ -1,10 +1,10 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, test } from 'bun:test'
 import { type ReactNode } from 'react'
-import { LOCALE_STORAGE_KEY } from '@/lib/constants'
+import { LOCALE_COOKIE_NAME, LOCALE_STORAGE_KEY } from '@/lib/constants'
 import { LocaleProvider, useLocale, type Locale } from '../LocaleContext'
 
-// Хелпер для создания wrapper с указанной локалью
+// Helper for creating a wrapper with the requested locale.
 function createWrapper(initialLocale?: Locale) {
   return function Wrapper({ children }: { children: ReactNode }) {
     return <LocaleProvider initialLocale={initialLocale}>{children}</LocaleProvider>
@@ -12,21 +12,21 @@ function createWrapper(initialLocale?: Locale) {
 }
 
 beforeEach(() => {
-  // Очищаем localStorage перед каждым тестом
+  // Clear localStorage before each test.
   localStorage.clear()
 })
 
 describe('LocaleProvider', () => {
-  describe('начальное состояние', () => {
-    test('использует "ru" как локаль по умолчанию', () => {
+  describe('initial state', () => {
+    test('uses "en" as the default locale', () => {
       const { result } = renderHook(() => useLocale(), {
         wrapper: createWrapper(),
       })
 
-      expect(result.current.locale).toBe('ru')
+      expect(result.current.locale).toBe('en')
     })
 
-    test('принимает initialLocale через пропсы', () => {
+    test('accepts initialLocale through props', () => {
       const { result } = renderHook(() => useLocale(), {
         wrapper: createWrapper('en'),
       })
@@ -35,25 +35,25 @@ describe('LocaleProvider', () => {
     })
   })
 
-  describe('смена локали', () => {
-    test('позволяет сменить локаль через setLocale', () => {
+  describe('locale changes', () => {
+    test('allows setting the supported locale through setLocale', async () => {
       const { result } = renderHook(() => useLocale(), {
-        wrapper: createWrapper('ru'),
+        wrapper: createWrapper('en'),
       })
 
-      act(() => {
+      await act(async () => {
         result.current.setLocale('en')
       })
 
       expect(result.current.locale).toBe('en')
     })
 
-    test('сменённая локаль сохраняется в localStorage', () => {
+    test('persists changed locale in localStorage', async () => {
       const { result } = renderHook(() => useLocale(), {
-        wrapper: createWrapper('ru'),
+        wrapper: createWrapper('en'),
       })
 
-      act(() => {
+      await act(async () => {
         result.current.setLocale('en')
       })
 
@@ -62,44 +62,69 @@ describe('LocaleProvider', () => {
     })
   })
 
-  describe('взаимодействие с localStorage', () => {
-    test('сохраняет начальную локаль в localStorage при монтировании', async () => {
+  describe('localStorage integration', () => {
+    test('persists initial locale in localStorage on mount', async () => {
       renderHook(() => useLocale(), {
         wrapper: createWrapper('en'),
       })
 
-      // useEffect с saveToStorage вызовется после рендера
+      // useEffect with saveToStorage runs after render.
       await waitFor(() => {
         const stored = localStorage.getItem(LOCALE_STORAGE_KEY)
         expect(stored).toBe('"en"')
       })
     })
 
-    test('восстанавливает локаль из localStorage при валидном значении', () => {
+    test('restores locale from localStorage when value is valid', async () => {
       localStorage.setItem(LOCALE_STORAGE_KEY, '"en"')
 
       const { result } = renderHook(() => useLocale(), {
-        wrapper: createWrapper('ru'),
+        wrapper: createWrapper('en'),
+      })
+
+      await waitFor(() => {
+        expect(result.current.locale).toBe('en')
+      })
+    })
+
+    test('restores locale from cookie when localStorage is empty', async () => {
+      const cookieDescriptor = Object.getOwnPropertyDescriptor(document, 'cookie')
+      Object.defineProperty(document, 'cookie', {
+        configurable: true,
+        get: () => `${LOCALE_COOKIE_NAME}=en`,
+        set: () => undefined,
+      })
+
+      const { result } = renderHook(() => useLocale(), {
+        wrapper: createWrapper('en'),
+      })
+
+      await waitFor(() => {
+        expect(result.current.locale).toBe('en')
+      })
+
+      if (cookieDescriptor) {
+        Object.defineProperty(document, 'cookie', cookieDescriptor)
+      } else {
+        Reflect.deleteProperty(document, 'cookie')
+      }
+    })
+
+    test('ignores invalid JSON in localStorage', () => {
+      localStorage.setItem(LOCALE_STORAGE_KEY, 'not-json')
+
+      const { result } = renderHook(() => useLocale(), {
+        wrapper: createWrapper('en'),
       })
 
       expect(result.current.locale).toBe('en')
     })
-
-    test('игнорирует некорректный JSON в localStorage', () => {
-      localStorage.setItem(LOCALE_STORAGE_KEY, 'not-json')
-
-      const { result } = renderHook(() => useLocale(), {
-        wrapper: createWrapper('ru'),
-      })
-
-      expect(result.current.locale).toBe('ru')
-    })
   })
 
-  describe('стабильность контекста', () => {
-    test('setLocale стабильна между ре-рендерами', () => {
+  describe('context stability', () => {
+    test('setLocale is stable between rerenders', () => {
       const { result, rerender } = renderHook(() => useLocale(), {
-        wrapper: createWrapper('ru'),
+        wrapper: createWrapper('en'),
       })
 
       const firstSetLocale = result.current.setLocale
@@ -108,7 +133,7 @@ describe('LocaleProvider', () => {
       expect(result.current.setLocale).toBe(firstSetLocale)
     })
 
-    test('значение контекста мемоизировано при неизменной локали', () => {
+    test('context value is memoized when locale does not change', () => {
       const values: Array<{ locale: Locale }> = []
 
       const { rerender } = renderHook(
@@ -117,20 +142,20 @@ describe('LocaleProvider', () => {
           values.push({ locale: ctx.locale })
           return ctx
         },
-        { wrapper: createWrapper('ru') }
+        { wrapper: createWrapper('en') }
       )
 
       rerender()
 
-      // Локаль не менялась — значение одинаковое
+      // Locale did not change, so the value is the same.
       expect(values[0].locale).toBe(values[1].locale)
     })
   })
 })
 
 describe('useLocale', () => {
-  test('выбрасывает ошибку при использовании вне LocaleProvider', () => {
-    // renderHook с useLocale без обёртки должен бросить ошибку
+  test('throws when used outside LocaleProvider', () => {
+    // renderHook with useLocale without a wrapper should throw.
     expect(() => {
       renderHook(() => useLocale())
     }).toThrow('useLocale must be used within LocaleProvider')

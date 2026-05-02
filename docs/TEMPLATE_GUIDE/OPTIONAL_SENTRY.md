@@ -11,6 +11,8 @@ Sentry is included in the template as an optional monitoring integration. You do
 
 These files already read environment variables and initialize `@sentry/nextjs`.
 
+Production sourcemap upload is disabled in `next.config.ts` by default. Keep it disabled for the baseline template. Enable it only after deciding how the project will upload and delete sourcemaps in CI, and verify that `.next/static` does not retain public `.map` files containing source identifiers.
+
 ## Minimal setup
 
 Add these variables to `.env.local`:

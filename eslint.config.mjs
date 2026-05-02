@@ -94,9 +94,9 @@ const eslintConfig = [
         {
           patterns: [
             {
-              group: ['@/app/**', '@/ui/**', '@/adapters/inbound/**'],
+              group: ['@/app/**', '@/ui/**', '@/adapters/inbound/**', '@/adapters/outbound/**'],
               message:
-                'Use-cases may depend on domain, infrastructure, and outbound adapters, but not on app, ui, or inbound adapters.',
+                'Use-cases may depend on domain and infrastructure only. Outbound adapters are injected through ports, never imported directly. App, ui, and inbound adapters are also forbidden.',
             },
           ],
         },
@@ -113,6 +113,10 @@ const eslintConfig = [
             {
               group: [
                 '@/app/**',
+                '@/adapters/outbound/api/**',
+                '@/adapters/outbound/transport/**',
+                '@/adapters/outbound/supabase/*.operations',
+                '@/adapters/outbound/supabase/*.repository',
                 '@/ui/components/**',
                 '@/ui/contexts/**',
                 '@/ui/layout/**',
@@ -123,7 +127,7 @@ const eslintConfig = [
                 '@/ui/themes/**',
               ],
               message:
-                'Server-state integration must stay UI-framework agnostic: no app entrypoints or presentation-layer imports.',
+                'Server-state integration must stay UI-framework agnostic: no app entrypoints, presentation-layer imports, or direct outbound data adapters. Use inbound adapters or a documented client-safe realtime/auth exception only.',
             },
           ],
         },
@@ -255,6 +259,26 @@ const eslintConfig = [
     files: ['src/use-cases/**/__tests__/**/*.ts', 'src/use-cases/**/__tests__/**/*.tsx'],
     rules: {
       'no-restricted-imports': 'off',
+    },
+  },
+  {
+    files: ['src/**/*.ts', 'src/**/*.tsx'],
+    ignores: [
+      'src/infrastructure/env/**/*.ts',
+      '**/__tests__/**/*.ts',
+      '**/__tests__/**/*.tsx',
+      '**/*.test.ts',
+      '**/*.test.tsx',
+    ],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "MemberExpression[object.object.name='process'][object.property.name='env']",
+          message:
+            'Read environment variables through src/infrastructure/env helpers instead of process.env.',
+        },
+      ],
     },
   },
   {

@@ -179,7 +179,7 @@ describe('ApiErrorBoundary', () => {
         </TestWrapper>
       )
 
-      expect(screen.getByText('Попробовать снова')).toBeDefined()
+      expect(screen.getByText('Try Again')).toBeDefined()
     })
 
     test('calls onRetry when retry button clicked', () => {
@@ -193,7 +193,7 @@ describe('ApiErrorBoundary', () => {
         </TestWrapper>
       )
 
-      fireEvent.click(screen.getByText('Попробовать снова'))
+      fireEvent.click(screen.getByText('Try Again'))
       expect(onRetry).toHaveBeenCalled()
     })
 
@@ -206,7 +206,7 @@ describe('ApiErrorBoundary', () => {
         </TestWrapper>
       )
 
-      expect(screen.queryByText('Попробовать снова')).toBeNull()
+      expect(screen.queryByText('Try Again')).toBeNull()
     })
   })
 

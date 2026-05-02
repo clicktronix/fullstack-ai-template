@@ -3,6 +3,14 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  cacheComponents: true,
+  cacheLife: {
+    'assistant-suggestions': {
+      stale: 60 * 5,
+      revalidate: 60 * 60,
+      expire: 60 * 60 * 24,
+    },
+  },
   experimental: {
     optimizePackageImports: [
       '@mantine/core',
@@ -12,14 +20,9 @@ const nextConfig: NextConfig = {
       '@mantine/charts',
       '@mantine/notifications',
       '@tabler/icons-react',
-      '@dnd-kit/core',
-      '@dnd-kit/sortable',
-      '@dnd-kit/utilities',
-      'react-intl',
       'dayjs',
       'valibot',
       '@tanstack/react-query',
-      'zustand',
     ],
   },
   trailingSlash: true,
@@ -66,12 +69,20 @@ export default withSentryConfig(nextConfig, {
   // For all available options, see:
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
-  // Upload a larger set of source maps for prettier stack traces (increases build time)
-  widenClientFileUpload: true,
+  // Turbopack + Next.js 16 can run this hook before page-data collection is complete,
+  // which may remove artifacts that Next still expects. Keep Sentry optional and do not
+  // let sourcemap upload break the baseline template build.
+  useRunAfterProductionCompileHook: false,
+
+  // Keep production browser sourcemaps off in the baseline template. They can expose
+  // source identifiers in public .next/static/*.map files if uploaded accidentally.
+  sourcemaps: {
+    disable: true,
+  },
 
   // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
   // This can increase your server load as well as your hosting bill.
-  // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
+  // Note: Check that the configured route will not match with your Next.js proxy, otherwise reporting of client-
   // side errors will fail.
   tunnelRoute: '/monitoring',
 

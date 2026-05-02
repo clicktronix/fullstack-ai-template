@@ -1,18 +1,18 @@
 {
   "errorTitle": {
     "id": "auth.oauth.error.title",
-    "defaultMessage": "{errorType, select, access_denied {Доступ запрещён} session_establishment_failed {Не удалось создать сессию} invalid_state {Недействительное состояние} server_error {Ошибка сервера} other {Ошибка аутентификации}}"
+    "defaultMessage": "{errorType, select, access_denied {Access Denied} session_establishment_failed {Session Establishment Failed} invalid_state {Invalid State} server_error {Server Error} other {Authentication Error}}"
   },
   "errorDescription": {
     "id": "auth.oauth.error.description",
-    "defaultMessage": "{errorType, select, access_denied {Вы отменили процесс аутентификации или запретили доступ к аккаунту.} session_establishment_failed {Не удалось создать сессию после аутентификации. Попробуйте войти снова.} invalid_state {Состояние аутентификации недействительно или истекло.} server_error {Произошла ошибка на сервере аутентификации. Попробуйте позже.} other {Произошла непредвиденная ошибка при аутентификации.}}"
+    "defaultMessage": "{errorType, select, access_denied {You cancelled the authentication process or denied access to your account.} session_establishment_failed {We could not establish your session after authentication. This might be a temporary issue. Please try logging in again.} invalid_state {The authentication state is invalid or expired. This might happen if you took too long to complete the login process.} server_error {An error occurred on the authentication server. Please try again later.} other {An unexpected error occurred during authentication.}}"
   },
   "detailsLabel": {
     "id": "auth.oauth.error.detailsLabel",
-    "defaultMessage": "Подробности: {description}"
+    "defaultMessage": "Details: {description}"
   },
   "returnToLoginButton": {
     "id": "auth.oauth.error.returnToLoginButton",
-    "defaultMessage": "Вернуться на страницу входа"
+    "defaultMessage": "Return to Login"
   }
 }

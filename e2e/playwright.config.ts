@@ -49,7 +49,7 @@ export default defineConfig({
     baseURL: process.env.E2E_BASE_URL ?? `http://localhost:${E2E_PORT}`,
     screenshot: 'only-on-failure',
     trace: IS_CI ? 'retain-on-failure' : 'off',
-    locale: 'ru-RU',
+    locale: 'en-US',
     viewport: { width: 1920, height: 1080 },
   },
 

@@ -1,9 +1,16 @@
+import { registerOTel } from '@vercel/otel'
+import { getRuntimeEnv } from '@/infrastructure/env/runtime'
+
 export async function register() {
-  if (process.env.NEXT_RUNTIME === 'nodejs') {
+  const runtime = getRuntimeEnv().NEXT_RUNTIME
+
+  registerOTel('fullstack-ai-template')
+
+  if (runtime === 'nodejs') {
     await import('../sentry.server.config')
   }
 
-  if (process.env.NEXT_RUNTIME === 'edge') {
+  if (runtime === 'edge') {
     await import('../sentry.edge.config')
   }
 }

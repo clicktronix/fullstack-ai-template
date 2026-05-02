@@ -1,12 +1,12 @@
+import { cacheLife, cacheTag } from 'next/cache'
 import { parse } from 'valibot'
 import {
   AssistantSuggestionsResultSchema,
   type AssistantSuggestionsResult,
 } from '@/domain/assistant-suggestion/assistant-suggestion'
+import { cacheTags } from '@/infrastructure/cache/tags'
+import { getServerEnv } from '@/infrastructure/env/server'
 import type { AssistantSuggestionsGateway } from '@/use-cases/assistant-suggestions/ports'
-
-const AI_SUGGESTIONS_API_URL = process.env.AI_SUGGESTIONS_API_URL
-const AI_SUGGESTIONS_API_KEY = process.env.AI_SUGGESTIONS_API_KEY
 
 function buildFallbackSuggestions(
   input: Parameters<AssistantSuggestionsGateway['generate']>[0]
@@ -55,31 +55,45 @@ function buildFallbackSuggestions(
   })
 }
 
-export function createAssistantSuggestionsGateway(): AssistantSuggestionsGateway {
+async function fetchAssistantSuggestionsFromApi(
+  input: Parameters<AssistantSuggestionsGateway['generate']>[0],
+  userId: string
+): Promise<AssistantSuggestionsResult> {
+  'use cache'
+
+  cacheLife('assistant-suggestions')
+  cacheTag(cacheTags.assistantSuggestions.externalApi)
+  cacheTag(cacheTags.assistantSuggestions.user(userId))
+
+  const env = getServerEnv()
+  const apiUrl = env.AI_SUGGESTIONS_API_URL
+
+  if (!apiUrl) {
+    return buildFallbackSuggestions(input)
+  }
+
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(env.AI_SUGGESTIONS_API_KEY
+        ? { Authorization: `Bearer ${env.AI_SUGGESTIONS_API_KEY}` }
+        : {}),
+    },
+    body: JSON.stringify(input),
+  })
+
+  if (response.ok) {
+    return parse(AssistantSuggestionsResultSchema, await response.json())
+  }
+
+  throw new Error(`Assistant suggestions API error: ${response.status} ${response.statusText}`)
+}
+
+export function createAssistantSuggestionsGateway(userId: string): AssistantSuggestionsGateway {
   return {
     async generate(input) {
-      if (AI_SUGGESTIONS_API_URL) {
-        const response = await fetch(AI_SUGGESTIONS_API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(AI_SUGGESTIONS_API_KEY
-              ? { Authorization: `Bearer ${AI_SUGGESTIONS_API_KEY}` }
-              : {}),
-          },
-          body: JSON.stringify(input),
-        })
-
-        if (response.ok) {
-          return parse(AssistantSuggestionsResultSchema, await response.json())
-        }
-
-        throw new Error(
-          `Assistant suggestions API error: ${response.status} ${response.statusText}`
-        )
-      }
-
-      return buildFallbackSuggestions(input)
+      return fetchAssistantSuggestionsFromApi(input, userId)
     },
   }
 }

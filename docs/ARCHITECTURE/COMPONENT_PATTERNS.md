@@ -1,6 +1,6 @@
 # Component Patterns
 
-> This document is the **in-repo reference** for Smart/Dumb component patterns in this template. For interactive scaffolding of new components, the `component-creator` skill (installed via the [`react-clean-skills`](https://github.com/clicktronix/react-clean-skills) marketplace) applies the same conventions programmatically. This doc is the rationale; the skill is the executor.
+> This document is the **in-repo reference** for Server/Client component patterns in this template. For interactive scaffolding of new components, the `react-component-creator` skill (installed via the [`nextjs-clean-skills`](https://github.com/clicktronix/nextjs-clean-skills) marketplace) applies the same conventions programmatically. This doc is the rationale; the skill is the executor.
 
 ## Philosophy
 
@@ -11,7 +11,7 @@ Components in the application follow the **Smart/Dumb** separation principle thr
 - ✅ Composition without prop drilling
 - ✅ Type safety
 
-**ВАЖНО:** `composeHooks` обязателен для всех компонентов, содержащих логику (useState, useEffect, useQuery, и т.д.).
+**IMPORTANT:** `composeHooks` is required for every component that contains logic (useState, useEffect, useQuery, and so on).
 
 ## UI Boundaries
 
@@ -74,27 +74,27 @@ Component/
 
 ## composeHooks Pattern
 
-### Принцип работы
+### How It Works
 
-`composeHooks` **автоматически проксирует все props** в хук и во View компонент:
+`composeHooks` **automatically proxies all props** into the hook and the View component:
 
 ```tsx
-// Как работает composeHooks внутри:
+// How composeHooks works internally:
 function ComposedComponent(props) {
-  // 1. Props автоматически передаются в хук
+  // 1. Props are automatically passed into the hook.
   const hookResult = useProps(props)
 
-  // 2. Props + результат хука объединяются и передаются во View
-  // Props имеют приоритет над результатом хука
+  // 2. Props and the hook result are merged and passed into View.
+  // Props take precedence over the hook result.
   return <View {...props} {...hookResult} />
 }
 ```
 
-**Важно:**
+**Important:**
 
-- Хук получает ВСЕ props автоматически — не нужно явно передавать каждый prop
-- Хук должен деструктурировать только те props, которые ему нужны
-- Props, переданные в компонент, перезаписывают результат хука (для override)
+- The hook receives ALL props automatically, so you do not need to pass each prop manually
+- The hook should destructure only the props it needs
+- Props passed to the component override the hook result when an override is needed
 
 ### Basic Example
 
@@ -132,7 +132,7 @@ export type ComponentProps = {
   initialTitle?: string
 }
 
-// ✅ Хук получает props автоматически — деструктурируем только нужные
+// ✅ The hook receives props automatically, so destructure only what it needs.
 export function useComponentProps({ initialTitle = 'Default' }: ComponentProps) {
   const [count, setCount] = useState(0)
 
@@ -153,19 +153,19 @@ function App() {
 }
 ```
 
-### Anti-Pattern: Не передавайте все props явно
+### Anti-Pattern: Do Not Pass Every Prop Manually
 
 ```tsx
-// ❌ BAD: Явная передача всех props в хук
+// ❌ BAD: Manually passing all props into the hook.
 export function useComponentProps(props: ComponentProps) {
   const { user, config, onUpdate, isLoading, error } = props
   // ...
-  return { ...props /* дополнительные поля */ }
+  return { ...props /* additional fields */ }
 }
 
-// ✅ GOOD: Деструктурируем только нужные props
+// ✅ GOOD: Destructure only the props that are needed.
 export function useComponentProps({ user, config }: ComponentProps) {
-  // Остальные props (onUpdate, isLoading, error) проксируются автоматически
+  // The remaining props (onUpdate, isLoading, error) are proxied automatically.
   const displayName = getUserDisplayName(user)
   return { displayName }
 }
@@ -534,7 +534,7 @@ export function usePartialProps() {
 
 ## Usage Patterns
 
-### 1. Simple Presentation Component (без логики)
+### 1. Simple Presentation Component (No Logic)
 
 ```tsx
 // Component/index.tsx
@@ -544,7 +544,7 @@ export type ButtonProps = {
   variant?: 'primary' | 'secondary'
 }
 
-// ✅ Без composeHooks — компонент не содержит логики
+// ✅ No composeHooks, because the component contains no logic.
 export function Button({ label, onClick, variant = 'primary' }: ButtonProps) {
   return (
     <button className={styles[variant]} onClick={onClick}>
@@ -554,9 +554,9 @@ export function Button({ label, onClick, variant = 'primary' }: ButtonProps) {
 }
 ```
 
-**Когда использовать:** Компонент не содержит логики (useState, useEffect, useQuery), только рендерит props.
+**When to use:** The component has no logic (useState, useEffect, useQuery) and only renders props.
 
-### 2. Component with Local Logic (ОБЯЗАТЕЛЬНО composeHooks)
+### 2. Component with Local Logic (composeHooks Required)
 
 ```tsx
 // Component/index.tsx
@@ -586,9 +586,9 @@ export function useAccordionProps() {
 }
 ```
 
-**Когда использовать:** Компонент содержит внутреннюю логику (state, effects). **composeHooks обязателен**.
+**When to use:** The component contains internal logic (state, effects). **composeHooks is required**.
 
-### 3. Component with API Data (ОБЯЗАТЕЛЬНО composeHooks)
+### 3. Component with API Data (composeHooks Required)
 
 ```tsx
 // Component/lib.ts
@@ -606,27 +606,28 @@ export function useUserListProps() {
 }
 ```
 
-**Когда использовать:** Компонент загружает данные с сервера. **composeHooks обязателен**.
+**When to use:** The component loads server data. **composeHooks is required**.
 
-### 4. Component with a Zustand Store (ОБЯЗАТЕЛЬНО composeHooks)
+### 4. Component with Page-Local State (composeHooks Required)
 
 ```tsx
 // Component/lib.ts
 export function useDashboardHeaderProps() {
-  const { isFullScreen, toggleFullScreen } = useDashboardUIStore()
-  const { widgets } = useDashboardLayoutStore()
+  const [isFullScreen, setIsFullScreen] = useState(false)
+  const [widgets, setWidgets] = useState<DashboardWidget[]>([])
 
   return {
     widgetCount: widgets.length,
     isFullScreen,
-    onToggleFullScreen: toggleFullScreen,
+    onToggleFullScreen: () => setIsFullScreen((value) => !value),
+    onWidgetsChange: setWidgets,
   }
 }
 ```
 
-**Когда использовать:** Компонент использует UI-состояние страницы. **composeHooks обязателен**.
+**When to use:** The component uses page UI state. Keep that state near the feature segment; add a dedicated store only after a real shared state model appears. **composeHooks is required**.
 
-### 5. Component with a Global Context (ОБЯЗАТЕЛЬНО composeHooks)
+### 5. Component with a Global Context (composeHooks Required)
 
 ```tsx
 // Component/lib.ts
@@ -643,18 +644,17 @@ export function useHeaderProps() {
 }
 ```
 
-**Когда использовать:** Компонент использует глобальное состояние (user, theme). **composeHooks обязателен**.
+**When to use:** The component uses global state (user, theme). **composeHooks is required**.
 
-### 6. Combined Component (API + Store + Context) — composeHooks обязателен
+### 6. Combined Component (API + Local State + Context) — composeHooks Required
 
 ```tsx
 // Component/lib.ts
 import { useUser } from '@/ui/providers/AuthContext'
-import { useDashboardUIStore } from '../stores/dashboardUIStore'
 
 export function useDashboardViewProps() {
   const { user } = useUser()
-  const { isModalOpen, openModal, closeModal } = useDashboardUIStore()
+  const [isModalOpen, setModalOpen] = useState(false)
 
   const { data: layout } = useQuery({
     queryKey: ['dashboard', user?.id],
@@ -666,13 +666,13 @@ export function useDashboardViewProps() {
     userName: user?.name ?? 'User',
     widgetCount: layout?.widgets.length ?? 0,
     isModalOpen,
-    onOpenModal: openModal,
-    onCloseModal: closeModal,
+    onOpenModal: () => setModalOpen(true),
+    onCloseModal: () => setModalOpen(false),
   }
 }
 ```
 
-**Когда использовать:** Компонент использует несколько источников данных. **composeHooks обязателен**.
+**When to use:** The component uses several data sources. **composeHooks is required**.
 
 ---
 
@@ -833,9 +833,21 @@ export function ComponentView({ onSave }: Props) {
 
 ## Internationalization
 
-### TranslationText Component (рекомендуемый способ)
+### Locale detection
 
-`TranslationText` — компонент для локализованного текста, который объединяет `Text` из Mantine с `FormattedMessage` из react-intl:
+The app resolves locale in this order:
+
+1. `localStorage`
+2. Locale cookie (`LOCALE_COOKIE_NAME`)
+3. Default locale (`en`)
+
+`src/proxy.ts` persists the detected locale cookie from `Accept-Language` on the first request. `LocaleProvider` reads that cookie on mount if localStorage does not already contain a user preference.
+
+Do not read `cookies()` or `headers()` in the root layout just to set locale: with Cache Components, request-time APIs must be inside a `Suspense` boundary. If a product needs fully localized HTML on the first byte, model locale as a route segment or do a dedicated i18n migration.
+
+### TranslationText Component (Recommended)
+
+`TranslationText` is a localized text component that combines Mantine `Text` with react-intl `FormattedMessage`:
 
 ```tsx
 import { TranslationText } from '@/ui/components/TranslationText'
@@ -850,16 +862,16 @@ import messages from './messages.json'
 export function ComponentView() {
   return (
     <Stack>
-      {/* Базовое использование */}
+      {/* Basic usage */}
       <TranslationText {...messages.title} />
 
-      {/* С Mantine Text props */}
+      {/* With Mantine Text props */}
       <TranslationText {...messages.title} size="lg" fw={600} c="blue" />
 
-      {/* С интерполяцией значений */}
+      {/* With interpolated values */}
       <TranslationText {...messages.description} values={{ name: 'John' }} />
 
-      {/* С кастомными элементами в values */}
+      {/* With custom elements in values */}
       <TranslationText
         {...messages.terms}
         values={{
@@ -875,20 +887,20 @@ export function ComponentView() {
 
 ```tsx
 type TranslationTextProps = {
-  id: string // ID перевода
-  defaultMessage: string // Fallback текст
-  description?: string // Описание для переводчиков
-  values?: TranslationValues // Значения для интерполяции
-} & TextProps // Все props из Mantine Text (size, fw, c, ta, и т.д.)
+  id: string // Translation ID
+  defaultMessage: string // Fallback text
+  description?: string // Description for translators
+  values?: TranslationValues // Values for interpolation
+} & TextProps // All Mantine Text props (size, fw, c, ta, and so on)
 ```
 
-**Важно:**
+**Important:**
 
-- Всегда используйте `TranslationText` вместо `<Text>{messages.text}</Text>`
-- Не используйте `useIntl().formatMessage()` когда можно использовать `TranslationText`
-- `TranslationText` рендерится как `<span>` внутри `<Text>`
+- Always use `TranslationText` instead of `<Text>{messages.text}</Text>`
+- Do not use `useIntl().formatMessage()` when `TranslationText` is enough
+- `TranslationText` renders as a `<span>` inside `<Text>`
 
-### messages.json структура
+### messages.json Structure
 
 ```json
 // Component/messages.json
@@ -912,9 +924,9 @@ type TranslationTextProps = {
 }
 ```
 
-### Когда использовать useIntl напрямую
+### When to Use useIntl Directly
 
-Используйте `useIntl` только когда нужен форматированный текст **не** внутри JSX:
+Use `useIntl` only when formatted text is needed **outside** JSX:
 
 ```tsx
 import { useIntl } from 'react-intl'
@@ -922,10 +934,10 @@ import { useIntl } from 'react-intl'
 export function useComponentProps() {
   const intl = useIntl()
 
-  // ✅ Для aria-label, placeholder, title атрибутов
+  // ✅ For aria-label, placeholder, and title attributes.
   const ariaLabel = intl.formatMessage({ id: 'button.save', defaultMessage: 'Save' })
 
-  // ✅ Для передачи в библиотеки, которые принимают string
+  // ✅ For passing text into libraries that accept strings.
   const dialogTitle = intl.formatMessage({
     id: 'workItems.dialogTitle',
     defaultMessage: 'Work item',
@@ -936,9 +948,9 @@ export function useComponentProps() {
 ```
 
 ```tsx
-// В компоненте
+// In the component
 <Button aria-label={ariaLabel}>
-  <TranslationText {...messages.save} /> {/* Внутри JSX - TranslationText */}
+  <TranslationText {...messages.save} /> {/* Inside JSX, use TranslationText */}
 </Button>
 ```
 
@@ -946,7 +958,7 @@ export function useComponentProps() {
 
 ## useFormatters Hook
 
-`useFormatters` — хук для форматирования чисел и валют с учетом текущей локали:
+`useFormatters` is a hook for formatting numbers and currencies according to the current locale:
 
 ```tsx
 import { useFormatters } from '@/ui/hooks/use-formatters'
@@ -955,72 +967,67 @@ export function useStatsProps({ value, change }: StatsProps) {
   const { currency, compactCurrency, percentage, ratio } = useFormatters()
 
   return {
-    displayValue: currency(value), // "$1,234.56" или "1 234,56 ₽"
-    displayCompact: compactCurrency(value), // "$1.2M" или "1,2M ₽"
+    displayValue: currency(value), // "$1,234.56" or "1 234,56 RUB"
+    displayCompact: compactCurrency(value), // "$1.2M" or "1.2M RUB"
     displayChange: percentage(change), // "15.5%"
     displayRatio: ratio(1.234), // "1.23"
   }
 }
 ```
 
-### Для графиков используйте стабильные форматтеры
+### Use Stable Formatters for Charts
 
 ```tsx
 export function useChartProps() {
   const { compactCurrencyFormatter, ratioFormatter, percentageFormatter } = useFormatters()
 
   return {
-    // ✅ Стабильные ссылки — не вызывают перерендер графика
+    // ✅ Stable references do not rerender the chart.
     valueFormatter: compactCurrencyFormatter,
   }
 }
 
-// View компонент
+// View component
 function ChartView({ valueFormatter }: ChartViewProps) {
   return <BarChart valueFormatter={valueFormatter} />
 }
 ```
 
-**Доступные методы:**
+**Available methods:**
 
-| Метод                    | Описание                  | Пример      |
-| ------------------------ | ------------------------- | ----------- |
-| `currency(value)`        | Полный формат валюты      | `$1,234.56` |
-| `compactCurrency(value)` | Компактный формат (B/M/K) | `$1.5B`     |
-| `number(value)`          | Число с разделителями     | `1,234,567` |
-| `compactNumber(value)`   | Компактное число          | `1.5M`      |
-| `ratio(value)`           | Коэффициент               | `1.23`      |
-| `percentage(value)`      | Процент                   | `15.5%`     |
+| Method                   | Description            | Example     |
+| ------------------------ | ---------------------- | ----------- |
+| `currency(value)`        | Full currency format   | `$1,234.56` |
+| `compactCurrency(value)` | Compact format (B/M/K) | `$1.5B`     |
+| `number(value)`          | Grouped number         | `1,234,567` |
+| `compactNumber(value)`   | Compact number         | `1.5M`      |
+| `ratio(value)`           | Ratio                  | `1.23`      |
+| `percentage(value)`      | Percentage             | `15.5%`     |
 
 ---
 
 ## Custom Hooks Library
 
-Проект включает набор переиспользуемых хуков для типичных UI-паттернов.
+The project includes only small reusable hooks that are already used in the template. Do not add a generic UI-library surface in advance: if a hook is needed by only one feature, keep it next to that feature in `_internal/`.
 
-### useModalState
+### Local Modal State
 
-Управление состоянием модальных окон с удобным API.
+For regular modals, use local state or Mantine `useDisclosure`. For URL-addressable modals, use the parallel/intercepting routes described below.
 
 ```typescript
-import { useModalState } from '@/ui/hooks/use-modal-state'
+import { useDisclosure } from '@mantine/hooks'
 
-// Модальное окно
-const modal = useModalState()
-
-// Для нескольких модалок - используйте отдельные вызовы
-const editModal = useModalState()
-const deleteModal = useModalState()
+const [opened, handlers] = useDisclosure(false)
 ```
 
-**Пример использования:**
+**Usage example:**
 
 ```tsx
 export function useSettingsProps() {
-  const editModal = useModalState()
+  const [editModalOpened, editModal] = useDisclosure(false)
 
   return {
-    editModalOpened: editModal.opened,
+    editModalOpened,
     onOpenEdit: editModal.open,
     onCloseEdit: editModal.close,
   }
@@ -1038,83 +1045,66 @@ export function SettingsView({ editModalOpened, onOpenEdit, onCloseEdit }: ViewP
 }
 ```
 
-**API:**
+**When to use:**
 
-| Свойство   | Тип                   | Описание                  |
-| ---------- | --------------------- | ------------------------- |
-| `opened`   | `boolean`             | Открыто ли модальное окно |
-| `open()`   | `() => void`          | Открыть модаль            |
-| `close()`  | `() => void`          | Закрыть модаль            |
-| `toggle()` | `() => void`          | Переключить состояние     |
-| `props`    | `{ opened, onClose }` | Props для spread на Modal |
-
-**Когда использовать:**
-
-- ✅ Управление модальными окнами
-- ✅ Диалоги подтверждения
-- ✅ Формы добавления/редактирования
-- ❌ Глобальная система модалей (используйте Zustand)
+- ✅ Modal state management
+- ✅ Confirmation dialogs
+- ✅ Create/edit forms
+- ❌ URL-addressable detail modal (use `@modal` + an intercepting route)
 
 ---
 
-### useLocalStorage
+### Browser Storage
 
-SSR-safe работа с localStorage с автоматической синхронизацией.
+For small browser-only preferences, use `src/lib/storage.ts`. Do not read `localStorage` in Server Components.
 
 ```typescript
-import { useLocalStorage, useLocalStorageValue } from '@/ui/hooks/use-local-storage'
+import { createStorageAccessor } from '@/lib/storage'
 
-// С автосохранением
-const [settings, setSettings] = useLocalStorage('app-settings', { theme: 'dark' })
-
-// Только чтение
-const initialSettings = useLocalStorageValue('app-settings', {})
+const workItemsViewStorage = createStorageAccessor({
+  key: 'work-items-view',
+  defaultValue: 'list' as const,
+})
 ```
 
-**Пример использования:**
+**Usage example:**
 
 ```tsx
 export function useThemeProps() {
-  const [preferences, setPreferences] = useLocalStorage('user-prefs', {
-    theme: 'dark',
-    fontSize: 14,
-  })
+  const [theme, setTheme] = useState(() => workItemsViewStorage.load())
 
-  const handleThemeChange = useCallback(
-    (theme: string) => {
-      setPreferences((prev) => ({ ...prev, theme }))
-    },
-    [setPreferences]
-  )
+  const handleThemeChange = useCallback((theme: string) => {
+    setTheme(theme)
+    workItemsViewStorage.save(theme)
+  }, [])
 
   return {
-    theme: preferences.theme,
+    theme,
     onThemeChange: handleThemeChange,
   }
 }
 ```
 
-**Особенности:**
+**Features:**
 
-- ✅ Защита от SSR hydration mismatch
-- ✅ Функциональные обновления как в useState
-- ✅ Автоматическое сохранение при изменении
-- ✅ JSON сериализация/десериализация
-- ✅ Обработка ошибок (quota, недоступность)
+- ✅ Protection from SSR hydration mismatch
+- ✅ Functional updates like useState
+- ✅ JSON serialization/deserialization
+- ✅ Error handling for quota and unavailable storage
 
-**Когда использовать:**
+**When to use:**
 
-- ✅ Предпочтения пользователя
-- ✅ Кэширование фильтров и настроек UI
-- ✅ Состояние, сохраняемое между сессиями
-- ❌ Конфиденциальные данные (используйте httpOnly cookies)
-- ❌ Большие объемы данных (лимит ~5MB)
+- ✅ User preferences
+- ✅ Filter and UI settings caching
+- ✅ State persisted between sessions
+- ❌ Sensitive data (use httpOnly cookies)
+- ❌ Large data volumes (about 5 MB limit)
 
 ---
 
 ### useServerActionForm
 
-Интеграция Mantine форм с Next.js Server Actions.
+Mantine form integration with Next.js Server Actions.
 
 ```typescript
 import { useServerActionForm } from '@/ui/hooks/server-action-form/use-server-action-form'
@@ -1129,7 +1119,7 @@ const { form, onSubmit, isSubmitting, reset } = useServerActionForm({
 })
 ```
 
-**Пример использования:**
+**Usage example:**
 
 ```tsx
 // adapters/inbound/next/server-actions/users.ts
@@ -1175,92 +1165,141 @@ export function ProfileFormView({ form, onSubmit, isSubmitting }: ViewProps) {
 }
 ```
 
-**Особенности:**
+**Features:**
 
-- ✅ useTransition для неблокирующих обновлений
-- ✅ Встроенная валидация через Mantine
-- ✅ Автоматические уведомления (success/error)
-- ✅ Типизированный результат сервера
+- ✅ useTransition for non-blocking updates
+- ✅ Built-in validation through Mantine
+- ✅ Automatic success/error notifications
+- ✅ Typed server result
 
-**Когда использовать:**
+**When to use:**
 
-- ✅ Формы с серверной обработкой (CRUD)
-- ✅ Валидация на клиенте и сервере
-- ❌ Загрузка данных с кэшированием/рефетчами (используйте React Query; для SSR — prefetch + HydrationBoundary)
-- ❌ Загрузка файлов (используйте FormData напрямую)
+- ✅ Forms with server-side CRUD handling
+- ✅ Client and server validation
+- ❌ Data loading with caching/refetches (use React Query; for SSR, use prefetch + HydrationBoundary)
+- ❌ File uploads (use FormData directly)
 
 ---
 
-### useUrlState
+### Progressive Forms with `useActionState`
 
-Синхронизация состояния с URL параметрами.
+Login/signup and other no-JS-critical forms should use React 19 `useActionState` with a real form action. Keep the Server Action wrapper feature-local, then delegate into the inbound adapter.
 
-```typescript
-import { useUrlState, useUrlStateWithStorage } from '@/ui/hooks/use-url-state'
+```tsx
+// _internal/ui/LoginForm/actions.ts
+'use server'
 
-// Базовое использование
-const { value, setValue, clear } = useUrlState<string>({ param: 'q' })
+export async function submitLoginForm(
+  _previousState: LoginFormState,
+  formData: FormData
+): Promise<LoginFormState> {
+  const result = await signInAction({
+    email: getFormString(formData, 'email'),
+    password: getFormString(formData, 'password'),
+  })
 
-// С localStorage fallback
-const viewMode = useUrlStateWithStorage({
-  param: 'view',
-  storageKey: 'work-items-view',
-  defaultValue: 'list',
-})
+  redirect(getPostLoginRedirect(formData))
+}
 ```
 
-**Пример использования:**
+```tsx
+// _internal/ui/LoginForm/lib.ts
+const [state, formAction, isSubmitting] = useActionState(submitLoginForm, initialLoginFormState)
+```
+
+```tsx
+// _internal/ui/LoginForm/index.tsx
+export function LoginFormView({ formAction, isSubmitting, error }: LoginFormViewProps) {
+  return (
+    <form action={formAction}>
+      <FormErrorAlert error={error} />
+      <FloatingTextInput name="email" autoComplete="email" />
+      <FloatingPasswordInput name="password" autoComplete="current-password" />
+      <Button type="submit" loading={isSubmitting}>
+        Sign in
+      </Button>
+    </form>
+  )
+}
+```
+
+Use this pattern when the form must submit before client JavaScript hydrates. Use `useServerActionForm` for already-client-side CRUD forms that need Mantine client validation and notifications.
+
+---
+
+### URL State
+
+For shareable filters and pagination, keep canonical state in the URL. In Server Components, accept `searchParams`; in Client Components, use `useSearchParams()` + `router.replace()` inside a feature-local hook when interactive synchronization is needed.
+
+```typescript
+export default async function WorkItemsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; page?: string }>
+}) {
+  const params = await searchParams
+  return <WorkItemsDashboard initialQuery={params.q ?? ''} />
+}
+```
+
+**Usage example:**
 
 ```tsx
 export function useSearchProps() {
-  const { value: query, setValue: setQuery } = useUrlState<string>({
-    param: 'q',
-  })
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
-  const { value: page, setValue: setPage } = useUrlState<number>({
-    param: 'page',
-    parse: (v) => parseInt(v, 10),
-    serialize: (v) => String(v),
-  })
+  const query = searchParams.get('q') ?? ''
+
+  const setQuery = (value: string) => {
+    const next = new URLSearchParams(searchParams)
+    if (value) next.set('q', value)
+    else next.delete('q')
+    router.replace(`${pathname}?${next.toString()}`)
+  }
 
   return {
-    query: query ?? '',
-    page: page ?? 1,
+    query,
     onQueryChange: setQuery,
-    onPageChange: setPage,
   }
-}
-
-// С localStorage fallback
-export function useDashboardProps() {
-  const { value: viewMode } = useUrlState<string>({
-    param: 'view',
-    fallback: () => localStorage.getItem('work-items-view'),
-    onChange: (value) => value && localStorage.setItem('work-items-view', value),
-  })
-
-  return { viewMode: viewMode ?? 'list' }
 }
 ```
 
-**API:**
+**When to use:**
 
-| Опция       | Тип               | Описание                            |
-| ----------- | ----------------- | ----------------------------------- |
-| `param`     | `string`          | Имя URL параметра                   |
-| `parse`     | `(str) => T`      | Парсер строки в тип                 |
-| `serialize` | `(val) => string` | Сериализатор типа в строку          |
-| `fallback`  | `() => T \| null` | Функция для default значения        |
-| `onChange`  | `(val) => void`   | Callback при изменении              |
-| `replace`   | `boolean`         | replace вместо push (default: true) |
-
-**Когда использовать:**
-
-- ✅ Фильтры с сохранением в URL (bookmarks, sharing)
-- ✅ Пагинация, сортировка, поиск
+- ✅ Filters persisted in the URL (bookmarks, sharing)
+- ✅ Pagination, sorting, search
 - ✅ Deep linking
-- ❌ Конфиденциальные данные (видны в URL)
-- ❌ Большие объемы данных (лимит длины URL)
+- ❌ Sensitive data (visible in the URL)
+- ❌ Large data volumes (URL length limits)
+
+---
+
+## Route Modal Pattern
+
+Use App Router parallel routes plus intercepting routes when a detail view should open as a modal on soft navigation and remain a full page on hard navigation.
+
+Canonical structure:
+
+```text
+src/app/(protected)/admin/
+├── @modal/
+│   ├── default.tsx
+│   └── (.)work-items/[id]/page.tsx
+├── layout.tsx
+└── work-items/[id]/page.tsx
+```
+
+Rules:
+
+- `@modal/default.tsx` must exist and return `null`; it is the fallback for unmatched modal slot state.
+- `layout.tsx` must accept and render `{ modal }` next to `{ children }`.
+- `@modal/(.)work-items/[id]/page.tsx` is for soft navigation from `/admin/work-items` to `/admin/work-items/[id]`.
+- `work-items/[id]/page.tsx` is the hard-navigation/full-page equivalent.
+- Put a `Suspense` boundary around dynamic modal content, because `params` and request-time data are dynamic with Cache Components.
+
+The live example is `src/app/(protected)/admin/@modal/(.)work-items/[id]/page.tsx` and `src/app/(protected)/admin/work-items/[id]/page.tsx`.
 
 ---
 
@@ -1277,12 +1316,12 @@ export type WorkItemsPanelViewProps = {
 }
 
 export function WorkItemsPanelView({ items, isLoading, error, onRetry }: WorkItemsPanelViewProps) {
-  if (isLoading) return <TableSkeleton rowCount={5} />
+  if (isLoading) return <Loader />
   if (error)
     return <ApiErrorBoundary fallback={<Alert color="red">{error}</Alert>} onRetry={onRetry} />
-  if (items.length === 0) return <TableEmptyState message="No work items yet" />
+  if (items.length === 0) return <Text c="dimmed">No work items yet</Text>
 
-  return <DataTable data={items} columns={columns} keyExtractor={(item) => item.id} />
+  return <WorkItemsList items={items} />
 }
 ```
 
@@ -1290,7 +1329,7 @@ Use this approach for dashboards, admin panels, tables, and feature cards:
 
 - prefer local composition over generic HOCs
 - keep loading/error/empty states visible in the View contract
-- reuse `DataTable`, `TableSkeleton`, `TableEmptyState`, `ApiErrorBoundary`, and feature-local components
+- reuse small primitives such as `ApiErrorBoundary`, `SectionCard`, `SectionHeader`, and feature-local components
 - add a new abstraction only after two or more real feature slices need the same behavior
 
 ---

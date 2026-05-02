@@ -11,8 +11,8 @@ import type { HeaderHookProps } from '.'
 export function useHeaderProps(): HeaderHookProps {
   const intl = useIntl()
 
-  // Authentication and locale management
-  const { user, isLoading, isLoggingOut, onLogout, locale, setLocale } = useHeaderAuth()
+  // Authentication management
+  const { user, isLoading, isLoggingOut, onLogout } = useHeaderAuth()
 
   // Navigation and tab management
   const { pathname, createTabChangeHandler } = useHeaderNavigation()
@@ -25,8 +25,6 @@ export function useHeaderProps(): HeaderHookProps {
     isLoading,
     isLoggingOut,
     onLogout,
-    locale,
-    setLocale,
     pathname,
     createTabChangeHandler,
     userMenuAriaLabel,

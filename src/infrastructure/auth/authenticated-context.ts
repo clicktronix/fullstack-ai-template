@@ -13,12 +13,16 @@ export type AuthenticatedContext = {
 /**
  * Create authenticated context for server-side code.
  * Works in Server Components, Server Actions, and Route Handlers.
- * Session refresh is handled by middleware.
+ * Session refresh is handled by proxy.
  *
- * Обёрнуто в React.cache() для дедупликации на уровне запроса —
- * при множественных вызовах в одном серверном рендере создаётся только один контекст.
- * Роль загружается один раз и кэшируется вместе с контекстом,
- * исключая повторные DB-запросы в assertNotPendingRole/assertOwnerRole.
+ * Wrapped in React.cache() for per-request deduplication.
+ * Multiple calls during one server render create only one context.
+ * Role is loaded once and cached with the context, avoiding repeated
+ * DB queries in assertNotPendingRole/assertOwnerRole.
+ *
+ * Performance note: the template reads role from `public.users` for portability.
+ * At scale, move stable role data into Supabase JWT custom claims via Auth Hooks
+ * and read it from the verified token to remove this DB round-trip.
  */
 export const createAuthenticatedContext = cache(async (): Promise<AuthenticatedContext> => {
   const supabase = await createClient()

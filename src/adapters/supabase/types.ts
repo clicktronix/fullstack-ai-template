@@ -29,6 +29,50 @@ export type Database = {
         }
         Relationships: []
       }
+      idempotency_keys: {
+        Row: {
+          key: string
+          user_id: string
+          method: string
+          path: string
+          request_hash: string
+          status_code: number | null
+          response_body: Json | null
+          created_at: string
+          expires_at: string
+        }
+        Insert: {
+          key: string
+          user_id: string
+          method: string
+          path: string
+          request_hash: string
+          status_code?: number | null
+          response_body?: Json | null
+          created_at?: string
+          expires_at?: string
+        }
+        Update: {
+          key?: string
+          user_id?: string
+          method?: string
+          path?: string
+          request_hash?: string
+          status_code?: number | null
+          response_body?: Json | null
+          created_at?: string
+          expires_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'idempotency_keys_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       users: {
         Row: {
           id: string

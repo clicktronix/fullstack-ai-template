@@ -1,8 +1,5 @@
 import { Container, Stack, Text } from '@mantine/core'
 import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
-import { isOwner } from '@/domain/user/user'
-import { verifySession } from '@/infrastructure/auth/verify-session'
 import { TranslationText } from '@/ui/components/TranslationText'
 import { TranslationTitle } from '@/ui/components/TranslationTitle'
 import messages from './messages.json'
@@ -11,13 +8,7 @@ export const metadata: Metadata = {
   title: 'Settings | Fullstack AI Template',
 }
 
-export default async function SettingsPage() {
-  const session = await verifySession()
-
-  if (!session || !isOwner(session.user)) {
-    redirect('/admin/work-items')
-  }
-
+export default function SettingsPage() {
   return (
     <Container size="md" py="xl">
       <Stack gap="sm">

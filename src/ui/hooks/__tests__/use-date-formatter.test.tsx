@@ -1,19 +1,17 @@
 import { renderHook } from '@testing-library/react'
-import { describe, test, expect } from 'bun:test'
+import { beforeEach, describe, test, expect } from 'bun:test'
 import { type ReactNode } from 'react'
 import { IntlProvider } from 'react-intl'
 import { enMessages } from '@/infrastructure/i18n/locales/en'
-import { ruMessages } from '@/infrastructure/i18n/locales/ru'
 import { LocaleProvider, type Locale } from '@/ui/providers/LocaleContext'
 import { useDateFormatter } from '../use-date-formatter'
 
 // Helper to create wrapper with specific locale
 function createWrapper(initialLocale: Locale = 'en') {
   return function Wrapper({ children }: { children: ReactNode }) {
-    const localeMessages = initialLocale === 'ru' ? ruMessages : enMessages
     return (
       <LocaleProvider initialLocale={initialLocale}>
-        <IntlProvider locale={initialLocale} messages={localeMessages}>
+        <IntlProvider locale={initialLocale} messages={enMessages}>
           {children}
         </IntlProvider>
       </LocaleProvider>
@@ -22,6 +20,10 @@ function createWrapper(initialLocale: Locale = 'en') {
 }
 
 describe('useDateFormatter', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
   describe('short format', () => {
     test('formats date string with short format', () => {
       const { result } = renderHook(() => useDateFormatter(), {
@@ -39,14 +41,6 @@ describe('useDateFormatter', () => {
       const formatted = result.current.short(new Date('2024-06-20'))
       expect(formatted).toContain('20')
       expect(formatted).toContain('Jun')
-    })
-
-    test('formats date with Russian locale', () => {
-      const { result } = renderHook(() => useDateFormatter(), {
-        wrapper: createWrapper('ru'),
-      })
-      const formatted = result.current.short('2024-01-15')
-      expect(formatted).toContain('15')
     })
   })
 

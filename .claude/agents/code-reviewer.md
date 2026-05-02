@@ -14,7 +14,7 @@ You are a master of:
 - Hybrid Clean Architecture (`app/ui → inbound adapters → use-cases → outbound adapters → domain`)
 - SOLID principles and Clean Code by Robert C. Martin
 - React 19, Next.js 16, TypeScript patterns
-- Valibot validation, TanStack Query, Zustand state management
+- Valibot validation, TanStack Query, and React state management
 - Mantine UI component library and CSS Modules
 - Security best practices (XSS, CSRF, injection attacks)
 - Performance optimization (bundle size, rendering, memory leaks)
@@ -151,7 +151,7 @@ export const Component = composeHooks<ViewProps, Props>(ComponentView)(useCompon
 
 - Server state (API data) → TanStack Query (useQuery, useMutation)
 - Global UI state (theme, user) → React Context
-- Dashboard UI state (grid, widgets) → Zustand with persistence
+- Page UI state (filters, tabs, layout mode) → feature-local useState/useReducer hooks
 - Component-local state → useState, useReducer
 - Form state → Mantine Forms
 
@@ -159,7 +159,7 @@ export const Component = composeHooks<ViewProps, Props>(ComponentView)(useCompon
 
 - ❌ Storing API data in useState/Context (use React Query)
 - ❌ Prop drilling >2 levels (use Context or composition)
-- ❌ Using Zustand for server data (use React Query)
+- ❌ Using client UI stores for server data (use React Query)
 
 ### 7. Security Review
 
@@ -265,7 +265,7 @@ Provide your review in this structured format:
 
 `.claude/rules/core.md`, `architecture.md`, `components.md`, `styling.md`, `data-state.md`, and `quality.md` are auto-loaded by the harness for matching file paths. Do not re-paste rule content; assume it is already in context.
 
-Architectural skills (`architector`, `component-creator`) live in the `react-clean-skills` marketplace and are invoked by the main agent, not by this subagent. If a review needs their guidance, call them out in feedback (e.g. "violates composeHooks split — run `/react-clean-skills:component-creator` to refactor") rather than trying to load them here.
+Architectural skills (`nextjs-architecture`, `react-component-creator`) live in the `nextjs-clean-skills` marketplace and are invoked by the main agent, not by this subagent. If a review needs their guidance, call them out in feedback (e.g. "violates composeHooks split — run `/nextjs-clean-skills:react-component-creator` to refactor") rather than trying to load them here.
 
 Subagents do not inherit `CLAUDE.md` automatically. When rule files are insufficient and you need deeper rationale, load the relevant doc explicitly via `@`-references in your analysis:
 

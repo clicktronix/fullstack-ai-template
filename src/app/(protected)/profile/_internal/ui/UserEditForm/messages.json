@@ -1,38 +1,38 @@
 {
   "title": {
     "id": "profile.userEdit.title",
-    "defaultMessage": "Редактировать профиль"
+    "defaultMessage": "Edit Profile"
   },
   "fullName": {
     "id": "profile.userEdit.fullName",
-    "defaultMessage": "Полное имя"
+    "defaultMessage": "Full Name"
   },
   "fullNamePlaceholder": {
     "id": "profile.userEdit.fullNamePlaceholder",
-    "defaultMessage": "Иван Иванов"
+    "defaultMessage": "John Doe"
   },
   "saveButton": {
     "id": "profile.userEdit.saveButton",
-    "defaultMessage": "Сохранить изменения"
+    "defaultMessage": "Save Changes"
   },
   "cancelButton": {
     "id": "profile.userEdit.cancelButton",
-    "defaultMessage": "Отмена"
+    "defaultMessage": "Cancel"
   },
   "successMessage": {
     "id": "profile.userEdit.successMessage",
-    "defaultMessage": "Профиль успешно обновлён"
+    "defaultMessage": "Profile updated successfully"
   },
   "errorMessage": {
     "id": "profile.userEdit.errorMessage",
-    "defaultMessage": "Не удалось обновить профиль"
+    "defaultMessage": "Failed to update profile"
   },
   "validationNameRequired": {
     "id": "profile.userEdit.validation.nameRequired",
-    "defaultMessage": "Имя обязательно"
+    "defaultMessage": "Name is required"
   },
   "validationNameMaxLength": {
     "id": "profile.userEdit.validation.nameMaxLength",
-    "defaultMessage": "Имя должно быть не более 100 символов"
+    "defaultMessage": "Name must be at most 100 characters"
   }
 }

@@ -27,7 +27,6 @@ import { IntlProvider } from 'react-intl'
 import type { User } from '@/domain/user/user'
 import type { Locale, Messages } from '@/infrastructure/i18n'
 import { enMessages } from '@/infrastructure/i18n/locales/en'
-import { ruMessages } from '@/infrastructure/i18n/locales/ru'
 import { authKeys } from '@/ui/server-state/auth/keys'
 import { theme } from '@/ui/themes'
 import { cssVariablesResolver } from '@/ui/themes/resolver'
@@ -169,7 +168,7 @@ type AllProvidersProps = {
  */
 function AllProviders({ children, locale = 'en', queryClient }: AllProvidersProps) {
   const client = queryClient ?? getTestQueryClient()
-  const testMessages: Record<Locale, Messages> = { ru: ruMessages, en: enMessages }
+  const testMessages: Record<Locale, Messages> = { en: enMessages }
   const currentMessages = testMessages[locale]
 
   return (
@@ -194,7 +193,7 @@ function AllProviders({ children, locale = 'en', queryClient }: AllProvidersProp
  * render(<MyComponent />)
  *
  * // With custom locale
- * render(<MyComponent />, { locale: 'ru' })
+ * render(<MyComponent />, { locale: 'en' })
  *
  * // With custom query client
  * const queryClient = createTestQueryClient()

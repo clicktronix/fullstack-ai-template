@@ -1,6 +1,6 @@
 /**
  * Local Storage Utility
- * Provides type-safe localStorage access compatible with Zustand and React setState pattern.
+ * Provides type-safe localStorage access for small browser-only preferences.
  */
 
 export type StorageOptions<T> = {
@@ -99,47 +99,4 @@ export function createStorageAccessor<T>(options: StorageOptions<T>) {
     save: (value: T) => saveToStorage(options.key, value),
     remove: () => removeFromStorage(options.key),
   }
-}
-
-/**
- * Zustand-compatible persist storage implementation.
- * Use with zustand/middleware persist.
- *
- * @example
- * import { persist } from 'zustand/middleware'
- * import { zustandStorage } from '@/lib/storage'
- *
- * const useStore = create(
- *   persist(
- *     (set, get) => ({ ... }),
- *     { name: 'store-key', storage: zustandStorage }
- *   )
- * )
- */
-export const zustandStorage = {
-  getItem: (name: string): string | null => {
-    if (globalThis.window === undefined) return null
-    try {
-      return localStorage.getItem(name)
-    } catch {
-      // Ignore storage errors (private mode, restricted environments)
-      return null
-    }
-  },
-  setItem: (name: string, value: string): void => {
-    if (globalThis.window === undefined) return
-    try {
-      localStorage.setItem(name, value)
-    } catch {
-      // Ignore storage errors
-    }
-  },
-  removeItem: (name: string): void => {
-    if (globalThis.window === undefined) return
-    try {
-      localStorage.removeItem(name)
-    } catch {
-      // Ignore storage errors
-    }
-  },
 }

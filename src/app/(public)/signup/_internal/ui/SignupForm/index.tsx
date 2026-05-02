@@ -21,7 +21,8 @@ export function SignupFormView({
   isSubmitting,
   error,
   confirmationEmail,
-  onSubmit,
+  formAction,
+  redirectTo,
 }: SignupFormViewProps) {
   if (confirmationEmail) {
     return (
@@ -38,42 +39,44 @@ export function SignupFormView({
   }
 
   return (
-    <form onSubmit={onSubmit}>
+    <form action={formAction}>
       <Stack gap="lg">
         <FormErrorAlert error={error} />
 
+        <input type="hidden" name="redirect" value={redirectTo} />
+
         <FloatingTextInput
           label={fullNameLabel}
-          name="name"
           autoComplete="name"
           key={form.key('fullName')}
           {...form.getInputProps('fullName')}
+          name="fullName"
         />
 
         <FloatingTextInput
           label={emailLabel}
-          name="email"
           type="email"
           autoComplete="email"
           spellCheck={false}
           key={form.key('email')}
           {...form.getInputProps('email')}
+          name="email"
         />
 
         <FloatingPasswordInput
           label={passwordLabel}
-          name="new-password"
           autoComplete="new-password"
           key={form.key('password')}
           {...form.getInputProps('password')}
+          name="password"
         />
 
         <FloatingPasswordInput
           label={confirmPasswordLabel}
-          name="confirm-password"
           autoComplete="new-password"
           key={form.key('confirmPassword')}
           {...form.getInputProps('confirmPassword')}
+          name="confirmPassword"
         />
 
         <Button type="submit" loading={isSubmitting} fullWidth mt="sm">

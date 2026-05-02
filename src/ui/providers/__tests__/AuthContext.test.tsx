@@ -1,20 +1,20 @@
 import type { Session } from '@supabase/supabase-js'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { renderHook } from '@testing-library/react'
-import { beforeEach, describe, expect, spyOn, test } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, spyOn, test } from 'bun:test'
 import { type ReactNode } from 'react'
 import type { User } from '@/domain/user/user'
 import * as authQueries from '@/ui/server-state/auth/queries'
 import { AuthProvider, useAuth } from '../AuthContext'
 
-// Мок usePathname — уже замокан глобально в setup.ts (возвращает '/')
-// Для тестов, требующих другой pathname, используем mock.module
+// usePathname is already globally mocked in setup.ts and returns '/'.
+// Tests that need another pathname use mock.module.
 
-// Мокаем хуки через spyOn
+// Mock hooks through spyOn.
 const mockUseSession = spyOn(authQueries, 'useSession')
 const mockUseCurrentUser = spyOn(authQueries, 'useCurrentUser')
 
-// Тестовые фикстуры
+// Test fixtures.
 const mockSession: Session = {
   access_token: 'test-access-token',
   refresh_token: 'test-refresh-token',
@@ -41,7 +41,7 @@ const mockUser: User = {
   updated_at: '2025-01-01T00:00:00.000Z',
 }
 
-// Типы для моков React Query — соответствуют UseQueryResult
+// React Query mock types that match UseQueryResult.
 type MockQueryResult<T> = {
   data: T | undefined
   isLoading: boolean
@@ -87,9 +87,14 @@ beforeEach(() => {
   mockUseCurrentUser.mockClear()
 })
 
+afterAll(() => {
+  mockUseSession.mockRestore()
+  mockUseCurrentUser.mockRestore()
+})
+
 describe('AuthProvider', () => {
-  describe('состояние загрузки', () => {
-    test('isLoading=true когда сессия загружается', () => {
+  describe('loading state', () => {
+    test('isLoading=true when session is loading', () => {
       mockUseSession.mockReturnValue(
         createMockQueryResult({ isLoading: true }) as ReturnType<typeof authQueries.useSession>
       )
@@ -105,7 +110,7 @@ describe('AuthProvider', () => {
       expect(result.current.isLoading).toBe(true)
     })
 
-    test('isLoading=true когда пользователь загружается', () => {
+    test('isLoading=true when user is loading', () => {
       mockUseSession.mockReturnValue(
         createMockQueryResult({ isLoading: false }) as ReturnType<typeof authQueries.useSession>
       )
@@ -121,7 +126,7 @@ describe('AuthProvider', () => {
       expect(result.current.isLoading).toBe(true)
     })
 
-    test('isLoading=false когда оба запроса завершены', () => {
+    test('isLoading=false when both queries are complete', () => {
       mockUseSession.mockReturnValue(
         createMockQueryResult({
           data: mockSession,
@@ -146,8 +151,8 @@ describe('AuthProvider', () => {
     })
   })
 
-  describe('аутентификация', () => {
-    test('isAuthenticated=true при наличии пользователя', () => {
+  describe('authentication', () => {
+    test('isAuthenticated=true when user exists', () => {
       mockUseSession.mockReturnValue(
         createMockQueryResult({
           data: mockSession,
@@ -170,7 +175,7 @@ describe('AuthProvider', () => {
       expect(result.current.user).toEqual(mockUser)
     })
 
-    test('isAuthenticated=false без пользователя', () => {
+    test('isAuthenticated=false without user', () => {
       mockUseSession.mockReturnValue(
         createMockQueryResult({
           data: undefined,
@@ -194,8 +199,8 @@ describe('AuthProvider', () => {
     })
   })
 
-  describe('сессия', () => {
-    test('предоставляет сессию из useSession', () => {
+  describe('session', () => {
+    test('provides session from useSession', () => {
       mockUseSession.mockReturnValue(
         createMockQueryResult({
           data: mockSession,
@@ -217,7 +222,7 @@ describe('AuthProvider', () => {
       expect(result.current.session).toEqual(mockSession)
     })
 
-    test('session=null если нет сессии', () => {
+    test('session=null when there is no session', () => {
       mockUseSession.mockReturnValue(
         createMockQueryResult({
           data: undefined,
@@ -240,8 +245,8 @@ describe('AuthProvider', () => {
     })
   })
 
-  describe('обработка ошибок', () => {
-    test('приоритет ошибки сессии над ошибкой пользователя', () => {
+  describe('error handling', () => {
+    test('prioritizes session error over user error', () => {
       const sessionError = new Error('Session expired')
       const userError = new Error('User fetch failed')
 
@@ -266,7 +271,7 @@ describe('AuthProvider', () => {
       expect(result.current.error).toBe(sessionError)
     })
 
-    test('показывает ошибку пользователя если нет ошибки сессии', () => {
+    test('shows user error when session error is absent', () => {
       const userError = new Error('User fetch failed')
 
       mockUseSession.mockReturnValue(
@@ -290,7 +295,7 @@ describe('AuthProvider', () => {
       expect(result.current.error).toBe(userError)
     })
 
-    test('error=null когда нет ошибок', () => {
+    test('error=null when there are no errors', () => {
       mockUseSession.mockReturnValue(
         createMockQueryResult({
           data: mockSession,
@@ -313,8 +318,8 @@ describe('AuthProvider', () => {
     })
   })
 
-  describe('начальный пользователь (SSR)', () => {
-    test('использует initialUser если React Query ещё не вернул данных', () => {
+  describe('initial user (SSR)', () => {
+    test('uses initialUser when React Query has not returned data yet', () => {
       mockUseSession.mockReturnValue(
         createMockQueryResult({
           isLoading: true,
@@ -332,12 +337,12 @@ describe('AuthProvider', () => {
         wrapper: createWrapper(queryClient, mockUser),
       })
 
-      // initialUser используется как фоллбэк
+      // initialUser is used as fallback.
       expect(result.current.user).toEqual(mockUser)
       expect(result.current.isAuthenticated).toBe(true)
     })
 
-    test('предпочитает данные React Query над initialUser', () => {
+    test('prefers React Query data over initialUser', () => {
       const updatedUser: User = {
         ...mockUser,
         full_name: 'Updated Name',
@@ -364,7 +369,7 @@ describe('AuthProvider', () => {
       expect(result.current.user?.full_name).toBe('Updated Name')
     })
 
-    test('isAuthenticated=true с initialUser даже при загрузке', () => {
+    test('isAuthenticated=true with initialUser even while loading', () => {
       mockUseSession.mockReturnValue(
         createMockQueryResult({ isLoading: true }) as ReturnType<typeof authQueries.useSession>
       )
@@ -384,9 +389,9 @@ describe('AuthProvider', () => {
     })
   })
 
-  describe('отключение запросов на auth-страницах', () => {
-    test('передаёт enabled в хуки на основе pathname', () => {
-      // usePathname замокан глобально и возвращает '/' (не auth-роут)
+  describe('disabling queries on auth pages', () => {
+    test('passes enabled to hooks based on pathname', () => {
+      // usePathname is globally mocked and returns '/' (not an auth route).
       mockUseSession.mockReturnValue(
         createMockQueryResult({
           data: mockSession,
@@ -405,12 +410,12 @@ describe('AuthProvider', () => {
         wrapper: createWrapper(queryClient),
       })
 
-      // useSession вызывается с enabled: true (pathname '/' — не auth-роут)
+      // useSession is called with enabled: true (pathname '/' is not an auth route).
       expect(mockUseSession).toHaveBeenCalled()
       const sessionOptions = mockUseSession.mock.calls[0][0]
       expect(sessionOptions?.enabled).toBe(true)
 
-      // useCurrentUser тоже вызывается с enabled: true
+      // useCurrentUser is also called with enabled: true.
       expect(mockUseCurrentUser).toHaveBeenCalled()
       const userOptions = mockUseCurrentUser.mock.calls[0][0]
       expect(userOptions?.enabled).toBe(true)
@@ -419,7 +424,7 @@ describe('AuthProvider', () => {
 })
 
 describe('useAuth', () => {
-  test('выбрасывает ошибку при использовании вне AuthProvider', () => {
+  test('throws when used outside AuthProvider', () => {
     expect(() => {
       renderHook(() => useAuth())
     }).toThrow('useAuth must be used within AuthProvider')

@@ -4,15 +4,14 @@ import { pathToFileURL } from 'url'
 import { Glob } from 'bun'
 
 /**
- * Единая строгая i18n-проверка для репозитория.
+ * Single strict i18n sync check for the repository.
  *
- * Проверяет только реальные проблемы синхронизации:
- * - дубликаты message IDs
- * - ключи из messages.json, которых нет в locale files
- * - расхождение наборов ключей между en.ts и ru.ts
+ * Checks only real synchronization problems:
+ * - duplicate message IDs
+ * - messages.json keys missing from locale files
  *
- * Orphaned locale keys показывает как warnings, но не валит CI:
- * это полезный технический долг, но не блокирующая ошибка синхронизации.
+ * Orphaned locale keys are reported as warnings but do not fail CI.
+ * They are useful technical debt, not a blocking sync error.
  */
 
 type MessageEntry = {
@@ -24,8 +23,6 @@ type DuplicateEntry = {
   id: string
   files: string[]
 }
-
-type LocaleName = 'en' | 'ru'
 
 const ROOT = resolve(import.meta.dir, '..')
 const SRC = join(ROOT, 'src')
@@ -173,12 +170,11 @@ function findDuplicateMessageIds(messages: MessageEntry[]): DuplicateEntry[] {
     .sort((left, right) => left.id.localeCompare(right.id))
 }
 
-async function loadLocaleEntries(locale: LocaleName): Promise<Map<string, string>> {
-  const localePath = join(SRC, `infrastructure/i18n/locales/${locale}.ts`)
+async function loadLocaleEntries(): Promise<Map<string, string>> {
+  const localePath = join(SRC, 'infrastructure/i18n/locales/en.ts')
   const moduleUrl = pathToFileURL(localePath).href
   const localeModule = await import(moduleUrl)
-  const exportName = locale === 'en' ? 'enMessages' : 'ruMessages'
-  const messages = localeModule[exportName] as Record<string, string>
+  const messages = localeModule.enMessages as Record<string, string>
 
   return new Map(Object.entries(messages))
 }
@@ -190,10 +186,6 @@ function summarizeMissingTranslations(
   return messages
     .filter((entry) => !localeEntries.has(entry.id))
     .sort((left, right) => left.id.localeCompare(right.id))
-}
-
-function summarizeLocaleParity(source: Map<string, string>, target: Map<string, string>): string[] {
-  return [...source.keys()].filter((key) => !target.has(key)).sort()
 }
 
 function summarizeOrphans(
@@ -210,22 +202,12 @@ const messageDescriptorEntries = await loadAllMessages()
 const inlineDescriptorEntries = await loadInlineDescriptorIds()
 const dynamicMessageEntries = loadDynamicMessageIds()
 const messages = [...messageDescriptorEntries, ...inlineDescriptorEntries, ...dynamicMessageEntries]
-const enEntries = await loadLocaleEntries('en')
-const ruEntries = await loadLocaleEntries('ru')
+const enEntries = await loadLocaleEntries()
 
 const duplicates = findDuplicateMessageIds(messageDescriptorEntries)
 const missingFromEn = summarizeMissingTranslations(messages, enEntries)
-const missingFromRu = summarizeMissingTranslations(messages, ruEntries)
-const onlyInEn = summarizeLocaleParity(enEntries, ruEntries)
-const onlyInRu = summarizeLocaleParity(ruEntries, enEntries)
 const usedIds = new Set(messages.map((entry) => entry.id))
 const orphanedEn = summarizeOrphans(enEntries, usedIds)
-const orphanedRu = summarizeOrphans(ruEntries, usedIds)
-const missingFromRuIds = new Set(missingFromRu.map((entry) => entry.id))
-const missingFromEnIds = new Set(missingFromEn.map((entry) => entry.id))
-const missingFromBothLocales = missingFromEn.filter((entry) => missingFromRuIds.has(entry.id))
-const missingOnlyFromEn = missingFromEn.filter((entry) => ruEntries.has(entry.id))
-const missingOnlyFromRu = missingFromRu.filter((entry) => missingFromEnIds.has(entry.id) === false)
 
 let errorCount = 0
 let warningCount = 0
@@ -251,7 +233,6 @@ console.log(
 )
 console.log(`dynamic helper ids: ${new Set(dynamicMessageEntries.map((entry) => entry.id)).size}`)
 console.log(`en.ts keys: ${enEntries.size}`)
-console.log(`ru.ts keys: ${ruEntries.size}`)
 
 logSection('Duplicates')
 if (duplicates.length === 0) {
@@ -266,45 +247,16 @@ if (duplicates.length === 0) {
 }
 
 logSection('Missing From Locales')
-if (missingFromEn.length === 0 && missingFromRu.length === 0) {
-  console.log('  ✅ All messages.json IDs exist in both locale files')
+if (missingFromEn.length === 0) {
+  console.log('  ✅ All message IDs exist in en.ts')
 } else {
-  if (missingFromBothLocales.length > 0) {
-    console.log(`  Missing from both en.ts and ru.ts: ${missingFromBothLocales.length}`)
-    for (const entry of missingFromBothLocales) {
-      logError(`"${entry.id}" — ${entry.file}`)
-    }
-  }
-
-  if (missingOnlyFromEn.length > 0) {
-    console.log(`  Missing only from en.ts: ${missingOnlyFromEn.length}`)
-    for (const entry of missingOnlyFromEn) {
-      logError(`"${entry.id}" — ${entry.file}`)
-    }
-  }
-
-  if (missingOnlyFromRu.length > 0) {
-    console.log(`  Missing only from ru.ts: ${missingOnlyFromRu.length}`)
-    for (const entry of missingOnlyFromRu) {
-      logError(`"${entry.id}" — ${entry.file}`)
-    }
-  }
-}
-
-logSection('Locale Parity')
-if (onlyInEn.length === 0 && onlyInRu.length === 0) {
-  console.log('  ✅ en.ts and ru.ts have matching key sets')
-} else {
-  for (const key of onlyInEn) {
-    logError(`Only in en.ts: "${key}"`)
-  }
-  for (const key of onlyInRu) {
-    logError(`Only in ru.ts: "${key}"`)
+  for (const entry of missingFromEn) {
+    logError(`"${entry.id}" — ${entry.file}`)
   }
 }
 
 logSection('Orphaned Locale Keys')
-if (orphanedEn.length === 0 && orphanedRu.length === 0) {
+if (orphanedEn.length === 0) {
   console.log('  ✅ No orphaned locale keys')
 } else {
   console.log(`  Orphaned in en.ts: ${orphanedEn.length}`)
@@ -313,14 +265,6 @@ if (orphanedEn.length === 0 && orphanedRu.length === 0) {
   }
   if (orphanedEn.length > 25) {
     console.log(`     … and ${orphanedEn.length - 25} more`)
-  }
-
-  console.log(`  Orphaned in ru.ts: ${orphanedRu.length}`)
-  for (const entry of orphanedRu.slice(0, 25)) {
-    logWarning(`ru.ts "${entry.id}" = "${entry.value}"`)
-  }
-  if (orphanedRu.length > 25) {
-    console.log(`     … and ${orphanedRu.length - 25} more`)
   }
 }
 
