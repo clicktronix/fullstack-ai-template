@@ -15,7 +15,7 @@ Use this skill for full-stack Next.js feature slices and architecture decisions.
 - Inbound adapters are Server Actions or route handlers that compose dependencies and framework concerns.
 - Outbound adapters implement use-case ports for Supabase, APIs, queues, and transport.
 - Read-heavy UI fetches in Server Components through server-only DAL/read entrypoints.
-- TanStack Query is opt-in for client interactivity, realtime, polling, optimistic updates, infinite scroll, or shared client cache.
+- TanStack Query is auxiliary, opt-in only for realtime, polling, infinite scroll, optimistic updates, or shared async/server-state cache lifecycle across client islands. Otherwise reads are RSC props and writes are Server Actions that call `revalidateTag` / `updateTag`.
 - Cache Components use `'use cache'`, `cacheLife`, `cacheTag`, `updateTag`, and `revalidateTag(tag, 'max')`.
 
 ## Start Here
@@ -72,10 +72,14 @@ Security:
 
 Data and persistence:
 
+- [Route Handlers For Service APIs](references/api-route-handlers-for-service-apis.md)
+- [Use Idempotency Keys For Service Commands](references/api-idempotency-key-for-commands.md)
+- [Verify Webhook Signatures Before Parsing](references/api-webhook-signature-verification.md)
 - [RSC Reads Default, TanStack Opt-In](references/data-rsc-default-tanstack-optin.md)
 - [CQRS: Commands vs Reads](references/data-cqrs-actions-vs-rsc.md)
 - [Server Prefetch And Hydration](references/data-server-prefetch-hydration.md)
 - [No TanStack Query In RSC](references/data-no-tanstack-in-rsc.md)
+- [Avoid TanStack Mutations When Reads Are RSC-Owned](references/data-tanstack-mutation-vs-revalidate-tag.md)
 - [Supabase RLS Uses `(select auth.uid())`](references/data-supabase-rls-select-auth-uid.md)
 - [RLS `with check` Locks Identity Columns](references/data-supabase-rls-with-check-locks-self-promotion.md)
 - [Decide The DELETE RLS Policy Explicitly](references/data-supabase-rls-delete-policy-parity.md)

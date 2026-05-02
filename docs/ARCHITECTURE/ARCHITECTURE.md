@@ -83,7 +83,8 @@ Both exceptions are enforced by ESLint boundaries (`eslint.config.mjs`).
 - Use `src/proxy.ts` for request-time redirects, session refresh, and security headers. Do not make proxy the only authorization boundary.
 - Use DAL helpers such as `createAuthenticatedContext()` inside Server Actions, Route Handlers, and server-side data access.
 - Use `next-safe-action` for inbound Server Actions that accept user input. Keep the exported action function stable, but put `.inputSchema(...)`, auth middleware, and role checks in the safe-action client.
-- Prefer tag-based cache invalidation: `updateTag()` after mutations that need read-your-writes and `revalidateTag(tag, profile)` for broader invalidation. `revalidatePath()` is not the default.
+- Use Route Handlers for external/service HTTP APIs. They should create an API context, return request-id JSON envelopes, and use idempotency keys for retryable commands.
+- Prefer tag-based cache invalidation: Server Actions may use `updateTag()` for read-your-writes and `revalidateTag(tag, profile)` for broader invalidation. Route Handlers use `revalidateTag(tag, profile)` / `revalidatePath(path)` only; `updateTag()` is Server Action-only.
 - Cache Components are enabled at the top level in `next.config.ts`; place `Suspense` boundaries around dynamic holes.
 
 ## Locale Detection
@@ -106,7 +107,7 @@ Do not use `fallback={null}` around a large layout or provider tree when no-JS f
 
 ## Reference Slice
 
-The `work-items` + `labels` vertical slice is the canonical example. Follow its layer order when adding features — see [`USE_CASES.md`](./USE_CASES.md) and [`DATA_ACCESS.md`](./DATA_ACCESS.md).
+The `work-items` + `labels` vertical slice is the canonical example. Follow its layer order when adding features — see [`USE_CASES.md`](./USE_CASES.md), [`DATA_ACCESS.md`](./DATA_ACCESS.md), and [`BACKEND_SERVICE_PATTERNS.md`](./BACKEND_SERVICE_PATTERNS.md).
 
 ## Where Rules Live
 

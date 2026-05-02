@@ -74,6 +74,15 @@ export async function listWorkItemsAction(filters: WorkItemFilters) {
 
 Use `createAuthenticatedContext()` or the `authActionClient` / `adminActionClient` middleware inside every server-side data path that depends on the current user. `src/proxy.ts` is only a request-time redirect/session-refresh layer, not the final authorization boundary.
 
+Route Handlers are the service API boundary for external HTTP clients. Use
+`createApiHandlerContext()` to attach the authenticated context and request id, then return
+stable JSON envelopes from `src/infrastructure/api/response.ts`. POST/PUT/PATCH commands that
+can be retried by clients should require `Idempotency-Key` and use
+`runIdempotentCommand()`.
+
+Webhook Route Handlers do not use browser session auth. Verify the provider signature over
+the raw request body before parsing or executing side effects.
+
 For Supabase SSR auth, use `auth.getUser()` or DAL helpers built on it for server-side authorization. Do not trust `auth.getSession()` by itself on the server; it can read unverified cookie state and is only acceptable after a `getUser()` verification or in browser-only refresh flows.
 
 Read env through `src/infrastructure/env/public.ts`, `client.ts`, `server.ts`, or `runtime.ts`. Runtime modules must not read `process.env` directly; this keeps service-role and backend-only values out of accidental public paths.
@@ -85,13 +94,22 @@ Read env through `src/infrastructure/env/public.ts`, `client.ts`, `server.ts`, o
 Server and client invalidation target different caches:
 
 - Server Actions update the RSC/Data Cache with `updateTag()` for same-request read-your-writes and `revalidateTag(tag, profile)` for stale-while-revalidate refresh.
+- Route Handlers can invalidate tag/path caches after service API or webhook mutations with `revalidateTag(tag, profile)` / `revalidatePath(path)`.
+- `updateTag()` and `refresh()` are Server Action-only. Do not call them from Route Handlers.
 - Client TanStack mutations update the browser query cache with `queryClient.invalidateQueries()` or optimistic writes.
 
 Do not add ad-hoc `revalidatePath()` beside tag invalidation in this template unless the route tree itself is the intentional invalidation unit. Prefer tags from `src/infrastructure/cache/tags.ts`.
 
-After mutations, invalidate by tag:
+In Server Actions, invalidate by tag:
 
 ```ts
 updateTag(cacheTags.workItems.lists(ctx.userId))
+revalidateTag(cacheTags.workItems.all, 'minutes')
+```
+
+In Route Handlers, use `revalidateTag()` only:
+
+```ts
+revalidateTag(cacheTags.workItems.lists(ctx.userId), 'minutes')
 revalidateTag(cacheTags.workItems.all, 'minutes')
 ```

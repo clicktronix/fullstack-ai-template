@@ -39,9 +39,13 @@ app/ui -> ui/server-state | actions.ts -> inbound adapters -> use-cases -> outbo
 - UI must not import outbound adapters directly
 - `app/` entrypoints stay thin
 - inbound Server Actions validate input through `next-safe-action`
-- cache invalidation uses `cacheTags`, `updateTag()`, and `revalidateTag(tag, profile)`
+- service APIs use Route Handlers with request-id envelopes and idempotent POST commands
+- webhooks verify signatures and do not use browser session auth
+- cache invalidation uses `cacheTags`: Server Actions may call `updateTag()`, Route Handlers use `revalidateTag(tag, profile)`
 - `src/proxy.ts` refreshes sessions and redirects; DAL helpers re-check authorization in server code
 
 ## Demo Slice
 
-`work-items` + `labels` — the canonical reference. Exercises every layer: domain schemas, use-case ports, Supabase outbound, Server Actions, TanStack Query, SSR prefetch, `composeHooks` UI.
+`work-items` + `labels` — the canonical reference. Exercises every layer: domain schemas, use-case ports, Supabase outbound, Server Actions, Route Handlers, TanStack Query, SSR prefetch, `composeHooks` UI.
+
+Backend service boundaries: [`BACKEND_SERVICE_PATTERNS.md`](./BACKEND_SERVICE_PATTERNS.md).

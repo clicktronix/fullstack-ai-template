@@ -10,6 +10,7 @@ const ServerEnvSchema = object({
   SUPABASE_SERVICE_ROLE_KEY: optional(pipe(string(), minLength(1))),
   AI_SUGGESTIONS_API_URL: optional(pipe(string(), url())),
   AI_SUGGESTIONS_API_KEY: optional(string()),
+  EXAMPLE_WEBHOOK_SECRET: optional(pipe(string(), minLength(1))),
 })
 
 export type ServerEnv = InferOutput<typeof ServerEnvSchema>
@@ -32,6 +33,7 @@ function readServerEnv(): ServerEnv {
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     AI_SUGGESTIONS_API_URL: process.env.AI_SUGGESTIONS_API_URL,
     AI_SUGGESTIONS_API_KEY: process.env.AI_SUGGESTIONS_API_KEY,
+    EXAMPLE_WEBHOOK_SECRET: process.env.EXAMPLE_WEBHOOK_SECRET,
   })
 }
 

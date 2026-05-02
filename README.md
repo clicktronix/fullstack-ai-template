@@ -82,7 +82,8 @@ Next.js 16 defaults in this template:
 
 - `src/proxy.ts` handles session refresh, auth redirects, and security headers
 - Server Actions use `next-safe-action` with Valibot input schemas
-- cache invalidation uses centralized tags with `updateTag()` and `revalidateTag(tag, profile)`
+- Route Handlers expose service APIs with request-id envelopes and idempotent POST commands
+- cache invalidation uses centralized tags: Server Actions may call `updateTag()`, Route Handlers use `revalidateTag(tag, profile)`
 - `bun run build` uses the default Turbopack production build
 
 `src/proxy.ts` is not the authorization boundary. Server-side data access re-checks auth/authz through server-only DAL helpers and safe Server Action middleware.
@@ -135,6 +136,8 @@ Full list: see `CLAUDE.md` → Commands section.
 
 - Auth baseline (Supabase Auth, role-based access, owner auto-promotion)
 - Demo vertical slice (`work-items` + `labels` + optional AI suggestions)
+- Service API example (`GET/POST /api/work-items`) with idempotency and JSON error envelopes
+- Webhook example with HMAC signature verification
 - Smart/Dumb component pattern via `composeHooks(View)(useProps)`
 - i18n via React Intl with `en` baseline + auto-sync script (extensible to additional locales)
 - ESLint boundary rules enforcing architecture layers
