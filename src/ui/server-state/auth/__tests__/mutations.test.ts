@@ -4,12 +4,20 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { renderHook, waitFor, act } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test'
 import { createElement, type ReactNode } from 'react'
-import * as authApi from '@/adapters/outbound/api/auth'
+import * as authActions from '@/adapters/inbound/next/server-actions/auth'
+
+type SignInInput = {
+  email: string
+  password: string
+}
+
+type SignUpInput = SignInInput & {
+  fullName?: string
+}
 
 // Mock auth API
-const mockSignIn = mock<(email: string, password: string) => Promise<Session>>()
-const mockSignUp =
-  mock<(email: string, password: string, fullName?: string) => Promise<Session | null>>()
+const mockSignIn = mock<(input: SignInInput) => Promise<Session>>()
+const mockSignUp = mock<(input: SignUpInput) => Promise<Session | null>>()
 const mockSignOut = mock<() => Promise<void>>()
 
 // Import after mocking
@@ -55,7 +63,7 @@ describe('useSignIn', () => {
       },
     })
     mockSignIn.mockReset()
-    spyOn(authApi, 'signIn').mockImplementation(mockSignIn)
+    spyOn(authActions, 'signInAction').mockImplementation(mockSignIn)
   })
 
   afterEach(() => {
@@ -78,7 +86,10 @@ describe('useSignIn', () => {
       expect(result.current.isSuccess).toBe(true)
     })
 
-    expect(mockSignIn).toHaveBeenCalledWith('test@example.com', 'password123')
+    expect(mockSignIn).toHaveBeenCalledWith({
+      email: 'test@example.com',
+      password: 'password123',
+    })
   })
 
   test('handles sign in error', async () => {
@@ -112,7 +123,7 @@ describe('useSignUp', () => {
       },
     })
     mockSignUp.mockReset()
-    spyOn(authApi, 'signUp').mockImplementation(mockSignUp)
+    spyOn(authActions, 'signUpAction').mockImplementation(mockSignUp)
   })
 
   afterEach(() => {
@@ -141,7 +152,11 @@ describe('useSignUp', () => {
       expect(result.current.isSuccess).toBe(true)
     })
 
-    expect(mockSignUp).toHaveBeenCalledWith('new@example.com', 'password123', 'Test User')
+    expect(mockSignUp).toHaveBeenCalledWith({
+      email: 'new@example.com',
+      password: 'password123',
+      fullName: 'Test User',
+    })
   })
 
   test('signs up successfully with email confirmation required (null session)', async () => {
@@ -174,7 +189,7 @@ describe('useSignOut', () => {
       },
     })
     mockSignOut.mockReset()
-    spyOn(authApi, 'signOut').mockImplementation(mockSignOut)
+    spyOn(authActions, 'signOutAction').mockImplementation(mockSignOut)
   })
 
   afterEach(() => {

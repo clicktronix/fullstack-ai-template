@@ -1,4 +1,6 @@
 import { QueryClient, isServer } from '@tanstack/react-query'
+import { cache } from 'react'
+import { isTestEnvironment } from '@/infrastructure/env/runtime'
 import { ApiError, isRetryableError } from '@/lib/errors/api-error'
 
 /**
@@ -52,21 +54,24 @@ function makeQueryClient() {
  * IMPORTANT: Only used in browser, never on server
  */
 let browserQueryClient: QueryClient | null = null
+const getServerQueryClient = cache(makeQueryClient)
 
 /**
  * Get or create QueryClient for Next.js App Router
  *
  * Pattern from TanStack Query docs for App Router:
- * - Server: Always create new client (prevents data leakage between requests)
+ * - Server: Reuse one request-scoped client per RSC render via React cache()
  * - Browser: Reuse singleton (prevents recreation during React suspense)
  *
  * @see https://tanstack.com/query/latest/docs/framework/react/guides/advanced-ssr
  */
 export function getQueryClient() {
   if (isServer) {
-    // Server: always make a new query client
-    // This ensures each request has its own isolated cache
-    return makeQueryClient()
+    if (isTestEnvironment()) {
+      return makeQueryClient()
+    }
+
+    return getServerQueryClient()
   } else {
     // Browser: make a new query client if we don't already have one
     // This is very important, so we don't re-make a new client if React

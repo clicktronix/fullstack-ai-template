@@ -1,11 +1,11 @@
 {
   "fullNameLabel": {
     "id": "signupForm.fullNameLabel",
-    "defaultMessage": "Полное имя"
+    "defaultMessage": "Full Name"
   },
   "fullNamePlaceholder": {
     "id": "signupForm.fullNamePlaceholder",
-    "defaultMessage": "Иван Иванов"
+    "defaultMessage": "John Doe"
   },
   "emailLabel": {
     "id": "signupForm.emailLabel",
@@ -13,58 +13,58 @@
   },
   "emailPlaceholder": {
     "id": "signupForm.emailPlaceholder",
-    "defaultMessage": "ваш@email.com"
+    "defaultMessage": "your@email.com"
   },
   "passwordLabel": {
     "id": "signupForm.passwordLabel",
-    "defaultMessage": "Пароль"
+    "defaultMessage": "Password"
   },
   "passwordPlaceholder": {
     "id": "signupForm.passwordPlaceholder",
-    "defaultMessage": "Минимум 8 символов"
+    "defaultMessage": "Minimum 8 characters"
   },
   "confirmPasswordLabel": {
     "id": "signupForm.confirmPasswordLabel",
-    "defaultMessage": "Подтвердите пароль"
+    "defaultMessage": "Confirm Password"
   },
   "confirmPasswordPlaceholder": {
     "id": "signupForm.confirmPasswordPlaceholder",
-    "defaultMessage": "Повторите пароль"
+    "defaultMessage": "Repeat password"
   },
   "submitButton": {
     "id": "signupForm.submitButton",
-    "defaultMessage": "Создать аккаунт"
+    "defaultMessage": "Create Account"
   },
   "confirmationTitle": {
     "id": "signupForm.confirmationTitle",
-    "defaultMessage": "Подтвердите email"
+    "defaultMessage": "Confirm your email"
   },
   "confirmationDescription": {
     "id": "signupForm.confirmationDescription",
-    "defaultMessage": "Мы отправили письмо с подтверждением на {email}. Откройте его, чтобы завершить регистрацию."
+    "defaultMessage": "We sent a confirmation email to {email}. Open it to complete your registration."
   },
   "loginLinkLabel": {
     "id": "signupForm.loginLinkLabel",
-    "defaultMessage": "Перейти ко входу"
+    "defaultMessage": "Go to login"
   },
   "errorTitle": {
     "id": "signupForm.errorTitle",
-    "defaultMessage": "Ошибка регистрации"
+    "defaultMessage": "Registration failed"
   },
   "validationFullNameMinLength": {
     "id": "signupForm.validationFullNameMinLength",
-    "defaultMessage": "Имя должно содержать минимум 2 символа"
+    "defaultMessage": "Full name must be at least 2 characters"
   },
   "validationEmailInvalid": {
     "id": "signupForm.validationEmailInvalid",
-    "defaultMessage": "Введите корректный email"
+    "defaultMessage": "Please enter a valid email"
   },
   "validationPasswordMinLength": {
     "id": "signupForm.validationPasswordMinLength",
-    "defaultMessage": "Пароль должен содержать минимум 8 символов"
+    "defaultMessage": "Password must be at least 8 characters"
   },
   "validationPasswordsDoNotMatch": {
     "id": "signupForm.validationPasswordsDoNotMatch",
-    "defaultMessage": "Пароли не совпадают"
+    "defaultMessage": "Passwords do not match"
   }
 }

@@ -4,7 +4,6 @@ import { useMemo } from 'react'
 import { useLocale, type Locale } from '@/ui/providers/LocaleContext'
 
 const LOCALE_MAP: Record<Locale, string> = {
-  ru: 'ru-RU',
   en: 'en-US',
 }
 

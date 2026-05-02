@@ -1,0 +1,46 @@
+{
+  "fallbackTitle": {
+    "id": "workItemDetailPanel.fallbackTitle",
+    "defaultMessage": "Work item"
+  },
+  "loading": {
+    "id": "workItemDetailPanel.loading",
+    "defaultMessage": "Loading data…"
+  },
+  "updatedAt": {
+    "id": "workItemDetailPanel.updatedAt",
+    "defaultMessage": "Updated {value}"
+  },
+  "statusActive": {
+    "id": "workItemDetailPanel.statusActive",
+    "defaultMessage": "Active"
+  },
+  "statusArchived": {
+    "id": "workItemDetailPanel.statusArchived",
+    "defaultMessage": "Archived"
+  },
+  "priority": {
+    "id": "workItemDetailPanel.priority",
+    "defaultMessage": "Priority"
+  },
+  "labelsCount": {
+    "id": "workItemDetailPanel.labelsCount",
+    "defaultMessage": "{count, plural, one {# label} other {# labels}}"
+  },
+  "emptyDescription": {
+    "id": "workItemDetailPanel.emptyDescription",
+    "defaultMessage": "No description yet."
+  },
+  "error": {
+    "id": "workItemDetailPanel.error",
+    "defaultMessage": "Failed to load work item."
+  },
+  "backToList": {
+    "id": "workItemDetailPanel.backToList",
+    "defaultMessage": "Back to list"
+  },
+  "close": {
+    "id": "workItemDetailPanel.close",
+    "defaultMessage": "Close"
+  }
+}

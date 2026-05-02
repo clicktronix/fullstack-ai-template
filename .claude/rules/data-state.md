@@ -19,13 +19,13 @@ app/ui -> ui/server-state|feature-local actions.ts -> inbound adapters -> use-ca
 
 ## State Decision Tree
 
-| State Type       | Tool                    | Location            | Example                    |
-| ---------------- | ----------------------- | ------------------- | -------------------------- |
-| **Server State** | TanStack Query          | `ui/server-state/`  | User data, work items      |
-| **Global State** | React Context           | `ui/providers/`     | User, theme, locale        |
-| **Dashboard UI** | Zustand (persisted)     | Feature-local store | Widget layout, settings    |
-| **Form State**   | Mantine Forms + Valibot | Component-local     | Edit forms, filters        |
-| **Component UI** | useState/useReducer     | Component-local     | Modals, dropdowns, toggles |
+| State Type       | Tool                    | Location           | Example                    |
+| ---------------- | ----------------------- | ------------------ | -------------------------- |
+| **Server State** | TanStack Query          | `ui/server-state/` | User data, work items      |
+| **Global State** | React Context           | `ui/providers/`    | User, theme, locale        |
+| **Form State**   | Mantine Forms + Valibot | Component-local    | Edit forms, filters        |
+| **Component UI** | useState/useReducer     | Component-local    | Modals, dropdowns, toggles |
+| **Page UI**      | useState/useReducer     | Feature-local hook | Filters, tabs, layout mode |
 
 ## Server State (TanStack Query)
 
@@ -78,19 +78,6 @@ import { useAuth } from '@/ui/providers/AuthContext'
 const { user, isAuthenticated } = useAuth()
 ```
 
-## Dashboard UI State (Zustand)
-
-Use for dashboard-specific UI state with localStorage persistence.
-
-**Examples**: Widget layout, widget visibility, dashboard settings.
-
-```typescript
-import { useDashboardStore } from './stores/dashboard-store'
-
-const widgets = useDashboardStore((state) => state.widgets)
-const addWidget = useDashboardStore((state) => state.addWidget)
-```
-
 ## Component UI State (useState)
 
 Use for component-local UI state.
@@ -108,6 +95,6 @@ const [isOpen, setIsOpen] = useState(false)
 | Fetch server data     | `useQuery()` in `ui/server-state/*/queries.ts`      |
 | Mutate server data    | `useMutation()` in `ui/server-state/*/mutations.ts` |
 | Global user/theme     | React Context                                       |
-| Dashboard UI state    | Zustand store                                       |
+| Page UI state         | Feature-local `useState` / `useReducer` hook        |
 | Form state            | Mantine Forms                                       |
 | Component local state | useState                                            |

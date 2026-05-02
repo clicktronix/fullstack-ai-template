@@ -1,10 +1,9 @@
 import { ColorSchemeScript } from '@mantine/core'
 import type { Metadata } from 'next'
-import { cookies } from 'next/headers'
 import { appContextModals } from '@/app/_internal/modals/context-modals'
-import { LOCALE_COOKIE_NAME } from '@/lib/constants'
+import { getPublicEnv } from '@/infrastructure/env/public'
+import { getRuntimeEnv } from '@/infrastructure/env/runtime'
 import { ClientProviders } from '@/ui/layout/ClientProviders'
-import type { Locale } from '@/ui/providers/LocaleContext'
 import './globals.css'
 // Use .layer.css files to ensure CSS Modules have higher specificity than Mantine styles
 // This fixes production CSS order issues where Mantine's display:block overrides our display:flex
@@ -13,27 +12,49 @@ import '@mantine/charts/styles.layer.css'
 import '@mantine/notifications/styles.layer.css'
 import '@mantine/nprogress/styles.layer.css'
 
+const publicEnv = getPublicEnv()
+const runtimeEnv = getRuntimeEnv()
+
+function getMetadataBase(): URL {
+  if (publicEnv.NEXT_PUBLIC_SITE_URL) {
+    return new URL(publicEnv.NEXT_PUBLIC_SITE_URL)
+  }
+
+  if (runtimeEnv.VERCEL_ENV === 'production') {
+    const productionUrl = runtimeEnv.VERCEL_PROJECT_PRODUCTION_URL ?? runtimeEnv.VERCEL_URL
+
+    if (!productionUrl) {
+      throw new Error(
+        'NEXT_PUBLIC_SITE_URL or VERCEL_PROJECT_PRODUCTION_URL is required for production metadata.'
+      )
+    }
+
+    return new URL(`https://${productionUrl}`)
+  }
+
+  return new URL('http://localhost:3000')
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://example.com'),
+  metadataBase: getMetadataBase(),
   title: {
     default: 'Fullstack AI Template',
     template: '%s | Fullstack AI Template',
   },
-  description: 'Шаблон full-stack B2B и AI-приложений на Next.js, Supabase и Clean Architecture',
+  description:
+    'Full-stack B2B and AI application template built with Next.js, Supabase, and Clean Architecture',
   openGraph: {
     type: 'website',
-    locale: 'ru_RU',
+    locale: 'en_US',
     siteName: 'Fullstack AI Template',
     title: 'Fullstack AI Template',
-    description: 'Шаблон full-stack B2B и AI-приложений на Next.js и Supabase',
+    description: 'Full-stack B2B and AI application template built with Next.js and Supabase',
   },
   twitter: {
     card: 'summary',
     title: 'Fullstack AI Template',
   },
 }
-
-const SUPPORTED_LOCALES = new Set(['ru', 'en'])
 
 /**
  * Root layout - minimal shell without auth checks.
@@ -49,21 +70,16 @@ const SUPPORTED_LOCALES = new Set(['ru', 'en'])
  * - Better performance for unauthenticated users
  */
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = await cookies()
-  const localeCookie = cookieStore.get(LOCALE_COOKIE_NAME)?.value
-  const initialLocale: Locale =
-    localeCookie && SUPPORTED_LOCALES.has(localeCookie) ? (localeCookie as Locale) : 'ru'
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang={initialLocale} suppressHydrationWarning data-mantine-color-scheme="dark">
+    <html lang="en" suppressHydrationWarning data-mantine-color-scheme="dark">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#1a1b1e" media="(prefers-color-scheme: dark)" />
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-        {process.env.NEXT_PUBLIC_SUPABASE_URL && (
-          <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
+        {publicEnv.NEXT_PUBLIC_SUPABASE_URL && (
+          <link rel="preconnect" href={publicEnv.NEXT_PUBLIC_SUPABASE_URL} />
         )}
         <ColorSchemeScript defaultColorScheme="dark" />
       </head>
@@ -78,11 +94,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           Architecture:
           - Root layout (server): HTML shell, fonts, ColorSchemeScript
           - ClientProviders (client): All providers + nested ErrorBoundary
-          - initialLocale read from cookie to avoid hydration flicker
+          - LocaleProvider syncs persisted locale on the client.
+            src/proxy.ts seeds the locale cookie from Accept-Language.
         */}
-        <ClientProviders modals={appContextModals} initialLocale={initialLocale}>
-          {children}
-        </ClientProviders>
+        <ClientProviders modals={appContextModals}>{children}</ClientProviders>
       </body>
     </html>
   )

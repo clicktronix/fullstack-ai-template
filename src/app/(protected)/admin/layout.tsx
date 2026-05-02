@@ -1,7 +1,9 @@
 import { redirect } from 'next/navigation'
-import type { ReactNode } from 'react'
+import { connection } from 'next/server'
+import { Suspense, type ReactNode } from 'react'
 import { hasAccess } from '@/domain/user/user'
 import { verifySession } from '@/infrastructure/auth/verify-session'
+import ProtectedLoading from '../loading'
 
 /**
  * Admin layout with role check.
@@ -12,7 +14,25 @@ import { verifySession } from '@/infrastructure/auth/verify-session'
  * Note: verifySession() is called here and in the parent (protected) layout,
  * but React cache() deduplicates the calls within the same request.
  */
-export default async function AdminLayout({ children }: { children: ReactNode }) {
+export default function AdminLayout({
+  children,
+  modal,
+}: {
+  children: ReactNode
+  modal: ReactNode
+}) {
+  return (
+    <Suspense fallback={<ProtectedLoading />}>
+      <AdminGate>
+        {children}
+        {modal}
+      </AdminGate>
+    </Suspense>
+  )
+}
+
+async function AdminGate({ children }: { children: ReactNode }) {
+  await connection()
   const session = await verifySession()
 
   // Parent layout handles null session redirect, but check anyway for type safety

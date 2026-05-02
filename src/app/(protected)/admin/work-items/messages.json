@@ -1,10 +1,10 @@
 {
   "title": {
     "id": "workItemsPage.title",
-    "defaultMessage": "Эталонный vertical slice"
+    "defaultMessage": "Reference vertical slice"
   },
   "description": {
     "id": "workItemsPage.description",
-    "defaultMessage": "Эта страница станет основным примером того, как в шаблоне соединяются domain, use-cases, inbound/outbound adapters и ui/server-state."
+    "defaultMessage": "This page will become the main example of how domain, use-cases, inbound/outbound adapters, and ui/server-state connect in the template."
   }
 }

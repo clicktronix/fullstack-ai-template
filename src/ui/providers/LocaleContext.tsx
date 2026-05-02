@@ -10,44 +10,61 @@ import {
   type ReactNode,
 } from 'react'
 import { defaultMessages, loadMessages } from '@/infrastructure/i18n'
-import type { Messages } from '@/infrastructure/i18n'
+import type { Locale as I18nLocale, Messages } from '@/infrastructure/i18n'
 import { LOCALE_COOKIE_NAME, LOCALE_STORAGE_KEY } from '@/lib/constants'
 import dayjs from '@/lib/dayjs'
 import { logger } from '@/lib/logger'
 import { loadFromStorage, saveToStorage } from '@/lib/storage'
 
-export type Locale = 'ru' | 'en'
+export type { Locale } from '@/infrastructure/i18n'
 
 const COOKIE_MAX_AGE = 31_536_000 // 1 year in seconds
-const SUPPORTED_LOCALES = new Set<Locale>(['ru', 'en'])
+const SUPPORTED_LOCALES = new Set<I18nLocale>(['en'])
 
-function isValidLocale(locale: string | null): locale is Locale {
-  return locale !== null && SUPPORTED_LOCALES.has(locale as Locale)
+function isValidLocale(locale: string | null): locale is I18nLocale {
+  return locale !== null && SUPPORTED_LOCALES.has(locale as I18nLocale)
 }
 
-function setLocaleCookie(locale: Locale) {
+function setLocaleCookie(locale: I18nLocale) {
+  const secureAttribute = globalThis.location?.protocol === 'https:' ? '; Secure' : ''
   // eslint-disable-next-line unicorn/no-document-cookie -- Simple cookie set; no need for cookie library
-  document.cookie = `${LOCALE_COOKIE_NAME}=${locale}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`
+  document.cookie = `${LOCALE_COOKIE_NAME}=${locale}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax${secureAttribute}`
+}
+
+function getLocaleCookie(): I18nLocale | null {
+  if (globalThis.document === undefined) return null
+
+  const cookies = document.cookie
+    .split(';')
+    .map((part) => part.trim())
+    .filter((part) => part.startsWith(`${LOCALE_COOKIE_NAME}=`))
+
+  for (const cookie of cookies) {
+    const value = decodeURIComponent(cookie.slice(LOCALE_COOKIE_NAME.length + 1))
+    if (isValidLocale(value)) return value
+  }
+
+  return null
 }
 
 type LocaleContextValue = {
-  locale: Locale
+  locale: I18nLocale
   messages: Messages
-  setLocale: (locale: Locale) => void
+  setLocale: (locale: I18nLocale) => void
 }
 
 const LocaleContext = createContext<LocaleContextValue | undefined>(undefined)
 
 type LocaleProviderProps = {
   children: ReactNode
-  initialLocale?: Locale
+  initialLocale?: I18nLocale
 }
 
-export function LocaleProvider({ children, initialLocale = 'ru' }: LocaleProviderProps) {
-  const [locale, setLocaleState] = useState<Locale>(initialLocale)
+export function LocaleProvider({ children, initialLocale = 'en' }: LocaleProviderProps) {
+  const [locale, setLocaleState] = useState<I18nLocale>(initialLocale)
   const [messages, setMessages] = useState<Messages>(defaultMessages)
 
-  const setLocale = useCallback((newLocale: Locale) => {
+  const setLocale = useCallback((newLocale: I18nLocale) => {
     setLocaleState(newLocale)
     loadMessages(newLocale)
       .then(setMessages)
@@ -57,17 +74,19 @@ export function LocaleProvider({ children, initialLocale = 'ru' }: LocaleProvide
   // Sync localStorage to cookie on mount (migration for users who had locale in localStorage only).
   // If initialLocale already matches localStorage, no state change occurs -- no flicker.
   useEffect(() => {
-    const saved = loadFromStorage<Locale>({
+    const saved = loadFromStorage<I18nLocale | null>({
       key: LOCALE_STORAGE_KEY,
-      defaultValue: initialLocale,
-      validate: (value): value is Locale => isValidLocale(typeof value === 'string' ? value : null),
+      defaultValue: null,
+      validate: (value): value is I18nLocale | null =>
+        value === null || isValidLocale(typeof value === 'string' ? value : null),
     })
+    const nextLocale = saved ?? getLocaleCookie() ?? initialLocale
 
-    // Ensure cookie is set even if locale matches (migration path)
-    setLocaleCookie(saved)
+    // Ensure cookie is set even if locale matches (migration path).
+    setLocaleCookie(nextLocale)
 
-    if (saved !== initialLocale) {
-      setLocale(saved)
+    if (nextLocale !== initialLocale) {
+      setLocale(nextLocale)
     }
   }, [initialLocale, setLocale])
 

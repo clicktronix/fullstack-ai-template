@@ -1,37 +1,44 @@
 'use server'
 
-import { parse } from 'valibot'
-import { updateUserProfile } from '@/adapters/outbound/supabase/users.operations'
-import { UpdateUserSchema, type UpdateUser } from '@/domain/user/user'
-import { withAuthContext } from '@/infrastructure/auth/with-auth'
+import { object, pipe, string, uuid } from 'valibot'
+import { createSupabaseUsersRepository } from '@/adapters/outbound/supabase/users.repository'
+import { type UpdateUser, UpdateUserSchema, type User } from '@/domain/user/user'
+import { authActionClient, unwrapSafeActionResult } from '@/infrastructure/actions/safe-action'
 import { createActionError } from '@/lib/errors/action-error'
-import { AUTHORIZATION_ERROR, VALIDATION_ERROR } from '@/lib/errors/codes'
-import { isValidUuid } from '@/lib/uuid'
+import { AUTHORIZATION_ERROR } from '@/lib/errors/codes'
+import { updateUserProfile } from '@/use-cases/users/users'
 
 type ActionResult<T> = { success: true; data: T }
 
-function assertValidUserId(userId: string, context: string): void {
-  if (!isValidUuid(userId)) {
-    throw createActionError(VALIDATION_ERROR, `${context}: invalid user ID`)
-  }
-}
+const UpdateCurrentUserProfileInputSchema = object({
+  userId: pipe(string(), uuid()),
+  input: UpdateUserSchema,
+})
 
 /**
  * Update the authenticated user's own profile.
  */
-export const updateCurrentUserProfileAction = withAuthContext(
-  async (ctx, userId: string, input: UpdateUser) => {
-    assertValidUserId(userId, 'updateCurrentUserProfileAction')
-
-    if (ctx.userId !== userId) {
+const safeUpdateCurrentUserProfileAction = authActionClient
+  .inputSchema(UpdateCurrentUserProfileInputSchema)
+  .action(async ({ ctx, parsedInput }): Promise<ActionResult<User>> => {
+    if (ctx.userId !== parsedInput.userId) {
       throw createActionError(
         AUTHORIZATION_ERROR,
         'updateCurrentUserProfileAction: user can only update self'
       )
     }
 
-    const validated = parse(UpdateUserSchema, input)
-    const user = await updateUserProfile(ctx.supabase, ctx.userId, validated)
+    const user = await updateUserProfile(
+      { users: createSupabaseUsersRepository(ctx.supabase) },
+      ctx.userId,
+      parsedInput.input
+    )
     return { success: true, data: user } satisfies ActionResult<typeof user>
-  }
-)
+  })
+
+export async function updateCurrentUserProfileAction(
+  userId: string,
+  input: UpdateUser
+): Promise<ActionResult<User>> {
+  return unwrapSafeActionResult(await safeUpdateCurrentUserProfileAction({ userId, input }))
+}

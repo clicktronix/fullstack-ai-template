@@ -17,23 +17,16 @@ import 'server-only'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { cache } from 'react'
+import { getServerEnv } from '@/infrastructure/env/server'
 import type { Database } from './types'
 
 // Environment variables with validation
 function getSupabaseUrl(): string {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  if (!url) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
-  }
-  return url
+  return getServerEnv().NEXT_PUBLIC_SUPABASE_URL
 }
 
 function getSupabaseAnonKey(): string {
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  if (!key) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
-  }
-  return key
+  return getServerEnv().NEXT_PUBLIC_SUPABASE_ANON_KEY
 }
 
 // Cookie type for setAll
@@ -47,7 +40,7 @@ type CookieToSet = {
  * Create Supabase server client for Server Components, Route Handlers, and Server Actions.
  *
  * Uses try-catch in setAll because Next.js throws an error when cookies are set
- * from Server Components. This is safe because middleware handles session refresh.
+ * from Server Components. This is safe because proxy handles session refresh.
  *
  * @see https://supabase.com/docs/guides/auth/server-side/nextjs
  *
@@ -82,7 +75,7 @@ export const createClient = cache(async function createClient() {
       },
       setAll(cookiesToSet: CookieToSet[]) {
         // Next.js throws an error if cookies are set from Server Components.
-        // This can be safely ignored because middleware handles session refresh.
+        // This can be safely ignored because proxy handles session refresh.
         // @see https://supabase.com/docs/guides/auth/server-side/nextjs
         try {
           for (const { name, value, options } of cookiesToSet) {
@@ -90,7 +83,7 @@ export const createClient = cache(async function createClient() {
           }
         } catch {
           // The `setAll` method was called from a Server Component.
-          // This can be ignored if middleware handles session refresh.
+          // This can be ignored if proxy handles session refresh.
         }
       },
     },

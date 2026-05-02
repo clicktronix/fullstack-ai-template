@@ -2,22 +2,16 @@ import 'server-only'
 
 import { createClient } from '@supabase/supabase-js'
 import { cache } from 'react'
+import { getRequiredServerEnv, getServerEnv } from '@/infrastructure/env/server'
 import type { Database } from './types'
 
 function getSupabaseUrl(): string {
-  const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL
-  if (!url) {
-    throw new Error('Missing SUPABASE_URL environment variable')
-  }
-  return url
+  const env = getServerEnv()
+  return env.SUPABASE_URL ?? env.NEXT_PUBLIC_SUPABASE_URL
 }
 
 function getSupabaseServiceRoleKey(): string {
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!key) {
-    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable')
-  }
-  return key
+  return getRequiredServerEnv('SUPABASE_SERVICE_ROLE_KEY')
 }
 
 export const createAdminClient = cache(() =>

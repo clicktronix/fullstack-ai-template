@@ -32,39 +32,39 @@ drop policy if exists labels_admin_select on public.labels;
 create policy labels_admin_select on public.labels
   for select
   to authenticated
-  using (public.get_user_role(auth.uid()) in ('owner', 'admin'));
+  using (public.get_user_role((select auth.uid())) in ('owner', 'admin'));
 
 drop policy if exists labels_admin_insert on public.labels;
 create policy labels_admin_insert on public.labels
   for insert
   to authenticated
-  with check (public.get_user_role(auth.uid()) in ('owner', 'admin'));
+  with check (public.get_user_role((select auth.uid())) in ('owner', 'admin'));
 
 drop policy if exists labels_admin_update on public.labels;
 create policy labels_admin_update on public.labels
   for update
   to authenticated
-  using (public.get_user_role(auth.uid()) in ('owner', 'admin'))
-  with check (public.get_user_role(auth.uid()) in ('owner', 'admin'));
+  using (public.get_user_role((select auth.uid())) in ('owner', 'admin'))
+  with check (public.get_user_role((select auth.uid())) in ('owner', 'admin'));
 
 drop policy if exists work_items_admin_select on public.work_items;
 create policy work_items_admin_select on public.work_items
   for select
   to authenticated
-  using (public.get_user_role(auth.uid()) in ('owner', 'admin'));
+  using (public.get_user_role((select auth.uid())) in ('owner', 'admin'));
 
 drop policy if exists work_items_admin_insert on public.work_items;
 create policy work_items_admin_insert on public.work_items
   for insert
   to authenticated
-  with check (public.get_user_role(auth.uid()) in ('owner', 'admin'));
+  with check (public.get_user_role((select auth.uid())) in ('owner', 'admin'));
 
 drop policy if exists work_items_admin_update on public.work_items;
 create policy work_items_admin_update on public.work_items
   for update
   to authenticated
-  using (public.get_user_role(auth.uid()) in ('owner', 'admin'))
-  with check (public.get_user_role(auth.uid()) in ('owner', 'admin'));
+  using (public.get_user_role((select auth.uid())) in ('owner', 'admin'))
+  with check (public.get_user_role((select auth.uid())) in ('owner', 'admin'));
 
 comment on table public.labels is 'Reference labels for the template work items slice';
 comment on table public.work_items is 'Demo entity for the template vertical slice';

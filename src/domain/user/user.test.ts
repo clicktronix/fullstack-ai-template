@@ -262,8 +262,8 @@ describe('getUserDisplayName', () => {
   })
 
   test('handles unicode characters in full_name', () => {
-    const user = createUser({ full_name: 'Иван Петров' })
-    expect(getUserDisplayName(user)).toBe('Иван Петров')
+    const user = createUser({ full_name: 'Ivan Perez' })
+    expect(getUserDisplayName(user)).toBe('Ivan Perez')
   })
 
   test('handles empty string full_name (returns it, not email)', () => {

@@ -155,14 +155,14 @@ mock.module('next/navigation', () => ({
 
 // Mock next/headers
 mock.module('next/headers', () => ({
-  cookies: () => ({
+  cookies: async () => ({
     get: mock(() => {}),
     set: mock(() => {}),
     delete: mock(() => {}),
     getAll: mock(() => []),
     has: mock(() => false),
   }),
-  headers: () => ({
+  headers: async () => ({
     get: mock(() => null),
     has: mock(() => false),
     entries: mock(() => []),

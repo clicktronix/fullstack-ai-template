@@ -1,7 +1,8 @@
 import type { Session } from '@supabase/supabase-js'
 import { useQuery, useQueryClient, type UseQueryOptions } from '@tanstack/react-query'
 import { useEffect } from 'react'
-import { getCurrentUser, getSession, onAuthStateChange } from '@/adapters/outbound/api/auth'
+import { getCurrentUserAction, getSessionAction } from '@/adapters/inbound/next/server-actions/auth'
+import { onAuthStateChange } from '@/adapters/outbound/supabase/auth-events'
 import type { User } from '@/domain/user/user'
 import { authKeys } from '@/ui/server-state/auth/keys'
 import { STALE_TIME } from '@/ui/server-state/constants'
@@ -37,7 +38,7 @@ export function useSession(
 
   return useQuery({
     queryKey: authKeys.session(),
-    queryFn: () => getSession(),
+    queryFn: () => getSessionAction(),
     staleTime: STALE_TIME.SESSION,
     ...options,
   })
@@ -54,7 +55,7 @@ export function useCurrentUser(
 ) {
   return useQuery({
     queryKey: authKeys.user(),
-    queryFn: () => getCurrentUser(),
+    queryFn: () => getCurrentUserAction(),
     staleTime: STALE_TIME.REFERENCE_DATA,
     retry: (failureCount, error) => {
       // Don't retry auth errors (401/403) - user is simply not logged in

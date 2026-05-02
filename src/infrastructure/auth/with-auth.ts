@@ -19,6 +19,10 @@ function handleWrappedError(error: unknown, wrapperName: string): never {
  * Automatically creates authenticated context and passes supabase client.
  * Catches uncoded errors from adapters and encodes them with error codes.
  *
+ * Prefer `authActionClient` from `src/infrastructure/actions/safe-action.ts`
+ * for user-facing Server Actions that accept input. Keep this helper for
+ * low-level server-only wrappers and tests.
+ *
  * @example
  * ```ts
  * // Simple action
@@ -47,12 +51,14 @@ export function withAuth<TArgs extends unknown[], TResult>(
  * Higher-order function that wraps an async function with authentication
  * and passes the full context (supabase + userId).
  *
- * Use this when you need access to userId in addition to supabase client.
+ * Prefer `authActionClient` for user-facing Server Actions that accept input.
+ * Use this only for low-level server-only wrappers that need access to userId
+ * in addition to the Supabase client.
  *
  * @example
  * ```ts
- * export const createWorkItemAction = withAuthContext(
- *   (ctx, input) => createWorkItem(ctx.supabase, ctx.userId, input)
+ * const loadCurrentUserSettings = withAuthContext((ctx) =>
+ *   readSettings(ctx.supabase, ctx.userId)
  * )
  * ```
  */
@@ -71,9 +77,9 @@ export function withAuthContext<TArgs extends unknown[], TResult>(
 }
 
 /**
- * Проверяет, что пользователь НЕ имеет роль 'pending'.
- * Пользователи с ролью 'pending' не должны иметь доступ к защищённым данным.
- * Роль берётся из кэшированного контекста — без дополнительных DB-запросов.
+ * Verifies that the user does NOT have the 'pending' role.
+ * Users with the 'pending' role must not access protected data.
+ * The role comes from the cached context, with no additional DB queries.
  */
 function assertNotPendingRole(ctx: AuthenticatedContext): void {
   if (ctx.role === 'pending') {
@@ -82,8 +88,8 @@ function assertNotPendingRole(ctx: AuthenticatedContext): void {
 }
 
 /**
- * Проверяет, что пользователь имеет доступ к admin-разделу.
- * Разрешены роли 'admin' и 'owner'. Pending и любые другие роли запрещены.
+ * Verifies that the user can access the admin area.
+ * Roles 'admin' and 'owner' are allowed. Pending and all other roles are forbidden.
  */
 function assertAdminRole(ctx: AuthenticatedContext): void {
   if (ctx.role === 'pending') {
@@ -95,9 +101,9 @@ function assertAdminRole(ctx: AuthenticatedContext): void {
 }
 
 /**
- * Проверяет, что пользователь имеет роль 'owner'.
- * Также проверяет pending-роль для единообразного сообщения об ошибке.
- * Роль берётся из кэшированного контекста — без дополнительных DB-запросов.
+ * Verifies that the user has the 'owner' role.
+ * Also checks the pending role for a consistent error message.
+ * The role comes from the cached context, with no additional DB queries.
  */
 function assertOwnerRole(ctx: AuthenticatedContext): void {
   if (ctx.role === 'pending') {
@@ -131,6 +137,8 @@ export function withOwnerAuth<TArgs extends unknown[], TResult>(
 /**
  * Higher-order function that wraps an async function with admin access control.
  * Verifies that current user has 'admin' or 'owner' role before executing.
+ *
+ * Prefer `adminActionClient` for user-facing Server Actions that accept input.
  */
 export function withAdminAuth<TArgs extends unknown[], TResult>(
   fn: (supabase: AuthenticatedContext['supabase'], ...args: TArgs) => Promise<TResult>
@@ -176,6 +184,8 @@ export function withOwnerAuthContext<TArgs extends unknown[], TResult>(
 /**
  * Higher-order function that wraps an async function with admin access control
  * and passes the full context (supabase + userId).
+ *
+ * Prefer `adminActionClient` for user-facing Server Actions that accept input.
  */
 export function withAdminAuthContext<TArgs extends unknown[], TResult>(
   fn: (ctx: AuthenticatedContext, ...args: TArgs) => Promise<TResult>

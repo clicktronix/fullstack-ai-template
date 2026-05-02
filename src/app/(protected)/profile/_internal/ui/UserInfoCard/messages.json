@@ -1,26 +1,26 @@
 {
   "title": {
     "id": "profile.userInfo.title",
-    "defaultMessage": "Информация о пользователе"
+    "defaultMessage": "User Information"
   },
   "editButton": {
     "id": "profile.userInfo.editButton",
-    "defaultMessage": "Редактировать профиль"
+    "defaultMessage": "Edit Profile"
   },
   "loading": {
     "id": "profile.userInfo.loading",
-    "defaultMessage": "Загрузка данных…"
+    "defaultMessage": "Loading user data…"
   },
   "error": {
     "id": "profile.userInfo.error",
-    "defaultMessage": "Не удалось загрузить данные"
+    "defaultMessage": "Failed to load user data"
   },
   "errorTitle": {
     "id": "profile.userInfo.errorTitle",
-    "defaultMessage": "Ошибка"
+    "defaultMessage": "Error"
   },
   "noUsername": {
     "id": "profile.userInfo.noUsername",
-    "defaultMessage": "Имя не указано"
+    "defaultMessage": "No username set"
   }
 }

@@ -10,8 +10,7 @@ src/ui/
 │   └── use-*.ts           # Simple hooks stay flat
 ├── themes/           # Mantine theme, palettes, color mappings
 ├── layout/           # App shell, page layouts (AuthLayout, ChatDashboard, Sidebar)
-├── providers/        # React Context providers (Auth, Locale, Modals, QueryClient)
-└── stores/           # Zustand stores (cross-component state)
+└── providers/        # React Context providers (Auth, Locale, QueryClient)
 ```
 
 ## Conventions

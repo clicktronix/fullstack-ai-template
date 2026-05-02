@@ -13,7 +13,7 @@ import {
   Text,
   TextInput,
 } from '@mantine/core'
-import { IconArchive, IconEdit, IconPlus, IconRestore } from '@tabler/icons-react'
+import { IconArchive, IconEdit, IconEye, IconPlus, IconRestore } from '@tabler/icons-react'
 import Link from 'next/link'
 import { AssistantSuggestionsPanel } from '@/app/(protected)/admin/work-items/_internal/ui/AssistantSuggestionsPanel'
 import { LabelsPanel } from '@/app/(protected)/admin/work-items/_internal/ui/LabelsPanel'
@@ -133,6 +133,15 @@ export function WorkItemsDashboardView({
                             </Stack>
 
                             <Group gap="xs">
+                              <Button
+                                component={Link}
+                                href={`/admin/work-items/${item.id}`}
+                                variant="subtle"
+                                size="compact-sm"
+                                leftSection={<IconEye size={14} />}
+                              >
+                                <TranslationText {...messages.details} />
+                              </Button>
                               <Button
                                 variant="subtle"
                                 size="compact-sm"

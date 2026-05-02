@@ -5,30 +5,30 @@
   },
   "notFoundDescription": {
     "id": "errors.notFoundDescription",
-    "defaultMessage": "Страница не найдена"
+    "defaultMessage": "Page not found"
   },
   "goHome": {
     "id": "errors.goHome",
-    "defaultMessage": "На главную"
+    "defaultMessage": "Go home"
   },
   "errorTitle": {
     "id": "errors.errorTitle",
-    "defaultMessage": "Что-то пошло не так"
+    "defaultMessage": "Something went wrong"
   },
   "errorDescription": {
     "id": "errors.errorDescription",
-    "defaultMessage": "Произошла непредвиденная ошибка"
+    "defaultMessage": "An unexpected error occurred"
   },
   "criticalErrorDescription": {
     "id": "errors.criticalErrorDescription",
-    "defaultMessage": "Произошла критическая ошибка"
+    "defaultMessage": "A critical error occurred"
   },
   "tryAgain": {
     "id": "errors.tryAgain",
-    "defaultMessage": "Попробовать снова"
+    "defaultMessage": "Try again"
   },
   "errorId": {
     "id": "errors.errorId",
-    "defaultMessage": "ID ошибки: {id}"
+    "defaultMessage": "Error ID: {id}"
   }
 }

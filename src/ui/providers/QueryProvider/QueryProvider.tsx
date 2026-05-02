@@ -8,7 +8,7 @@ import { getQueryClient } from '@/lib/query-client'
 import { useRealtimeInvalidation } from '@/ui/server-state/realtime/use-realtime-invalidation'
 import { MutationErrorNotifier } from './MutationErrorNotifier'
 
-// Динамический импорт DevTools — загружается только в development
+// Dynamic DevTools import, loaded only in development.
 const ReactQueryDevtools = dynamic(
   () => import('@tanstack/react-query-devtools').then((m) => m.ReactQueryDevtools),
   { ssr: false }

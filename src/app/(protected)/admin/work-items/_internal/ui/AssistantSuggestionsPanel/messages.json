@@ -5,7 +5,7 @@
   },
   "description": {
     "id": "assistantSuggestionsPanel.description",
-    "defaultMessage": "Небольшой AI-flavored flow: серверный action, use-case orchestration и optional external API поверх work-items."
+    "defaultMessage": "Small AI-flavored flow: server actions, use-case orchestration, and an optional external API on top of work items."
   },
   "contextLabel": {
     "id": "assistantSuggestionsPanel.contextLabel",
@@ -13,7 +13,7 @@
   },
   "contextPlaceholder": {
     "id": "assistantSuggestionsPanel.contextPlaceholder",
-    "defaultMessage": "Например, we need to ship onboarding this week"
+    "defaultMessage": "For example, we need to ship onboarding this week"
   },
   "generate": {
     "id": "assistantSuggestionsPanel.generate",

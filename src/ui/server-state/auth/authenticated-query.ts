@@ -38,6 +38,9 @@ import { useCurrentUser } from './queries'
  * Do NOT use this for:
  * - `useCurrentUser` itself (would create circular dependency)
  * - Public endpoints that don't require authentication
+ * - Public routes. Protected routes hydrate `authKeys.user()` in
+ *   `src/app/(protected)/layout.tsx`; public routes should use plain `useQuery`
+ *   or opt in to auth explicitly.
  */
 export function useAuthenticatedQuery<
   TQueryFnData = unknown,
@@ -45,14 +48,14 @@ export function useAuthenticatedQuery<
   TData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey,
 >(options: UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>): UseQueryResult<TData, TError> {
-  const { isSuccess, isLoading } = useCurrentUser()
+  const { data: user, isSuccess, isLoading } = useCurrentUser()
 
   // Auth is ready when:
   // 1. User data exists (isSuccess)
   // 2. Initial load is complete (!isLoading)
   // isLoading = isPending && isFetching (true only on first load without cache)
   // Background refetches (window focus) won't block queries anymore
-  const isAuthReady = isSuccess && !isLoading
+  const isAuthReady = isSuccess && !isLoading && !!user
 
   return useQuery({
     ...options,

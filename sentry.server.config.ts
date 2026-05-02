@@ -4,6 +4,7 @@
 
 import { init } from '@sentry/nextjs'
 import { getSentrySendDefaultPii, getSentryTracesSampleRate } from './src/lib/sentry/config'
+import { redactSentryEvent } from './src/lib/sentry/redact'
 
 init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -14,4 +15,6 @@ init({
   // Disable default PII unless explicitly enabled by env.
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
   sendDefaultPii: getSentrySendDefaultPii(),
+
+  beforeSend: redactSentryEvent,
 })

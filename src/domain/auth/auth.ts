@@ -23,6 +23,13 @@ export const LoginCredentialsSchema = object({
 })
 export type LoginCredentials = InferOutput<typeof LoginCredentialsSchema>
 
+export const SignUpInputSchema = object({
+  email: pipe(string(), email('Invalid email address')),
+  password: pipe(string(), minLength(8, 'Password must be at least 8 characters')),
+  fullName: optional(pipe(string(), minLength(1, 'Full name must not be empty'))),
+})
+export type SignUpInput = InferOutput<typeof SignUpInputSchema>
+
 export const AuthErrorSchema = object({
   error: string(),
   error_description: optional(string()),

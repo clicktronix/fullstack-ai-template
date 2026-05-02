@@ -16,7 +16,7 @@ describe('balanceHtml', () => {
     })
 
     test('handles partial tag content (streaming scenario)', () => {
-      expect(balanceHtml('<h2>Часть 2 — Разгон')).toBe('<h2>Часть 2 — Разгон</h2>')
+      expect(balanceHtml('<h2>Part 2 - Ramp')).toBe('<h2>Part 2 - Ramp</h2>')
     })
   })
 

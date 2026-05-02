@@ -1,50 +1,50 @@
 {
   "title": {
     "id": "labelsPanel.title",
-    "defaultMessage": "Метки"
+    "defaultMessage": "Labels"
   },
   "description": {
     "id": "labelsPanel.description",
-    "defaultMessage": "Простой reference-data slice для настройки группировки задач."
+    "defaultMessage": "Simple reference-data slice for grouping and annotating work items."
   },
   "nameLabel": {
     "id": "labelsPanel.nameLabel",
-    "defaultMessage": "Название метки"
+    "defaultMessage": "Label name"
   },
   "colorLabel": {
     "id": "labelsPanel.colorLabel",
-    "defaultMessage": "Цвет"
+    "defaultMessage": "Color"
   },
   "namePlaceholder": {
     "id": "labelsPanel.namePlaceholder",
-    "defaultMessage": "Например, Product"
+    "defaultMessage": "For example, Product"
   },
   "colorPlaceholder": {
     "id": "labelsPanel.colorPlaceholder",
-    "defaultMessage": "Например, blue"
+    "defaultMessage": "For example, blue"
   },
   "create": {
     "id": "labelsPanel.create",
-    "defaultMessage": "Добавить"
+    "defaultMessage": "Add label"
   },
   "save": {
     "id": "labelsPanel.save",
-    "defaultMessage": "Сохранить"
+    "defaultMessage": "Save label"
   },
   "cancelEdit": {
     "id": "labelsPanel.cancelEdit",
-    "defaultMessage": "Отменить"
+    "defaultMessage": "Cancel"
   },
   "editLabel": {
     "id": "labelsPanel.editLabel",
-    "defaultMessage": "Редактировать метку"
+    "defaultMessage": "Edit label"
   },
   "empty": {
     "id": "labelsPanel.empty",
-    "defaultMessage": "Пока нет меток. Создайте первую, чтобы помечать задачи."
+    "defaultMessage": "No labels yet. Create the first one to demonstrate reference data management."
   },
   "validationNameRequired": {
     "id": "labelsPanel.validationNameRequired",
-    "defaultMessage": "Введите название метки"
+    "defaultMessage": "Enter the label name"
   }
 }

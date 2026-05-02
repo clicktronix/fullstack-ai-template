@@ -1,14 +1,14 @@
 {
   "save": {
     "id": "formActions.save",
-    "defaultMessage": "Сохранить"
+    "defaultMessage": "Save"
   },
   "cancel": {
     "id": "formActions.cancel",
-    "defaultMessage": "Отмена"
+    "defaultMessage": "Cancel"
   },
   "delete": {
     "id": "formActions.delete",
-    "defaultMessage": "Удалить"
+    "defaultMessage": "Delete"
   }
 }

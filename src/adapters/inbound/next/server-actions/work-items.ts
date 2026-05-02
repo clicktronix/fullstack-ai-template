@@ -1,9 +1,18 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidateTag, updateTag } from 'next/cache'
+import { boolean, number, object, optional, string } from 'valibot'
 import { createSupabaseWorkItemsRepository } from '@/adapters/outbound/supabase/work-items.repository'
-import type { CreateWorkItem, UpdateWorkItem, WorkItem } from '@/domain/work-item/work-item'
-import { withAdminAuthContext } from '@/infrastructure/auth/with-auth'
+import {
+  CreateWorkItemSchema,
+  WorkItemStatusSchema,
+  type CreateWorkItem,
+  type UpdateWorkItem,
+  UpdateWorkItemSchema,
+  type WorkItem,
+} from '@/domain/work-item/work-item'
+import { adminActionClient, unwrapSafeActionResult } from '@/infrastructure/actions/safe-action'
+import { cacheTags } from '@/infrastructure/cache/tags'
 import type { PaginatedWorkItemsResult, WorkItemListParams } from '@/use-cases/work-items/types'
 import {
   archiveWorkItem,
@@ -14,70 +23,121 @@ import {
   updateWorkItem,
 } from '@/use-cases/work-items/work-items'
 
-function revalidateWorkItemsRoutes() {
-  revalidatePath('/admin/work-items')
-  revalidatePath('/admin/work-items/archived')
+const WorkItemListParamsSchema = optional(
+  object({
+    search: optional(string()),
+    labelId: optional(string()),
+    priorityOnly: optional(boolean()),
+    status: optional(WorkItemStatusSchema),
+    page: optional(number()),
+    pageSize: optional(number()),
+  })
+)
+
+const WorkItemIdSchema = object({
+  id: string(),
+})
+
+const UpdateWorkItemActionInputSchema = object({
+  id: string(),
+  input: UpdateWorkItemSchema,
+})
+
+function revalidateWorkItemsCache(userId: string, id?: string) {
+  updateTag(cacheTags.workItems.user(userId))
+  updateTag(cacheTags.workItems.lists(userId))
+  revalidateTag(cacheTags.workItems.all, 'minutes')
+
+  if (id) {
+    updateTag(cacheTags.workItems.detail(userId, id))
+  }
 }
 
-export const getWorkItemsAction = withAdminAuthContext(
-  async (ctx, params?: WorkItemListParams): Promise<PaginatedWorkItemsResult> => {
+const safeGetWorkItemsAction = adminActionClient
+  .inputSchema(WorkItemListParamsSchema)
+  .action(async ({ ctx, parsedInput }): Promise<PaginatedWorkItemsResult> => {
     return listWorkItems(
       { workItems: createSupabaseWorkItemsRepository(ctx.supabase, ctx.userId) },
-      params
+      parsedInput
     )
-  }
-)
+  })
 
-export const getWorkItemAction = withAdminAuthContext(
-  async (ctx, id: string): Promise<WorkItem> => {
+const safeGetWorkItemAction = adminActionClient
+  .inputSchema(WorkItemIdSchema)
+  .action(async ({ ctx, parsedInput }): Promise<WorkItem> => {
     return getWorkItem(
       { workItems: createSupabaseWorkItemsRepository(ctx.supabase, ctx.userId) },
-      id
+      parsedInput.id
     )
-  }
-)
+  })
 
-export const createWorkItemAction = withAdminAuthContext(
-  async (ctx, input: CreateWorkItem): Promise<WorkItem> => {
+const safeCreateWorkItemAction = adminActionClient
+  .inputSchema(CreateWorkItemSchema)
+  .action(async ({ ctx, parsedInput }): Promise<WorkItem> => {
     const result = await createWorkItem(
       { workItems: createSupabaseWorkItemsRepository(ctx.supabase, ctx.userId) },
-      input
+      parsedInput
     )
-    revalidateWorkItemsRoutes()
+    revalidateWorkItemsCache(ctx.userId, result.id)
     return result
-  }
-)
+  })
 
-export const updateWorkItemAction = withAdminAuthContext(
-  async (ctx, id: string, input: UpdateWorkItem): Promise<WorkItem> => {
+const safeUpdateWorkItemAction = adminActionClient
+  .inputSchema(UpdateWorkItemActionInputSchema)
+  .action(async ({ ctx, parsedInput }): Promise<WorkItem> => {
     const result = await updateWorkItem(
       { workItems: createSupabaseWorkItemsRepository(ctx.supabase, ctx.userId) },
-      id,
-      input
+      parsedInput.id,
+      parsedInput.input
     )
-    revalidateWorkItemsRoutes()
+    revalidateWorkItemsCache(ctx.userId, parsedInput.id)
     return result
-  }
-)
+  })
 
-export const archiveWorkItemAction = withAdminAuthContext(
-  async (ctx, id: string): Promise<WorkItem> => {
+const safeArchiveWorkItemAction = adminActionClient
+  .inputSchema(WorkItemIdSchema)
+  .action(async ({ ctx, parsedInput }): Promise<WorkItem> => {
     const result = await archiveWorkItem(
       { workItems: createSupabaseWorkItemsRepository(ctx.supabase, ctx.userId) },
-      id
+      parsedInput.id
     )
-    revalidateWorkItemsRoutes()
+    revalidateWorkItemsCache(ctx.userId, parsedInput.id)
     return result
-  }
-)
+  })
 
-export const restoreWorkItemAction = withAdminAuthContext(
-  async (ctx, id: string): Promise<WorkItem> => {
+const safeRestoreWorkItemAction = adminActionClient
+  .inputSchema(WorkItemIdSchema)
+  .action(async ({ ctx, parsedInput }): Promise<WorkItem> => {
     const result = await restoreWorkItem(
       { workItems: createSupabaseWorkItemsRepository(ctx.supabase, ctx.userId) },
-      id
+      parsedInput.id
     )
-    revalidateWorkItemsRoutes()
+    revalidateWorkItemsCache(ctx.userId, parsedInput.id)
     return result
-  }
-)
+  })
+
+export async function getWorkItemsAction(
+  params?: WorkItemListParams
+): Promise<PaginatedWorkItemsResult> {
+  return unwrapSafeActionResult(await safeGetWorkItemsAction(params))
+}
+
+export async function getWorkItemAction(id: string): Promise<WorkItem> {
+  return unwrapSafeActionResult(await safeGetWorkItemAction({ id }))
+}
+
+export async function createWorkItemAction(input: CreateWorkItem): Promise<WorkItem> {
+  return unwrapSafeActionResult(await safeCreateWorkItemAction(input))
+}
+
+export async function updateWorkItemAction(id: string, input: UpdateWorkItem): Promise<WorkItem> {
+  return unwrapSafeActionResult(await safeUpdateWorkItemAction({ id, input }))
+}
+
+export async function archiveWorkItemAction(id: string): Promise<WorkItem> {
+  return unwrapSafeActionResult(await safeArchiveWorkItemAction({ id }))
+}
+
+export async function restoreWorkItemAction(id: string): Promise<WorkItem> {
+  return unwrapSafeActionResult(await safeRestoreWorkItemAction({ id }))
+}

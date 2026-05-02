@@ -1,18 +1,18 @@
 {
   "title": {
     "id": "login.title",
-    "defaultMessage": "Вход"
+    "defaultMessage": "Sign In"
   },
   "description": {
     "id": "login.description",
-    "defaultMessage": "Введите данные для входа в аккаунт"
+    "defaultMessage": "Enter your credentials to access your account"
   },
   "noAccount": {
     "id": "login.noAccount",
-    "defaultMessage": "Нет аккаунта?"
+    "defaultMessage": "Don’t have an account?"
   },
   "signupLink": {
     "id": "login.signupLink",
-    "defaultMessage": "Зарегистрироваться"
+    "defaultMessage": "Sign up"
   }
 }

@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation'
-import type { ReactNode } from 'react'
+import { connection } from 'next/server'
+import { Suspense, type ReactNode } from 'react'
 import { isOwner } from '@/domain/user/user'
 import { verifySession } from '@/infrastructure/auth/verify-session'
 import { ApiErrorBoundary } from '@/ui/components/ApiErrorBoundary'
+import ProtectedLoading from '../../loading'
 
 /**
  * Settings layout with owner role check.
@@ -13,7 +15,16 @@ import { ApiErrorBoundary } from '@/ui/components/ApiErrorBoundary'
  * Note: verifySession() is called here and in the parent (protected) layout,
  * but React cache() deduplicates the calls within the same request.
  */
-export default async function SettingsLayout({ children }: { children: ReactNode }) {
+export default function SettingsLayout({ children }: { children: ReactNode }) {
+  return (
+    <Suspense fallback={<ProtectedLoading />}>
+      <SettingsGate>{children}</SettingsGate>
+    </Suspense>
+  )
+}
+
+async function SettingsGate({ children }: { children: ReactNode }) {
+  await connection()
   const session = await verifySession()
 
   // Parent layout handles null session redirect, but check anyway for type safety

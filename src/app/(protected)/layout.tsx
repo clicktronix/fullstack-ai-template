@@ -1,14 +1,12 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import type { ReactNode } from 'react'
+import { connection } from 'next/server'
+import { Suspense, type ReactNode } from 'react'
 import { verifySession } from '@/infrastructure/auth/verify-session'
 import { getQueryClient } from '@/lib/query-client'
 import { authKeys } from '@/ui/server-state/auth/keys'
-
-// This layout uses `cookies()` via verifySession(), so it must be dynamic.
-// Marking it explicitly prevents Next from attempting static rendering during build.
-export const dynamic = 'force-dynamic'
+import ProtectedLoading from './loading'
 
 /**
  * Protected routes layout with authentication and query hydration.
@@ -17,7 +15,7 @@ export const dynamic = 'force-dynamic'
  * and ensures user is authenticated before rendering.
  *
  * Architecture:
- * - Middleware: Fast cookie check (optimistic)
+ * - Proxy: Fast cookie check (optimistic)
  * - This layout: Full session validation via verifySession()
  * - HydrationBoundary: Pre-populates React Query cache with user data
  * - Pages: Access session via React cache (no duplicate API calls)
@@ -31,12 +29,21 @@ export const dynamic = 'force-dynamic'
  *
  * @see https://tanstack.com/query/latest/docs/framework/react/guides/advanced-ssr
  */
-export default async function ProtectedLayout({ children }: { children: ReactNode }) {
+export default function ProtectedLayout({ children }: { children: ReactNode }) {
+  return (
+    <Suspense fallback={<ProtectedLoading />}>
+      <ProtectedGate>{children}</ProtectedGate>
+    </Suspense>
+  )
+}
+
+async function ProtectedGate({ children }: { children: ReactNode }) {
+  await connection()
   const session = await verifySession()
 
   if (!session) {
     // Try to preserve the original path for post-login redirect
-    // Middleware usually handles this, but this is a fallback
+    // Proxy usually handles this, but this is a fallback
     const headersList = await headers()
     const pathname = headersList.get('x-pathname') ?? headersList.get('x-invoke-path') ?? ''
     const search = headersList.get('x-search') ?? ''

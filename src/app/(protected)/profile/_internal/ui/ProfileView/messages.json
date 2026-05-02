@@ -1,14 +1,14 @@
 {
   "title": {
     "id": "profile.title",
-    "defaultMessage": "Профиль и настройки"
+    "defaultMessage": "Profile & Settings"
   },
   "version": {
     "id": "profile.version",
-    "defaultMessage": "Influra v1.0.0 - Платформа инфлюенс-маркетинга"
+    "defaultMessage": "Fullstack AI Template — starter for AI and B2B products"
   },
   "error": {
     "id": "profile.error",
-    "defaultMessage": "Ошибка"
+    "defaultMessage": "Error"
   }
 }

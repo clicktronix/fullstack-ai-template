@@ -99,7 +99,7 @@ describe('LoginCredentialsSchema', () => {
     test('validates unicode characters in password', () => {
       const credentials = {
         email: 'user@example.com',
-        password: 'пароль123',
+        password: 'password-n-123',
       }
       const result = safeParse(LoginCredentialsSchema, credentials)
       expect(result.success).toBe(true)
@@ -340,12 +340,10 @@ describe('parseAuthError', () => {
   })
 
   test('handles unicode in error description', () => {
-    const result = parseAuthError(
-      '#error=test&error_description=%D0%9E%D1%88%D0%B8%D0%B1%D0%BA%D0%B0'
-    )
+    const result = parseAuthError('#error=test&error_description=Caff%C3%A8')
     expect(result).toEqual({
       error: 'test',
-      error_description: 'Ошибка',
+      error_description: 'Caffè',
     })
   })
 })

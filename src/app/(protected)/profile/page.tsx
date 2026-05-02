@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { ProfileView } from './_internal/ui/ProfileView'
 
 export const metadata: Metadata = {
-  title: 'Профиль | Platform',
+  title: 'Profile | Platform',
 }
 
 /**

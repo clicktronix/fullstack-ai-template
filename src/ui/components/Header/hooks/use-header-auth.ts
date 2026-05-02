@@ -1,8 +1,6 @@
 import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
 import { useAuth } from '@/ui/providers/AuthContext'
-import type { Locale } from '@/ui/providers/LocaleContext'
-import { useLocale } from '@/ui/providers/LocaleContext'
 import { useSignOut } from '@/ui/server-state/auth/mutations'
 
 export type UseHeaderAuthReturn = {
@@ -10,19 +8,16 @@ export type UseHeaderAuthReturn = {
   isLoading: boolean
   isLoggingOut: boolean
   onLogout: () => void
-  locale: Locale
-  setLocale: (locale: Locale) => void
 }
 
 /**
  * Hook for managing authentication in Header
- * Handles logout and locale changes
+ * Handles logout state and navigation
  */
 export function useHeaderAuth(): UseHeaderAuthReturn {
   const { user, isLoading } = useAuth()
   const router = useRouter()
   const { mutate: signOutMutate, isPending: isLoggingOut } = useSignOut()
-  const { locale, setLocale } = useLocale()
 
   const handleLogout = useCallback(() => {
     signOutMutate(undefined, {
@@ -37,7 +32,5 @@ export function useHeaderAuth(): UseHeaderAuthReturn {
     isLoading,
     isLoggingOut,
     onLogout: handleLogout,
-    locale,
-    setLocale,
   }
 }

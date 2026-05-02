@@ -19,7 +19,6 @@ import { useLocale, type Locale } from '@/ui/providers/LocaleContext'
  * Map short locale codes to full locale strings for Intl.
  */
 const LOCALE_MAP: Record<Locale, string> = {
-  ru: 'ru-RU',
   en: 'en-US',
 }
 
@@ -62,20 +61,20 @@ export function useFormatters(options: UseFormattersOptions = {}) {
     () => ({
       /**
        * Format a number as currency.
-       * @example currency(1234.56) // "$1,234.56" or "1 234,56 ₽"
+       * @example currency(1234.56) // "$1,234.56"
        */
       currency: (value: number, opts?: Omit<CurrencyFormatOptions, 'locale' | 'currency'>) =>
         formatCurrency(value, { locale, currency, ...opts }),
 
       /**
        * Format a number as compact currency (B/M/K).
-       * @example compactCurrency(1500000000) // "$1.5B" or "1,5B ₽"
+       * @example compactCurrency(1500000000) // "$1.5B"
        */
       compactCurrency: (value: number) => formatCompactCurrency(value, { locale, currency }),
 
       /**
        * Format a number with locale-aware separators.
-       * @example number(1234567.89) // "1,234,567.89" or "1 234 567,89"
+       * @example number(1234567.89) // "1,234,567.89"
        */
       number: (value: number, opts?: Omit<NumberFormatOptions, 'locale'>) =>
         formatNumber(value, { locale, ...opts }),
@@ -103,9 +102,9 @@ export function useFormatters(options: UseFormattersOptions = {}) {
 
   return {
     ...formatters,
-    /** Current locale string (e.g., 'en-US', 'ru-RU') */
+    /** Current locale string (e.g., 'en-US') */
     locale,
-    /** Current currency code (e.g., 'USD', 'RUB') */
+    /** Current currency code (e.g., 'USD') */
     currencyCode: currency,
     /** Stable function for visualization valueFormatter (compact currency) */
     compactCurrencyFormatter: formatters.compactCurrency,

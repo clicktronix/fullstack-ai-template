@@ -2,7 +2,7 @@
 
 import type { Session } from '@supabase/supabase-js'
 import { usePathname } from 'next/navigation'
-import { createContext, use, useMemo, useRef, type ReactNode } from 'react'
+import { createContext, Suspense, use, useMemo, useRef, type ReactNode } from 'react'
 import type { User } from '@/domain/user/user'
 import { isAuthRoute } from '@/lib/auth-routes'
 import { useCurrentUser, useSession } from '@/ui/server-state/auth/queries'
@@ -28,6 +28,10 @@ type AuthProviderProps = {
   user?: User | null
 }
 
+type AuthProviderCoreProps = AuthProviderProps & {
+  shouldDisableQuery: boolean
+}
+
 /**
  * AuthProvider manages authentication state using a hybrid approach:
  * - Initial data from SSR (layout's verifySession)
@@ -47,8 +51,35 @@ type AuthProviderProps = {
  * - Smart refetch (only on window focus if authenticated)
  */
 export function AuthProvider({ children, user: initialUser = null }: AuthProviderProps) {
+  return (
+    <Suspense
+      fallback={
+        <AuthProviderCore user={initialUser} shouldDisableQuery>
+          {children}
+        </AuthProviderCore>
+      }
+    >
+      <PathnameAwareAuthProvider user={initialUser}>{children}</PathnameAwareAuthProvider>
+    </Suspense>
+  )
+}
+
+function PathnameAwareAuthProvider({ children, user: initialUser = null }: AuthProviderProps) {
   const pathname = usePathname()
   const shouldDisableQuery = pathname ? isAuthRoute(pathname) : false
+
+  return (
+    <AuthProviderCore user={initialUser} shouldDisableQuery={shouldDisableQuery}>
+      {children}
+    </AuthProviderCore>
+  )
+}
+
+function AuthProviderCore({
+  children,
+  user: initialUser = null,
+  shouldDisableQuery,
+}: AuthProviderCoreProps) {
   // eslint-disable-next-line react-hooks/purity -- Date.now() in useRef initial value is safe: runs once per mount, not on re-renders
   const initialDataUpdatedAtRef = useRef(initialUser ? Date.now() : undefined)
 

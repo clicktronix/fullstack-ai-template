@@ -4,10 +4,8 @@ import Link from 'next/link'
 import { memo } from 'react'
 import { getUserDisplayName, getUserInitials, type User } from '@/domain/user/user'
 import { Avatar } from '@/ui/components/Avatar'
-import { LocaleSelector } from '@/ui/components/LocaleSelector'
 import { ThemeToggle } from '@/ui/components/ThemeToggle'
 import { TranslationText } from '@/ui/components/TranslationText'
-import type { Locale } from '@/ui/providers/LocaleContext'
 import messages from '../messages.json'
 import styles from './styles.module.css'
 
@@ -16,8 +14,6 @@ export type HeaderUserMenuProps = {
   isLoading: boolean
   isLoggingOut: boolean
   onLogout: () => void
-  locale: Locale
-  setLocale: (locale: Locale) => void
   userMenuAriaLabel: string
 }
 
@@ -26,8 +22,6 @@ export const HeaderUserMenu = memo(function HeaderUserMenu({
   isLoading,
   isLoggingOut,
   onLogout,
-  locale,
-  setLocale,
   userMenuAriaLabel,
 }: HeaderUserMenuProps) {
   return (
@@ -78,9 +72,6 @@ export const HeaderUserMenu = memo(function HeaderUserMenu({
             <Menu.Label>
               <TranslationText {...messages.settings} />
             </Menu.Label>
-            <LocaleSelector locale={locale} setLocale={setLocale} />
-
-            <Menu.Divider />
 
             <Menu.Item
               onClick={onLogout}

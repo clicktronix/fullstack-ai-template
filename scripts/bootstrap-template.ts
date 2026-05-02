@@ -21,7 +21,6 @@ const TEXT_FILES = [
   'src/app/(public)/page.tsx',
   'src/app/(public)/_internal/ui/LandingView/messages.json',
   'src/infrastructure/i18n/locales/en.ts',
-  'src/infrastructure/i18n/locales/ru.ts',
   'src/app/(protected)/admin/team/page.tsx',
   'src/app/(protected)/admin/settings/page.tsx',
   'docs/TEMPLATE_GUIDE/GETTING_STARTED.md',

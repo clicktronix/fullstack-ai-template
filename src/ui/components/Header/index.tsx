@@ -3,7 +3,6 @@
 import { Box } from '@mantine/core'
 import type { User } from '@/domain/user/user'
 import { composeHooks } from '@/ui/hooks/compose-hooks'
-import type { Locale } from '@/ui/providers/LocaleContext'
 import { HeaderNavigation } from './HeaderNavigation'
 import { HeaderUserMenu } from './HeaderUserMenu'
 import { useHeaderProps } from './lib'
@@ -16,8 +15,6 @@ export type HeaderHookProps = {
   pathname: string
   onLogout: () => void
   createTabChangeHandler: (path: string) => () => void
-  locale: Locale
-  setLocale: (locale: Locale) => void
   userMenuAriaLabel: string
 }
 
@@ -28,8 +25,6 @@ export function HeaderView({
   onLogout,
   pathname,
   createTabChangeHandler,
-  locale,
-  setLocale,
   userMenuAriaLabel,
 }: HeaderHookProps) {
   return (
@@ -47,8 +42,6 @@ export function HeaderView({
           isLoading={isLoading}
           isLoggingOut={isLoggingOut}
           onLogout={onLogout}
-          locale={locale}
-          setLocale={setLocale}
           userMenuAriaLabel={userMenuAriaLabel}
         />
       </Box>

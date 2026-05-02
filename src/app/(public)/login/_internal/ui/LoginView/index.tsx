@@ -7,7 +7,9 @@ import { TranslationTitle } from '@/ui/components/TranslationTitle'
 import { LoginForm } from '../LoginForm'
 import messages from './messages.json'
 
-export type LoginViewProps = Record<string, never>
+export type LoginViewProps = {
+  redirectTo?: string
+}
 
 /**
  * LoginView - main login page component.
@@ -15,14 +17,14 @@ export type LoginViewProps = Record<string, never>
  * Simple view that renders the login form with email/password.
  * No OAuth providers - only email/password authentication.
  */
-export function LoginView() {
+export function LoginView({ redirectTo }: LoginViewProps) {
   return (
     <Container size="xs" py="xl">
       <Paper p="xl" radius="md" withBorder>
         <Stack gap="md">
           <TranslationTitle {...messages.title} order={2} ta="center" />
           <TranslationText {...messages.description} c="dimmed" ta="center" />
-          <LoginForm />
+          <LoginForm redirectTo={redirectTo} />
           <Group justify="center" gap="xs">
             <TranslationText {...messages.noAccount} size="sm" c="dimmed" />
             <Anchor component={Link} href="/signup" size="sm">

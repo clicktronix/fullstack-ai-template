@@ -29,8 +29,8 @@ const MARKETPLACE_PLUGINS: MarketplacePlugin[] = [
   { marketplace: 'tanstack-skills/tanstack-skills', plugin: 'tanstack-query@tanstack-skills' },
   { marketplace: 'obra/superpowers-marketplace', plugin: 'superpowers@superpowers-marketplace' },
   {
-    marketplace: 'clicktronix/react-clean-skills',
-    plugin: 'react-clean-skills@react-clean-skills',
+    marketplace: 'clicktronix/nextjs-clean-skills',
+    plugin: 'nextjs-clean-skills@nextjs-clean-skills',
   },
 ]
 

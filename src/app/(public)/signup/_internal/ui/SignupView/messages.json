@@ -1,18 +1,18 @@
 {
   "title": {
     "id": "signup.title",
-    "defaultMessage": "Регистрация"
+    "defaultMessage": "Create Account"
   },
   "description": {
     "id": "signup.description",
-    "defaultMessage": "Заполните данные для создания аккаунта"
+    "defaultMessage": "Fill in the details to create your account"
   },
   "hasAccount": {
     "id": "signup.hasAccount",
-    "defaultMessage": "Уже есть аккаунт?"
+    "defaultMessage": "Already have an account?"
   },
   "loginLink": {
     "id": "signup.loginLink",
-    "defaultMessage": "Войти"
+    "defaultMessage": "Sign in"
   }
 }

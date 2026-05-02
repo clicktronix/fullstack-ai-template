@@ -1,39 +1,70 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidateTag, updateTag } from 'next/cache'
+import { object, string } from 'valibot'
 import { createSupabaseLabelsRepository } from '@/adapters/outbound/supabase/labels.repository'
-import type { CreateLabel, Label, UpdateLabel } from '@/domain/label/label'
-import { withAdminAuthContext } from '@/infrastructure/auth/with-auth'
+import {
+  CreateLabelSchema,
+  type CreateLabel,
+  type Label,
+  UpdateLabelSchema,
+  type UpdateLabel,
+} from '@/domain/label/label'
+import { adminActionClient, unwrapSafeActionResult } from '@/infrastructure/actions/safe-action'
+import { cacheTags } from '@/infrastructure/cache/tags'
 import { createLabel, listLabels, updateLabel } from '@/use-cases/labels/labels'
 
-function revalidateLabelRoutes() {
-  revalidatePath('/admin/work-items')
-  revalidatePath('/admin/work-items/archived')
+const UpdateLabelActionInputSchema = object({
+  id: string(),
+  input: UpdateLabelSchema,
+})
+
+function revalidateLabelsCache(userId: string, id?: string) {
+  updateTag(cacheTags.labels.list)
+  updateTag(cacheTags.workItems.lists(userId))
+  revalidateTag(cacheTags.labels.all, 'minutes')
+  revalidateTag(cacheTags.workItems.all, 'minutes')
+
+  if (id) {
+    updateTag(cacheTags.labels.detail(id))
+  }
 }
 
-export const getLabelsAction = withAdminAuthContext(async (ctx): Promise<Label[]> => {
+const safeGetLabelsAction = adminActionClient.action(async ({ ctx }): Promise<Label[]> => {
   return listLabels({ labels: createSupabaseLabelsRepository(ctx.supabase) })
 })
 
-export const createLabelAction = withAdminAuthContext(
-  async (ctx, input: CreateLabel): Promise<Label> => {
+const safeCreateLabelAction = adminActionClient
+  .inputSchema(CreateLabelSchema)
+  .action(async ({ ctx, parsedInput }): Promise<Label> => {
     const result = await createLabel(
       { labels: createSupabaseLabelsRepository(ctx.supabase) },
-      input
+      parsedInput
     )
-    revalidateLabelRoutes()
+    revalidateLabelsCache(ctx.userId, result.id)
     return result
-  }
-)
+  })
 
-export const updateLabelAction = withAdminAuthContext(
-  async (ctx, id: string, input: UpdateLabel): Promise<Label> => {
+const safeUpdateLabelAction = adminActionClient
+  .inputSchema(UpdateLabelActionInputSchema)
+  .action(async ({ ctx, parsedInput }): Promise<Label> => {
     const result = await updateLabel(
       { labels: createSupabaseLabelsRepository(ctx.supabase) },
-      id,
-      input
+      parsedInput.id,
+      parsedInput.input
     )
-    revalidateLabelRoutes()
+    revalidateLabelsCache(ctx.userId, parsedInput.id)
     return result
-  }
-)
+  })
+
+export async function getLabelsAction(): Promise<Label[]> {
+  return unwrapSafeActionResult(await safeGetLabelsAction())
+}
+
+export async function createLabelAction(input: CreateLabel): Promise<Label> {
+  return unwrapSafeActionResult(await safeCreateLabelAction(input))
+}
+
+export async function updateLabelAction(id: string, input: UpdateLabel): Promise<Label> {
+  return unwrapSafeActionResult(await safeUpdateLabelAction({ id, input }))
+}

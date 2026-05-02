@@ -166,7 +166,7 @@ export function buildDynamicSelect(
   relationSelects: RelationSelectConfig,
   filterConfigMap: FilterConfigMap
 ): string {
-  // Определяем, какие relations имеют активные фильтры
+  // Determine which relations have active filters.
   const activeRelations = new Set<string>()
   for (const [paramKey, config] of Object.entries(filterConfigMap)) {
     if (!config.relation) continue
@@ -176,8 +176,8 @@ export function buildDynamicSelect(
     activeRelations.add(config.relation)
   }
 
-  // Собираем select: базовые скалярные поля + все relations
-  // Для relations с активным фильтром — inner join, для остальных — left join
+  // Build select: base scalar fields plus all relations.
+  // Use inner joins for relations with active filters, left joins for the rest.
   const parts = [baseSelect]
   for (const [relation, selects] of Object.entries(relationSelects)) {
     const selectStr = activeRelations.has(relation) ? selects.inner : selects.left

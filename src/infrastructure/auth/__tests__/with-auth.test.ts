@@ -7,18 +7,18 @@ mock.module('../authenticated-context', () => ({
   createAuthenticatedContext: mockCreateAuthenticatedContext,
 }))
 
-// НЕ мокаем @/lib/errors/action-error — используем реальный модуль.
-// mock.module в Bun загрязняет глобальный кеш модулей и ломает
-// параллельные тесты в action-error.test.ts и presentation.test.ts.
-// Реальный handleActionError работает корректно — Sentry.captureException
-// является no-op без инициализированного SDK.
+// Do not mock @/lib/errors/action-error; use the real module.
+// Bun mock.module pollutes the global module cache and breaks
+// parallel tests in action-error.test.ts and presentation.test.ts.
+// The real handleActionError works correctly; Sentry.captureException
+// is a no-op without an initialized SDK.
 
 const { withAuth, withOwnerAuth, withAuthContext, withOwnerAuthContext } =
   await import('../with-auth')
 
 /**
- * Создаёт мок контекста с указанной ролью.
- * Роль теперь часть AuthenticatedContext — DB-запрос не нужен.
+ * Creates a mock context with the requested role.
+ * Role is now part of AuthenticatedContext, so no DB query is needed.
  */
 function createMockContext(role: string) {
   const supabase = { from: mock() }
@@ -64,7 +64,7 @@ describe('withAuth', () => {
     })
     const wrapped = withAuth(fn)
 
-    // Реальный handleActionError конвертирует generic Error → [INTERNAL_ERROR] withAuth
+    // The real handleActionError converts a generic Error into [INTERNAL_ERROR] withAuth.
     await expect(wrapped()).rejects.toThrow('[INTERNAL_ERROR] withAuth')
   })
 })

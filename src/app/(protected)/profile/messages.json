@@ -1,6 +1,6 @@
 {
   "backToHome": {
     "id": "profile.error.backToHome",
-    "defaultMessage": "Вернуться в профиль"
+    "defaultMessage": "Back to profile"
   }
 }

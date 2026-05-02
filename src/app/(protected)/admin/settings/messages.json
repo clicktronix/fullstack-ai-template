@@ -1,18 +1,18 @@
 {
   "title": {
     "id": "templateSettingsPage.title",
-    "defaultMessage": "Настройки шаблона"
+    "defaultMessage": "Template settings"
   },
   "description": {
     "id": "templateSettingsPage.description",
-    "defaultMessage": "Эта страница оставлена как owner-only placeholder для будущих настроек проекта."
+    "defaultMessage": "This page is kept as an owner-only placeholder for future project settings."
   },
   "note": {
     "id": "templateSettingsPage.note",
-    "defaultMessage": "При создании нового продукта замените этот экран своими настройками или удалите его полностью."
+    "defaultMessage": "Replace this screen with your own settings UI or remove it completely when starting a new product."
   },
   "backToHome": {
     "id": "settings.error.backToHome",
-    "defaultMessage": "К настройкам"
+    "defaultMessage": "Back to settings"
   }
 }

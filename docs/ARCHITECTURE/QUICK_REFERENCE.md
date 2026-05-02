@@ -26,7 +26,7 @@ app/ui -> ui/server-state | actions.ts -> inbound adapters -> use-cases -> outbo
 | Domain         | `src/domain/`                | Schemas, invariants, pure helpers                 |
 | Use-Cases      | `src/use-cases/`             | Application scenarios, ports, feature-local types |
 | Server-State   | `src/ui/server-state/`       | TanStack Query hooks, keys, SSR prefetch          |
-| Inbound        | `src/adapters/inbound/next/` | Server Actions, route handlers                    |
+| Inbound        | `src/adapters/inbound/next/` | Safe Server Actions, route handlers               |
 | Outbound       | `src/adapters/outbound/`     | Supabase, external APIs, transport                |
 | UI             | `src/app/`, `src/ui/`        | Next entrypoints and presentation                 |
 | Infrastructure | `src/infrastructure/`        | Auth, i18n, config, logging                       |
@@ -38,6 +38,9 @@ app/ui -> ui/server-state | actions.ts -> inbound adapters -> use-cases -> outbo
 - feature-local `actions.ts` allowed only for thin direct Server Action wrappers
 - UI must not import outbound adapters directly
 - `app/` entrypoints stay thin
+- inbound Server Actions validate input through `next-safe-action`
+- cache invalidation uses `cacheTags`, `updateTag()`, and `revalidateTag(tag, profile)`
+- `src/proxy.ts` refreshes sessions and redirects; DAL helpers re-check authorization in server code
 
 ## Demo Slice
 

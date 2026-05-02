@@ -23,13 +23,13 @@ Next.js 16 template for AI products and full-stack B2B apps.
 - Mantine + CSS Modules
 - Valibot
 - TanStack Query
-- Zustand
 - Supabase SSR/Auth
 
 Optional integrations prepared in the template:
 
 - Storybook
 - Sentry
+- OpenTelemetry via `@vercel/otel`
 
 ## Architecture
 
@@ -82,13 +82,23 @@ src/
 
 **Server State**: TanStack Query lives in `src/ui/server-state/<feature>/`.
 
+**Server Actions**: inbound mutations use `next-safe-action` clients from `src/infrastructure/actions/safe-action.ts`; keep auth, role checks, and input schemas there.
+
+**Cache**: use `src/infrastructure/cache/tags.ts`, `updateTag()` for same-request read-your-writes, and `revalidateTag(tag, profile)` for broader invalidation.
+
+**Proxy/CSP**: the active Next.js Proxy file is `src/proxy.ts` because the app router is under `src/app`. Do not move it to the repository root unless the app router is moved too.
+
+**Authorization Boundary**: `src/proxy.ts` is not the authorization boundary. It may refresh sessions, redirect, set request headers, and apply CSP/security headers. Data access must verify auth/authz again inside server-only DAL, inbound adapters, or use-case paths. Modules that read cookies, headers, DB clients, service role keys, or secrets must use `import 'server-only'` and must not be imported by Client Components.
+
+**Env**: read env variables only through `src/infrastructure/env/*`. Runtime code must not read `process.env` directly; ESLint enforces this outside env helpers and tests.
+
 **Component Pattern**: `composeHooks(View)(useProps)` for Smart/Dumb separation.
 
 **Direct Server Actions**: Use feature-local `actions.ts`, not direct adapter imports from component hooks.
 
 **Forms**: Mantine Forms + `createMantineValidator(...)`.
 
-**i18n**: Locale files in `src/infrastructure/i18n/` + `TranslationText`.
+**i18n**: Locale files in `src/infrastructure/i18n/` + `TranslationText`. `src/proxy.ts` seeds the locale cookie from `Accept-Language`; `LocaleProvider` then prefers localStorage, cookie, and finally `en`.
 
 ## Critical Constraints
 
@@ -98,6 +108,7 @@ src/
 - ❌ No `import * as v from 'valibot'`
 - ❌ No inline `style={{}}`
 - ❌ No barrel exports
+- ❌ No direct `process.env` outside `src/infrastructure/env/*`
 - ✅ Run `bun run lint`, `bun run typecheck`, `bun test`, `bun run test:e2e` explicitly when needed
 - ✅ Keep architecture boundaries enforced by ESLint
 - ✅ Use `data-testid` for critical interactive UI used in e2e
@@ -105,14 +116,14 @@ src/
 ## Adding Features
 
 Follow order:
-**Domain -> Use-Cases -> Outbound Adapters -> Inbound Adapters -> UI -> Server-State**
+**Domain -> Use-Cases/Ports -> Outbound Adapters -> Inbound Adapters -> Server-State or feature-local action -> UI**
 
 If the feature needs server data in UI:
 
 1. create domain schemas
 2. add use-cases and ports
 3. implement outbound adapter
-4. add Server Action / route handler
+4. add safe Server Action / route handler
 5. add `ui/server-state/<feature>/queries.ts` or `mutations.ts`
 6. consume from UI
 

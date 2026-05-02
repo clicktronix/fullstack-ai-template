@@ -1,10 +1,10 @@
 {
   "tryAgain": {
     "id": "apiErrorBoundary.tryAgain",
-    "defaultMessage": "Попробовать снова"
+    "defaultMessage": "Try Again"
   },
   "retryIn": {
     "id": "apiErrorBoundary.retryIn",
-    "defaultMessage": "Повтор через {seconds}с"
+    "defaultMessage": "Retry in {seconds}s"
   }
 }
