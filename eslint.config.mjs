@@ -7,7 +7,13 @@ import eslintPluginUnicorn from 'eslint-plugin-unicorn'
 
 const eslintConfig = [
   {
-    ignores: ['storybook-static/**', 'test-results/**', 'playwright-report/**', 'coverage/**'],
+    ignores: [
+      'storybook-static/**',
+      'test-results/**',
+      'playwright-report/**',
+      'coverage/**',
+      'plugins/nextjs-clean-skills/**',
+    ],
   },
   // Next.js configs (native flat config in v16)
   ...nextConfig,

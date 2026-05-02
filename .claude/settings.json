@@ -1,17 +1,10 @@
 {
   "permissions": {
-    "deny": [
-      "Bash(git commit:*)",
-      "Bash(git push:*)"
-    ],
+    "deny": ["Bash(git commit:*)", "Bash(git push:*)"],
     "defaultMode": "default"
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "supabase",
-    "chrome-devtools",
-    "playwright"
-  ],
+  "enabledMcpjsonServers": ["supabase", "chrome-devtools", "playwright"],
   "hooks": {
     "Stop": [
       {

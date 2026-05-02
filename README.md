@@ -105,12 +105,12 @@ This template ships with complete AI agent configuration:
 
 ### Marketplace Plugins (auto-install on repo trust)
 
-| Marketplace                       | Plugin                    | Provides                                                              |
-| --------------------------------- | ------------------------- | --------------------------------------------------------------------- |
-| `clicktronix/nextjs-clean-skills` | `nextjs-clean-skills`     | Next.js 16 Hybrid Clean Architecture + Server/Client component skills |
-| `supabase/agent-skills`           | `postgres-best-practices` | Supabase Postgres guidance                                            |
-| `tanstack-skills/tanstack-skills` | `tanstack-query`          | TanStack Query patterns                                               |
-| `obra/superpowers-marketplace`    | `superpowers`             | TDD, debugging, collaboration workflows                               |
+| Marketplace                       | Plugin                    | Provides                                                                                                                                                          |
+| --------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `clicktronix/nextjs-clean-skills` | `nextjs-clean-skills`     | Next.js 16 Hybrid Clean Architecture + Server/Client component skills; Claude installs from GitHub, Codex uses the pinned `plugins/nextjs-clean-skills` submodule |
+| `supabase/agent-skills`           | `postgres-best-practices` | Supabase Postgres guidance                                                                                                                                        |
+| `tanstack-skills/tanstack-skills` | `tanstack-query`          | TanStack Query patterns                                                                                                                                           |
+| `obra/superpowers-marketplace`    | `superpowers`             | TDD, debugging, collaboration workflows                                                                                                                           |
 
 Vercel agent-skills (installed via `bun run setup:skills`): `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`.
 
