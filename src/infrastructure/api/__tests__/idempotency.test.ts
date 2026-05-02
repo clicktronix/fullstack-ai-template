@@ -8,12 +8,37 @@ type QueryResult = {
   error: Error | null
 }
 
+type MutationResult = {
+  error: Error | null
+}
+
+type EqChain = {
+  eq: (column: string, value: string) => EqChain | Promise<MutationResult>
+}
+
+function createEqChain(result: MutationResult) {
+  let eqCalls = 0
+  const eq = mock((_column: string, _value: string) => {
+    eqCalls += 1
+    return eqCalls >= 4 ? Promise.resolve(result) : chain
+  })
+  const chain: EqChain = { eq }
+
+  return { chain, eq }
+}
+
 function createMockContext(options: {
   queryResults: QueryResult[]
-  insertResult?: { error: Error | null }
+  insertResult?: MutationResult
+  updateResult?: MutationResult
+  deleteResult?: MutationResult
 }) {
   const queryResults = [...options.queryResults]
   const insert = mock(async () => options.insertResult ?? { error: null })
+  const updateChain = createEqChain(options.updateResult ?? { error: null })
+  const deleteChain = createEqChain(options.deleteResult ?? { error: null })
+  const update = mock(() => updateChain.chain)
+  const deleteMutation = mock(() => deleteChain.chain)
 
   const selectBuilder = {
     eq() {
@@ -26,6 +51,8 @@ function createMockContext(options: {
     from: mock(() => ({
       select: () => selectBuilder,
       insert,
+      update,
+      delete: deleteMutation,
     })),
   } as unknown as ApiHandlerContext['supabase']
 
@@ -37,6 +64,8 @@ function createMockContext(options: {
       role: 'admin',
     } satisfies ApiHandlerContext,
     insert,
+    update,
+    deleteMutation,
   }
 }
 
@@ -106,5 +135,50 @@ describe('runIdempotentCommand', () => {
       })
     ).rejects.toThrow('[CONFLICT_ERROR] idempotency: command already in progress')
     expect(command).not.toHaveBeenCalled()
+  })
+
+  test('deletes the placeholder when the command itself fails', async () => {
+    const { context, deleteMutation } = createMockContext({
+      queryResults: [{ data: null, error: null }],
+    })
+    const command = mock(async () => {
+      throw new Error('command failed')
+    })
+
+    await expect(
+      runIdempotentCommand({
+        context,
+        key: 'key-1',
+        method: 'POST',
+        path: '/api/work-items',
+        requestBody: { title: 'Backend task' },
+        statusCode: 201,
+        command,
+      })
+    ).rejects.toThrow('command failed')
+    expect(deleteMutation).toHaveBeenCalled()
+  })
+
+  test('keeps the placeholder when response persistence fails after command success', async () => {
+    const persistError = new Error('persist failed')
+    const { context, deleteMutation } = createMockContext({
+      queryResults: [{ data: null, error: null }],
+      updateResult: { error: persistError },
+    })
+    const command = mock(async () => ({ id: 'work-item-1' }))
+
+    await expect(
+      runIdempotentCommand({
+        context,
+        key: 'key-1',
+        method: 'POST',
+        path: '/api/work-items',
+        requestBody: { title: 'Backend task' },
+        statusCode: 201,
+        command,
+      })
+    ).rejects.toThrow('persist failed')
+    expect(command).toHaveBeenCalledTimes(1)
+    expect(deleteMutation).not.toHaveBeenCalled()
   })
 })

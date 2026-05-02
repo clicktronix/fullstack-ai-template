@@ -32,6 +32,20 @@ describe('/api/webhooks/example route handler', () => {
     expect(body.error.code).toBe('AUTHENTICATION_ERROR')
   })
 
+  test('rejects malformed webhook signatures without throwing', async () => {
+    const response = await POST(
+      new Request('https://template.test/api/webhooks/example', {
+        method: 'POST',
+        headers: { 'x-webhook-signature': 'z'.repeat(64) },
+        body: JSON.stringify({ event: 'work_item.created' }),
+      })
+    )
+    const body = await response.json()
+
+    expect(response.status).toBe(401)
+    expect(body.error.code).toBe('AUTHENTICATION_ERROR')
+  })
+
   test('accepts requests with a valid HMAC signature', async () => {
     const payload = JSON.stringify({ event: 'work_item.created', id: 'evt_123' })
     const signature = await signPayload('test-webhook-secret', payload)

@@ -124,21 +124,10 @@ export async function runIdempotentCommand<TData extends Json>({
     }
   }
 
-  try {
-    const data = await command()
-    const { error } = await context.supabase
-      .from('idempotency_keys')
-      .update({
-        status_code: statusCode,
-        response_body: data,
-      })
-      .eq('key', key)
-      .eq('user_id', context.userId)
-      .eq('method', method)
-      .eq('path', path)
+  let data: TData
 
-    if (error) throw error
-    return { data, replayed: false }
+  try {
+    data = await command()
   } catch (error) {
     await context.supabase
       .from('idempotency_keys')
@@ -149,4 +138,18 @@ export async function runIdempotentCommand<TData extends Json>({
       .eq('path', path)
     throw error
   }
+
+  const { error } = await context.supabase
+    .from('idempotency_keys')
+    .update({
+      status_code: statusCode,
+      response_body: data,
+    })
+    .eq('key', key)
+    .eq('user_id', context.userId)
+    .eq('method', method)
+    .eq('path', path)
+
+  if (error) throw error
+  return { data, replayed: false }
 }
