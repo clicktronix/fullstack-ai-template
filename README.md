@@ -163,6 +163,7 @@ The first signed-up user becomes `owner` automatically; subsequent users start a
 | [`docs/ARCHITECTURE/`](docs/ARCHITECTURE/)     | Architecture guide, quick reference, component patterns, theming    |
 | [`docs/TESTING/`](docs/TESTING/)               | Testing strategy, patterns by layer, mocking rules                  |
 | [`docs/TEMPLATE_GUIDE/`](docs/TEMPLATE_GUIDE/) | Getting started, customization, skills setup, optional integrations |
+| [`CHANGELOG.md`](CHANGELOG.md)                 | Template baseline release notes                                     |
 
 ## License
 
