@@ -2,21 +2,18 @@
 
 **Impact: MEDIUM**
 
-Default page UI state lives in feature-local hooks using `useState`/`useReducer`, scoped to the route segment that owns the UI. Avoid a global client store for state that belongs to one page.
+Page UI state — selected rows, drawer open/close, multi-panel coordination, local sort/view mode — lives in feature-local hooks using `useState`/`useReducer`, scoped to the route segment that owns the UI. It is the default; do not introduce a global store for state that belongs to one page.
 
-Good cases for `useState`/`useReducer` in `_internal/hooks/use<Feature>UiState.ts`:
+If the same UI state must be readable across multiple unrelated subtrees, lift it to a Context provider colocated with that segment. See [Context First, Zustand Last](./state-context-first-over-zustand.md) for when Context is enough and when Zustand is justified.
 
-- selected rows, drawer/modal open state, multi-panel coordination inside one route, local sort/view mode not stored in URL.
+Do not store in this layer:
 
-Reach for an external store (Zustand, Context with selectors) only when one of these holds:
+- server data (use RSC props or TanStack Query)
+- form drafts (use Mantine `useForm` / form state)
+- auth/session authority (server-only DAL is the source of truth)
+- data shareable via URL (use `useSearchParams`)
 
-- the same UI state must be readable by multiple sibling routes
-- a deeply nested client tree needs the state without prop drilling and Context re-renders are problematic
-- you need devtools, persistence, or selectors plain hooks cannot provide
-
-Do not store: server data, form drafts, auth/session authority, or data shareable via URL.
-
-**Incorrect (Zustand for state owned by one route):**
+**Incorrect (Zustand or Context for state owned by one route):**
 
 ```ts
 const useWorkItemsUiStore = create(() => ({
@@ -36,4 +33,4 @@ export function useWorkItemsUiState() {
 }
 ```
 
-Reference: React state placement and server-state separation.
+Reference: React state placement; React 19 `useReducer`.

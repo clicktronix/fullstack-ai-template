@@ -10,7 +10,7 @@ Use this skill for React UI work in a Next.js 16 codebase. Prefer target reposit
 ## Defaults
 
 - Start with a Server Component.
-- Add `'use client'` only for event handlers, hooks, refs, browser APIs, TanStack Query, Mantine forms, or client i18n hooks.
+- Add `'use client'` only for event handlers, hooks, refs, browser APIs, opt-in TanStack Query, Mantine forms, or client i18n hooks.
 - Client Components with logic use `composeHooks(View)(useProps)`.
 - `index.tsx` contains the View and exported component; it is not a barrel file.
 - `lib.ts` contains view-model and hook logic.
@@ -20,15 +20,20 @@ Use this skill for React UI work in a Next.js 16 codebase. Prefer target reposit
 
 ## State Placement
 
-| State kind                     | Default location                                                            |
-| ------------------------------ | --------------------------------------------------------------------------- |
-| Read-heavy server data         | Server Component -> server-only DAL/read use-case -> serializable props     |
-| Client-interactive server data | `src/ui/server-state/<feature>/` with TanStack Query                        |
-| Controlled form state          | Mantine `useForm` in `lib.ts`                                               |
-| Page UI state                  | feature-local `useState`/`useReducer` hook (Zustand only when truly shared) |
-| Global UI state                | React Context provider                                                      |
-| Component-local state          | hook in `lib.ts`                                                            |
-| Derived state                  | `useMemo` in `lib.ts`, or plain calculation in Server Components            |
+| State kind                       | Default location                                                                                |
+| -------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Read-heavy server data           | Server Component -> server-only DAL/read use-case -> serializable props                         |
+| Client-interactive server data   | RSC props by default; `src/ui/server-state/<feature>/` with TanStack Query only when opt-in[^1] |
+| Controlled form state            | Mantine `useForm` in `lib.ts`                                                                   |
+| URL-shareable state              | `useSearchParams` + `router.replace` (filters, tabs, paging that links should preserve)         |
+| Component-local state            | hook in `lib.ts`                                                                                |
+| Page UI state (one route)        | feature-local `useState`/`useReducer` hook                                                      |
+| Cross-component shared UI state  | React Context provider (Zustand only when Context is the measured bottleneck[^2])               |
+| Global UI state (theme/locale)   | React Context provider                                                                          |
+| Derived state                    | `useMemo` in `lib.ts`, or plain calculation in Server Components                                |
+
+[^1]: TanStack Query is opt-in for realtime, polling, infinite scroll, optimistic updates, or when many islands must share the same async/server-state cache lifecycle. See [RSC And TanStack Ownership](../nextjs-architecture/references/data-rsc-and-tanstack-boundaries.md).
+[^2]: See [Context First, Zustand Last](references/state-context-first-over-zustand.md). Default to Context with split providers; Zustand earns its place only with measured perf or middleware needs.
 
 Do not put server data in `useState`, Context, or any client store. Do not use TanStack Query in Server Components.
 
@@ -46,6 +51,7 @@ State:
 - [Use URL For Shareable State](references/state-url-for-shareable.md)
 - [Server Data Via RSC Props](references/state-server-data-via-rsc-prop.md)
 - [Page UI State In Feature-Local Hooks](references/state-page-ui-feature-local-hooks.md)
+- [Context First, Zustand Last](references/state-context-first-over-zustand.md)
 - [Use React 19 Optimistic State Deliberately](references/state-optimistic-react-19.md)
 - [Do Not Derive State With Effects](references/state-no-derived-effects.md)
 

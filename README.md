@@ -123,7 +123,7 @@ Details: [`docs/TEMPLATE_GUIDE/SKILLS_AND_PLUGINS.md`](docs/TEMPLATE_GUIDE/SKILL
 | `bun run dev`           | Development server (port 3000)        |
 | `bun run build`         | Production build                      |
 | `bun run check`         | Lint + typecheck + format + i18n sync |
-| `bun test`              | Unit tests (935 tests)                |
+| `bun test`              | Unit tests                            |
 | `bun run test:e2e`      | Playwright E2E                        |
 | `bun run storybook`     | Component explorer (port 6006)        |
 | `bun run bootstrap`     | Rename/rebrand template               |
