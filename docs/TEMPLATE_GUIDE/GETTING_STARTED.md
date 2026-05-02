@@ -60,7 +60,6 @@ This keeps the starter usable without a manual SQL bootstrap step, but you shoul
 ## 3. Install and run
 
 ```bash
-git submodule update --init --recursive
 bun install
 bun run setup:mcp
 bun run setup:skills
@@ -74,7 +73,7 @@ If Playwright MCP browsers are missing, run:
 bun run setup:mcp -- --install-browsers
 ```
 
-`git submodule update --init --recursive` fetches the Codex plugin dependency at `plugins/nextjs-clean-skills`. `bun run setup:skills` registers four Claude Code plugin marketplaces (`supabase/agent-skills`, `tanstack-skills/tanstack-skills`, `obra/superpowers-marketplace`, `clicktronix/nextjs-clean-skills`) and installs three Vercel agent-skills via `npx skills add vercel-labs/agent-skills`. Re-run anytime to refresh. Update later with:
+`bun run setup:skills` registers four Claude Code plugin marketplaces (`supabase/agent-skills`, `tanstack-skills/tanstack-skills`, `obra/superpowers-marketplace`, `clicktronix/nextjs-clean-skills`) and installs three Vercel agent-skills via `npx skills add vercel-labs/agent-skills`. Codex reads `.agents/plugins/marketplace.json` and installs `nextjs-clean-skills` from the Git-backed marketplace entry. Re-run anytime to refresh. Update later with:
 
 ```bash
 claude plugin update            # marketplace plugins

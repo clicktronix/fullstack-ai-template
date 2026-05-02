@@ -3,7 +3,6 @@ node_modules/
 out/
 build/
 dist/
-plugins/nextjs-clean-skills/
 .pytest_cache/
 *.lock
 *.log

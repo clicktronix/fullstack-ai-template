@@ -7,8 +7,10 @@
     {
       "name": "nextjs-clean-skills",
       "source": {
-        "source": "local",
-        "path": "./plugins/nextjs-clean-skills/plugins/nextjs-clean-skills"
+        "source": "git-subdir",
+        "url": "https://github.com/clicktronix/nextjs-clean-skills.git",
+        "path": "./plugins/nextjs-clean-skills",
+        "ref": "main"
       },
       "policy": {
         "installation": "INSTALLED_BY_DEFAULT",

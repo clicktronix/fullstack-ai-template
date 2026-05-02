@@ -1,4 +1,0 @@
-[submodule "plugins/nextjs-clean-skills"]
-	path = plugins/nextjs-clean-skills
-	url = https://github.com/clicktronix/nextjs-clean-skills.git
-	branch = main
