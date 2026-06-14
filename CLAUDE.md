@@ -68,26 +68,7 @@ Hybrid Clean Architecture with clear layering:
 **Dependency Flow**:
 `app/ui → ui/server-state | actions.ts → inbound adapters → use-cases → outbound adapters → domain`
 
-## Project Structure
-
-```
-src/
-├── app/                   # Next.js App Router
-│   ├── (protected)/       # Authenticated pages
-│   └── (public)/          # Public pages (home, login, signup)
-├── domain/                # Business entities (Valibot schemas)
-├── adapters/
-│   ├── inbound/next/      # Server Actions, route handlers
-│   └── outbound/          # Supabase, external APIs
-├── use-cases/             # Application scenarios
-├── infrastructure/        # Cross-cutting concerns (auth, i18n, logging)
-│   └── i18n/              # Translations (en.ts, types)
-└── ui/
-    ├── server-state/      # TanStack Query hooks
-    ├── components/        # Reusable components
-    ├── hooks/             # Shared presentation hooks
-    └── providers/         # React contexts
-```
+(Full tree: `@docs/ARCHITECTURE/FOLDER_STRUCTURE.md`.)
 
 ## Key Patterns
 
@@ -134,53 +115,7 @@ src/
 
 Follow layer order: **Domain → Use-Case ports/types → Outbound Adapter → Inbound Adapter (safe Server Action / route handler) → Server-State or feature-local action → UI**
 
-```typescript
-// 1. Domain (src/domain/work-item/index.ts)
-export const WorkItemSchema = object({ id: string(), title: string(), status: string() })
-export type WorkItem = InferOutput<typeof WorkItemSchema>
-
-// 2. Use-case port + scenario (src/use-cases/work-items/work-items.ts)
-export type WorkItemsRepository = {
-  list(filters: WorkItemFilters): Promise<WorkItem[]>
-}
-
-export async function listWorkItems(
-  deps: { workItems: WorkItemsRepository },
-  filters: WorkItemFilters
-) {
-  return deps.workItems.list(filters)
-}
-
-// 3. Outbound adapter (src/adapters/outbound/supabase/work-items.repository.ts)
-export function createSupabaseWorkItemsRepository(supabase: SupabaseServerClient) {
-  return {
-    list: (filters) => listWorkItemsOperation(supabase, filters),
-  } satisfies WorkItemsRepository
-}
-
-// 4. Inbound adapter / safe Server Action (src/adapters/inbound/next/server-actions/work-items.ts)
-'use server'
-const safeListWorkItemsAction = adminActionClient
-  .inputSchema(WorkItemFiltersSchema)
-  .action(async ({ ctx, parsedInput }) =>
-    listWorkItems(
-      { workItems: createSupabaseWorkItemsRepository(ctx.supabase) },
-      parsedInput
-    )
-  )
-
-// 5. Server-State (src/ui/server-state/work-items/queries.ts)
-export function useWorkItems(filters: WorkItemFilters) {
-  return useQuery({
-    queryKey: workItemKeys.list(filters),
-    queryFn: () => listWorkItemsAction(filters),
-  })
-}
-
-// 6. UI Component
-export function WorkItemListView({ data, isLoading }: ViewProps) { ... }
-export const WorkItemList = composeHooks<ViewProps, Props>(WorkItemListView)(useProps)
-```
+See `@.claude/rules/architecture.md` and `@docs/ARCHITECTURE/ARCHITECTURE.md` + `COMPONENT_PATTERNS.md` for the full per-layer code walkthrough.
 
 ## Naming Conventions
 
@@ -245,9 +180,59 @@ Env values are validated in `src/infrastructure/env/*`. Optional browser-safe va
 
 Optional integrations add their own env variables (Sentry, external AI gateway) — see `docs/TEMPLATE_GUIDE/OPTIONAL_*`.
 
-## Quick Links
+<!-- cc-tuner:karpathy-guidelines -->
+## Coding Guidelines
 
-- [Getting Started](docs/TEMPLATE_GUIDE/GETTING_STARTED.md) — first-time setup
-- [Customize Template](docs/TEMPLATE_GUIDE/CUSTOMIZE_TEMPLATE.md) — adapt to a new product
-- [Architecture](docs/ARCHITECTURE/ARCHITECTURE.md) — complete architecture guide
-- [Quick Reference](docs/ARCHITECTURE/QUICK_REFERENCE.md) — one-page cheatsheet
+Behavioral guidelines to reduce common LLM coding mistakes (derived from Andrej Karpathy's observations). Bias toward caution over speed; for trivial tasks, use judgment.
+
+### 1. Think Before Coding
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
+
+Before implementing:
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them — don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+### 2. Simplicity First
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+### 3. Surgical Changes
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it — don't delete it.
+
+When your changes create orphans:
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: every changed line should trace directly to the user's request.
+
+### 4. Goal-Driven Execution
+**Define success criteria. Loop until verified.**
+
+Transform tasks into verifiable goals:
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan:
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
+
+Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
