@@ -48,16 +48,16 @@ app/ui -> ui/server-state | actions.ts -> inbound adapters -> use-cases -> outbo
 
 Once-only Sentry capture: each error origin is owned by exactly one boundary.
 
-| Error origin                                        | Captures at                                                    |
-| ---------------------------------------------------- | --------------------------------------------------------------- |
-| Server Action business logic                         | `safe-action.ts` `handleServerError` (unexpected/`HTTP_ERROR` only) |
-| `.use()` middleware role/auth checks (`with-auth.ts`) | Not captured — expected, typed, business-rule outcomes         |
-| Route Handler (`work-items`, `webhooks/example`)      | `withRouteErrorHandling` (once, 5xx only)                       |
-| Supabase/PostgREST failure (`throwIfError`)           | Converts to typed `ApiError` only — capture happens downstream |
+| Error origin                                                 | Captures at                                                                           |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| Server Action business logic                                 | `safe-action.ts` `handleServerError` (unexpected/`HTTP_ERROR` only)                   |
+| `.use()` middleware role/auth checks (`with-auth.ts`)        | Not captured — expected, typed, business-rule outcomes                                |
+| Route Handler (`work-items`, `webhooks/example`)             | `withRouteErrorHandling` (once, 5xx only)                                             |
+| Supabase/PostgREST failure (`throwIfError`)                  | Converts to typed `ApiError` only — capture happens downstream                        |
 | TanStack Query failure (client fetch or SSR `prefetchQuery`) | `QueryCache.onError` (`ui/providers/query-client.ts`), deduped via `errorUpdateCount` |
-| TanStack Mutation failure                             | `MutationErrorNotifier` — notification only, no Sentry capture  |
-| Direct RSC/DAL read bypassing TanStack Query          | `withServerReadErrorHandling` — no live call site today          |
-| `auth/callback/route.ts` uncaught exception           | Next's own `onRequestError` → Sentry (unwrapped, by design)     |
+| TanStack Mutation failure                                    | `MutationErrorNotifier` — notification only, no Sentry capture                        |
+| Direct RSC/DAL read bypassing TanStack Query                 | `withServerReadErrorHandling` — no live call site today                               |
+| `auth/callback/route.ts` uncaught exception                  | Next's own `onRequestError` → Sentry (unwrapped, by design)                           |
 
 All three Sentry entry points redact via `beforeSend: redactSentryEvent` before sending. Full
 write-up: [`DATA_ACCESS.md`](./DATA_ACCESS.md#error-handling); full diagram:

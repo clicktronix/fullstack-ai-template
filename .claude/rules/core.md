@@ -1,6 +1,5 @@
 ---
-paths:
-  ['src/**/*', 'next.config.ts', 'eslint.config.mjs', 'scripts/**/*', 'tests/**/*']
+paths: ['src/**/*', 'next.config.ts', 'eslint.config.mjs', 'scripts/**/*', 'tests/**/*']
 ---
 
 # Frontend Core Rules

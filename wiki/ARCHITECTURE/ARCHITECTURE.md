@@ -64,15 +64,15 @@ Solid arrows are compile-time `import` statements. The dashed `UseCases -.-> Out
 
 ## Layer Responsibilities
 
-| Layer              | What it does                                                                                   | What it must NOT do                                               |
-| ------------------ | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| **Domain**         | Valibot schemas, inferred types, invariants, pure helpers                                      | Import anything outside `domain`                                  |
+| Layer              | What it does                                                                                   | What it must NOT do                                                                                                                                      |
+| ------------------ | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Domain**         | Valibot schemas, inferred types, invariants, pure helpers                                      | Import anything outside `domain`                                                                                                                         |
 | **Use-Cases**      | Application scenarios, ports (repository types), orchestration                                 | Import outbound adapters directly (depend on ports; adapters are injected at runtime); use `use server`, `NextRequest/Response`, or framework cache APIs |
-| **Outbound**       | Supabase repositories, HTTP clients, transport                                                 | Depend on inbound or UI                                           |
-| **Inbound**        | Safe Server Actions, route handlers, auth/session context, request mapping, cache invalidation | Contain business logic (delegate to use-cases)                    |
-| **Server-State**   | TanStack Query keys/hooks, SSR prefetch, cache orchestration                                   | Be imported by non-UI code                                        |
-| **UI**             | App Router pages, components, view hooks, providers, themes                                    | Import outbound adapters directly                                 |
-| **Infrastructure** | Cross-cutting glue: auth helpers, locale wiring, config access, logging                        | Contain feature logic                                             |
+| **Outbound**       | Supabase repositories, HTTP clients, transport                                                 | Depend on inbound or UI                                                                                                                                  |
+| **Inbound**        | Safe Server Actions, route handlers, auth/session context, request mapping, cache invalidation | Contain business logic (delegate to use-cases)                                                                                                           |
+| **Server-State**   | TanStack Query keys/hooks, SSR prefetch, cache orchestration                                   | Be imported by non-UI code                                                                                                                               |
+| **UI**             | App Router pages, components, view hooks, providers, themes                                    | Import outbound adapters directly                                                                                                                        |
+| **Infrastructure** | Cross-cutting glue: auth helpers, locale wiring, config access, logging                        | Contain feature logic                                                                                                                                    |
 
 ## Intentional Exceptions
 

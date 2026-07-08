@@ -313,19 +313,11 @@ actionIntentTokens = {
       hoverBg: 'rgba(82, 139, 255, 0.24)',
       border: 'rgba(82, 139, 255, 0.35)',
     },
-    light: {
-      /* darker versions */
-    },
+    light: {/* darker versions */},
   },
-  delete: {
-    /* red */
-  },
-  confirm: {
-    /* green */
-  },
-  cancel: {
-    /* gray */
-  },
+  delete: {/* red */},
+  confirm: {/* green */},
+  cancel: {/* gray */},
 }
 ```
 
