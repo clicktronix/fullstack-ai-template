@@ -1,9 +1,15 @@
 import 'server-only'
 
 import { createSafeActionClient, isNavigationError } from 'next-safe-action'
+import { getStatusForCode } from '@/infrastructure/api/response'
 import { createAuthenticatedContext } from '@/infrastructure/auth/authenticated-context'
-import { createActionError, extractErrorCode } from '@/lib/errors/action-error'
-import { getErrorCode, isApiError } from '@/lib/errors/api-error'
+import {
+  createActionError,
+  extractErrorCode,
+  isAlreadyCapturedActionErrorMessage,
+  withCapturedActionContext,
+} from '@/infrastructure/errors/action-error'
+import { getErrorCode, isApiError } from '@/infrastructure/errors/api-error'
 import {
   AUTHENTICATION_ERROR,
   AUTHORIZATION_ERROR,
@@ -15,8 +21,9 @@ import {
   VALIDATION_ERROR,
   isValidErrorCode,
   type ErrorCode,
-} from '@/lib/errors/codes'
-import { serverLogger } from '@/lib/server-logger'
+} from '@/infrastructure/errors/codes'
+import { serverLogger } from '@/infrastructure/logging/server-logger'
+import { captureError } from '@/infrastructure/sentry/capture'
 
 type SafeActionResultLike<TData> = {
   data?: TData
@@ -66,16 +73,44 @@ export const actionClient = createSafeActionClient({
 
     serverLogger.error({ error }, 'safe action failed')
 
-    if (error instanceof Error && extractErrorCode(error.message)) {
-      return error.message
+    // This is the inbound boundary for every Server Action built on actionClient/
+    // authActionClient/adminActionClient — capture unexpected errors here exactly once.
+    // Already-coded errors (thrown via createActionError elsewhere, e.g. the pending/role
+    // checks in the `.use()` middleware below) are expected, typed outcomes — not incidents —
+    // so they are re-thrown/mapped without a Sentry capture.
+    if (error instanceof Error) {
+      const precodedCode = extractErrorCode(error.message)
+      if (precodedCode) {
+        // A pre-coded error whose code maps to a 5xx is still an incident: capture it
+        // once here (unless a lower boundary already marked it) and mark the message.
+        if (
+          getStatusForCode(precodedCode) >= 500 &&
+          !isAlreadyCapturedActionErrorMessage(error.message)
+        ) {
+          captureError(error, { tags: { boundary: 'safe-action' } })
+          return createActionError(precodedCode, withCapturedActionContext('safeAction')).message
+        }
+        return error.message
+      }
     }
 
     const apiErrorCode = getApiActionErrorCode(error)
     if (apiErrorCode) {
+      // Any code mapping to a 5xx (HTTP_ERROR's unexpected status, upstream 502/504
+      // provider codes, ...) is an incident worth capturing. Codes mapping to 4xx
+      // (auth/validation/not-found/conflict/rate-limit) are expected, user-facing outcomes.
+      if (getStatusForCode(apiErrorCode) >= 500) {
+        captureError(error, { tags: { boundary: 'safe-action' } })
+        // Mark the rethrown message so QueryCache.onError (query-client.ts) knows this
+        // incident was already captured here and skips a second Sentry report.
+        return createActionError(apiErrorCode, withCapturedActionContext('safeAction')).message
+      }
       return createActionError(apiErrorCode, 'safeAction').message
     }
 
-    return createActionError(INTERNAL_ERROR, 'safeAction').message
+    captureError(error, { tags: { boundary: 'safe-action' } })
+    // Same "already captured" marker as above — this is the other branch that reports here.
+    return createActionError(INTERNAL_ERROR, withCapturedActionContext('safeAction')).message
   },
 })
 

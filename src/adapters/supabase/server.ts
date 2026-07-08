@@ -8,8 +8,8 @@
  * Importing it in client components will cause an error.
  *
  * Uses environment variables:
- * - NEXT_PUBLIC_SUPABASE_URL
- * - NEXT_PUBLIC_SUPABASE_ANON_KEY
+ * - SUPABASE_URL (falls back to NEXT_PUBLIC_SUPABASE_URL) — see getSupabaseUrl()
+ * - NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (falls back to legacy NEXT_PUBLIC_SUPABASE_ANON_KEY)
  */
 
 import 'server-only'
@@ -17,17 +17,8 @@ import 'server-only'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { cache } from 'react'
-import { getServerEnv } from '@/infrastructure/env/server'
+import { getSupabasePublishableKey, getSupabaseUrl } from '@/infrastructure/env/server'
 import type { Database } from './types'
-
-// Environment variables with validation
-function getSupabaseUrl(): string {
-  return getServerEnv().NEXT_PUBLIC_SUPABASE_URL
-}
-
-function getSupabaseAnonKey(): string {
-  return getServerEnv().NEXT_PUBLIC_SUPABASE_ANON_KEY
-}
 
 // Cookie type for setAll
 type CookieToSet = {
@@ -68,7 +59,7 @@ type CookieToSet = {
 export const createClient = cache(async function createClient() {
   const cookieStore = await cookies()
 
-  return createServerClient<Database>(getSupabaseUrl(), getSupabaseAnonKey(), {
+  return createServerClient<Database>(getSupabaseUrl(), getSupabasePublishableKey(), {
     cookies: {
       getAll() {
         return cookieStore.getAll()

@@ -4,11 +4,12 @@ import { revalidateTag } from 'next/cache'
 import { boolean, number, object, optional, parse, string } from 'valibot'
 import { createSupabaseWorkItemsRepository } from '@/adapters/outbound/supabase/work-items.repository'
 import { CreateWorkItemSchema, WorkItemStatusSchema } from '@/domain/work-item/work-item'
-import { createApiHandlerContext, getRequestId } from '@/infrastructure/api/context'
+import { createApiHandlerContext } from '@/infrastructure/api/context'
 import { runIdempotentCommand } from '@/infrastructure/api/idempotency'
-import { apiError, apiErrorWithCode, apiJson } from '@/infrastructure/api/response'
+import { apiErrorWithCode, apiJson } from '@/infrastructure/api/response'
+import { withRouteErrorHandling } from '@/infrastructure/api/with-route-error-handling'
 import { cacheTags } from '@/infrastructure/cache/tags'
-import { VALIDATION_ERROR } from '@/lib/errors/codes'
+import { VALIDATION_ERROR } from '@/infrastructure/errors/codes'
 import { createWorkItem, listWorkItems } from '@/use-cases/work-items/work-items'
 
 const WorkItemsApiQuerySchema = object({
@@ -53,10 +54,9 @@ function revalidateWorkItemsApiCache(userId: string, id?: string) {
   }
 }
 
-export async function handleListWorkItemsRequest(request: Request) {
-  const requestId = getRequestId(request)
-
-  try {
+export const handleListWorkItemsRequest = withRouteErrorHandling(
+  'work-items',
+  async (request: Request) => {
     const context = await createApiHandlerContext(request, { allowedRoles: ['owner', 'admin'] })
     const result = await listWorkItems(
       { workItems: createSupabaseWorkItemsRepository(context.supabase, context.userId) },
@@ -64,15 +64,12 @@ export async function handleListWorkItemsRequest(request: Request) {
     )
 
     return apiJson(result, context.requestId)
-  } catch (error) {
-    return apiError(error, requestId)
   }
-}
+)
 
-export async function handleCreateWorkItemRequest(request: Request) {
-  const requestId = getRequestId(request)
-
-  try {
+export const handleCreateWorkItemRequest = withRouteErrorHandling(
+  'work-items',
+  async (request: Request) => {
     const context = await createApiHandlerContext(request, { allowedRoles: ['owner', 'admin'] })
     const idempotencyKey = request.headers.get('idempotency-key')
 
@@ -106,7 +103,5 @@ export async function handleCreateWorkItemRequest(request: Request) {
         'x-idempotency-replayed': String(result.replayed),
       },
     })
-  } catch (error) {
-    return apiError(error, requestId)
   }
-}
+)

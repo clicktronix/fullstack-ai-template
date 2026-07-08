@@ -4,7 +4,7 @@ paths:
     'src/use-cases/**/*',
     'src/ui/server-state/**/*',
     'src/ui/hooks/**/*',
-    'src/ui/widgets/store/**/*',
+    'src/ui/stores/**/*',
     'src/ui/providers/**/*',
   ]
 ---

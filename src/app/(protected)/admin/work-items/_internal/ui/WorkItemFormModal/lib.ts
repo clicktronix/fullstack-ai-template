@@ -1,12 +1,12 @@
 'use client'
 
-import { useForm } from '@mantine/form'
+import { useForm, type UseFormReturnType } from '@mantine/form'
 import { useEffect, useMemo } from 'react'
 import { useIntl } from 'react-intl'
 import { array, boolean, minLength, nullable, object, optional, pipe, string, trim } from 'valibot'
 import type { Label } from '@/domain/label/label'
 import type { CreateWorkItem, UpdateWorkItem, WorkItem } from '@/domain/work-item/work-item'
-import { createMantineValidator } from '@/lib/create-mantine-validator'
+import { createMantineValidator } from '@/ui/create-mantine-validator'
 import messages from './messages.json'
 
 export type WorkItemFormValues = {
@@ -33,7 +33,7 @@ export type WorkItemFormModalViewProps = Omit<WorkItemFormModalProps, 'onSubmitI
   titlePlaceholder: string
   descriptionPlaceholder: string
   labelsPlaceholder: string
-  form: ReturnType<typeof useForm<WorkItemFormValues>>
+  form: UseFormReturnType<WorkItemFormValues>
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
   labelOptions: Array<{ value: string; label: string }>
 }

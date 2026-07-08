@@ -1,0 +1,787 @@
+<title>Layer Dependency Graph — Architecture Diagrams</title>
+<style>
+  :root {
+    --bg: #f6f8fa;
+    --surface: #ffffff;
+    --surface-2: #eef1f4;
+    --border: #d0d7de;
+    --text: #1f2328;
+    --text-muted: #57606a;
+    --accent-blue: #0969da;
+    --accent-purple: #8250df;
+    --accent-green: #1a7f37;
+    --accent-amber: #9a6700;
+    --accent-red: #cf222e;
+    --code-bg: #eef1f4;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-2: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #9198a1;
+      --accent-blue: #58a6ff;
+      --accent-purple: #bc8cff;
+      --accent-green: #56d364;
+      --accent-amber: #d29922;
+      --accent-red: #ff7b72;
+      --code-bg: #0d1117;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    }
+  }
+  :root[data-theme='dark'] {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface-2: #1c2128;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #9198a1;
+    --accent-blue: #58a6ff;
+    --accent-purple: #bc8cff;
+    --accent-green: #56d364;
+    --accent-amber: #d29922;
+    --accent-red: #ff7b72;
+    --code-bg: #0d1117;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+  :root[data-theme='light'] {
+    --bg: #f6f8fa;
+    --surface: #ffffff;
+    --surface-2: #eef1f4;
+    --border: #d0d7de;
+    --text: #1f2328;
+    --text-muted: #57606a;
+    --accent-blue: #0969da;
+    --accent-purple: #8250df;
+    --accent-green: #1a7f37;
+    --accent-amber: #9a6700;
+    --accent-red: #cf222e;
+    --code-bg: #eef1f4;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  * {
+    box-sizing: border-box;
+  }
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px 64px;
+  }
+  code,
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.92em;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.05em 0.4em;
+  }
+  header.page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 20px 16px;
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .eyebrow {
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-blue);
+  }
+  h1 {
+    margin: 0 0 12px;
+    font-size: 24px;
+  }
+  h2 {
+    font-size: 18px;
+    margin: 40px 0 12px;
+    border-top: 1px solid var(--border);
+    padding-top: 28px;
+  }
+  h2:first-of-type {
+    border-top: none;
+    padding-top: 0;
+  }
+  h3 {
+    font-size: 15px;
+    margin: 20px 0 8px;
+  }
+  p {
+    color: var(--text);
+  }
+  nav.diagram-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    align-items: center;
+    font-size: 14px;
+  }
+  a {
+    color: var(--accent-blue);
+  }
+  nav.diagram-nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 4px 2px;
+    border-bottom: 2px solid transparent;
+  }
+  nav.diagram-nav a:hover {
+    color: var(--accent-blue);
+  }
+  nav.diagram-nav a.current {
+    color: var(--text);
+    font-weight: 600;
+    border-bottom: 2px solid var(--accent-blue);
+  }
+  nav.diagram-nav .sep {
+    color: var(--border);
+  }
+  .diagram-scroll {
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 12px;
+    margin: 16px 0;
+  }
+  .diagram-scroll svg {
+    display: block;
+    min-width: 900px;
+    width: 100%;
+    height: auto;
+  }
+  .box {
+    fill: var(--surface);
+    stroke: var(--border);
+    stroke-width: 1.5;
+  }
+  .box-title {
+    fill: var(--text);
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .box-sub {
+    fill: var(--text-muted);
+    font-size: 11px;
+  }
+  .arrow-label {
+    fill: var(--text-muted);
+    font-size: 11px;
+  }
+  .arrow-label-strong {
+    fill: var(--text);
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .accent-bar {
+    stroke-width: 4;
+    stroke-linecap: round;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin: 12px 0 24px;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th {
+    color: var(--text-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  tr:hover td {
+    background: var(--surface-2);
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    font-size: 13px;
+    margin: 14px 0 6px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .legend-swatch {
+    width: 28px;
+    height: 0;
+    border-top-width: 3px;
+    border-top-style: solid;
+    flex-shrink: 0;
+  }
+  .legend-swatch.dashed {
+    border-top-style: dashed;
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent-amber);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 13.5px;
+  }
+  .callout.forbidden {
+    border-left-color: var(--accent-red);
+  }
+  .callout.exception {
+    border-left-color: var(--accent-purple);
+  }
+  footer.page-footer {
+    max-width: 1100px;
+    margin: 40px auto 0;
+    padding: 20px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+  }
+</style>
+
+<header class="page-header">
+  <div class="header-inner">
+    <p class="eyebrow">Architecture Diagrams</p>
+    <h1>Layer Dependency Graph</h1>
+    <nav class="diagram-nav">
+      <a href="./layers.html" class="current">Layers</a>
+      <a href="./flows.html">Flows</a>
+      <a href="./security.html">Security &amp; Errors</a>
+      <a href="./state.html">State Ownership</a>
+      <span class="sep">·</span>
+      <a href="../ARCHITECTURE.md">← ARCHITECTURE.md</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p>
+    Solid arrows are real compile-time <code>import</code> statements. Dashed blue arrows are
+    <strong>runtime-only</strong> relationships — no import exists between the two boxes, the
+    connection only happens when Inbound injects an object at call time. The layer names below match
+    the paths enforced in <code>eslint.config.mjs</code>.
+  </p>
+
+  <div class="diagram-scroll">
+    <svg
+      viewBox="0 0 1120 700"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Layer dependency graph: Presentation to Server-State to Inbound, fanning out to Use-Cases and Outbound, both depending on Domain, with Infrastructure as a cross-cutting layer."
+    >
+      <defs>
+        <marker
+          id="m-neutral"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--text-muted)" />
+        </marker>
+        <marker
+          id="m-blue"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--accent-blue)" />
+        </marker>
+        <marker
+          id="m-red"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--accent-red)" />
+        </marker>
+        <marker
+          id="m-amber"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--accent-amber)" />
+        </marker>
+        <marker
+          id="m-purple"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--accent-purple)" />
+        </marker>
+      </defs>
+
+      <!-- Presentation -->
+      <rect class="box" x="60" y="20" width="820" height="70" rx="8" />
+      <line class="accent-bar" x1="60" y1="20" x2="60" y2="90" stroke="var(--accent-blue)" />
+      <text class="box-title" x="82" y="48">Presentation — src/app/, src/ui/</text>
+      <text class="box-sub" x="82" y="68">
+        components, hooks, layout, providers, themes · App Router pages/layouts
+      </text>
+
+      <!-- actions.ts side box -->
+      <rect class="box" x="940" y="20" width="140" height="70" rx="8" />
+      <line class="accent-bar" x1="940" y1="20" x2="940" y2="90" stroke="var(--accent-blue)" />
+      <text class="box-title" x="958" y="48" font-size="13">actions.ts</text>
+      <text class="box-sub" x="958" y="66">feature-local,</text>
+      <text class="box-sub" x="958" y="79">thin SA wrapper</text>
+
+      <!-- Server-State -->
+      <rect class="box" x="60" y="130" width="820" height="70" rx="8" />
+      <line class="accent-bar" x1="60" y1="130" x2="60" y2="200" stroke="var(--accent-blue)" />
+      <text class="box-title" x="82" y="158">Client Server-State — src/ui/server-state/</text>
+      <text class="box-sub" x="82" y="178">
+        TanStack Query hooks/keys · the only UI layer allowed to import inbound adapters
+      </text>
+
+      <!-- Inbound -->
+      <rect class="box" x="60" y="260" width="820" height="70" rx="8" />
+      <line class="accent-bar" x1="60" y1="260" x2="60" y2="330" stroke="var(--accent-green)" />
+      <text class="box-title" x="82" y="288">
+        Server Entrypoints (Inbound) — src/adapters/inbound/next/
+      </text>
+      <text class="box-sub" x="82" y="308">
+        server-actions/ (next-safe-action) · route-handlers/ — the composition root
+      </text>
+
+      <!-- Infrastructure (cross-cutting) -->
+      <rect class="box" x="940" y="260" width="140" height="300" rx="8" fill="var(--surface-2)" />
+      <line class="accent-bar" x1="940" y1="260" x2="940" y2="560" stroke="var(--accent-amber)" />
+      <text class="box-title" x="958" y="288" font-size="13">Infrastructure</text>
+      <text class="box-sub" x="958" y="306">src/infrastructure/</text>
+      <text class="box-sub" x="958" y="326">auth, cache, errors,</text>
+      <text class="box-sub" x="958" y="339">logging, sentry, env</text>
+      <text class="box-sub" x="958" y="360">no ESLint boundary</text>
+      <text class="box-sub" x="958" y="373">rule exists for this</text>
+      <text class="box-sub" x="958" y="386">layer (real gap, T1)</text>
+
+      <!-- Use-Cases -->
+      <rect class="box" x="60" y="390" width="320" height="90" rx="8" />
+      <line class="accent-bar" x1="60" y1="390" x2="60" y2="480" stroke="var(--accent-purple)" />
+      <text class="box-title" x="80" y="420">Application Core</text>
+      <text class="box-sub" x="80" y="438">src/use-cases/</text>
+      <text class="box-sub" x="80" y="454">scenarios, ports.ts, types.ts</text>
+      <text class="box-sub" x="80" y="468">imports domain + own ports only</text>
+
+      <!-- Outbound -->
+      <rect class="box" x="560" y="390" width="320" height="90" rx="8" />
+      <line class="accent-bar" x1="560" y1="390" x2="560" y2="480" stroke="var(--accent-green)" />
+      <text class="box-title" x="580" y="420">Persistence (Outbound)</text>
+      <text class="box-sub" x="580" y="438">src/adapters/outbound/, src/adapters/supabase/</text>
+      <text class="box-sub" x="580" y="454">Supabase repositories, external APIs,</text>
+      <text class="box-sub" x="580" y="468">transport, low-level client factories</text>
+
+      <!-- Domain -->
+      <rect class="box" x="60" y="590" width="820" height="70" rx="8" />
+      <line class="accent-bar" x1="60" y1="590" x2="60" y2="660" stroke="var(--accent-purple)" />
+      <text class="box-title" x="82" y="618">Domain — src/domain/</text>
+      <text class="box-sub" x="82" y="638">
+        Valibot schemas, inferred types, invariants · depends on nothing else (verified clean, T1)
+      </text>
+
+      <!-- Main flow arrows (solid = compile-time import) -->
+      <line
+        x1="470"
+        y1="90"
+        x2="470"
+        y2="130"
+        stroke="var(--text-muted)"
+        stroke-width="2"
+        marker-end="url(#m-neutral)"
+      />
+      <line
+        x1="470"
+        y1="200"
+        x2="470"
+        y2="260"
+        stroke="var(--text-muted)"
+        stroke-width="2"
+        marker-end="url(#m-neutral)"
+      />
+      <text class="arrow-label" x="484" y="222">only UI layer allowed in</text>
+
+      <!-- actions.ts -> Inbound (bypasses server-state) -->
+      <path
+        d="M1010,90 C1010,180 900,230 830,258"
+        fill="none"
+        stroke="var(--text-muted)"
+        stroke-width="2"
+        marker-end="url(#m-neutral)"
+      />
+      <text class="arrow-label" x="895" y="200">feature-local,</text>
+      <text class="arrow-label" x="895" y="213">bypasses server-state</text>
+
+      <!-- Inbound -> Use-Cases -->
+      <path
+        d="M300,330 C300,355 260,365 220,388"
+        fill="none"
+        stroke="var(--text-muted)"
+        stroke-width="2"
+        marker-end="url(#m-neutral)"
+      />
+      <text class="arrow-label" x="120" y="368">calls use-case fn</text>
+
+      <!-- Inbound -> Outbound -->
+      <path
+        d="M640,330 C640,355 690,365 720,388"
+        fill="none"
+        stroke="var(--text-muted)"
+        stroke-width="2"
+        marker-end="url(#m-neutral)"
+      />
+      <text class="arrow-label" x="660" y="368">constructs adapter</text>
+      <text class="arrow-label" x="660" y="381">(composition root)</text>
+
+      <!-- Use-Cases -> Domain -->
+      <line
+        x1="220"
+        y1="480"
+        x2="220"
+        y2="590"
+        stroke="var(--text-muted)"
+        stroke-width="2"
+        marker-end="url(#m-neutral)"
+      />
+      <text class="arrow-label" x="234" y="540">imports schemas/types</text>
+
+      <!-- Outbound -> Domain -->
+      <line
+        x1="720"
+        y1="480"
+        x2="720"
+        y2="590"
+        stroke="var(--text-muted)"
+        stroke-width="2"
+        marker-end="url(#m-neutral)"
+      />
+      <text class="arrow-label" x="600" y="540">imports schemas, parse()s rows</text>
+
+      <!-- Outbound -> Use-Cases : implements Port (dashed blue) -->
+      <path
+        d="M560,412 L380,412"
+        fill="none"
+        stroke="var(--accent-blue)"
+        stroke-width="2"
+        stroke-dasharray="6,4"
+        marker-end="url(#m-blue)"
+      />
+      <text class="arrow-label-strong" x="392" y="407" fill="var(--accent-blue)">
+        ① implements Port
+      </text>
+
+      <!-- Use-Cases -> Outbound : runtime port call (dashed blue) -->
+      <path
+        d="M380,437 L560,437"
+        fill="none"
+        stroke="var(--accent-blue)"
+        stroke-width="2"
+        stroke-dasharray="6,4"
+        marker-end="url(#m-blue)"
+      />
+      <text class="arrow-label-strong" x="392" y="452" fill="var(--accent-blue)">
+        ② runtime-only port call
+      </text>
+
+      <!-- FORBIDDEN Use-Cases -> Outbound direct import (red) -->
+      <path
+        d="M380,464 L560,464"
+        fill="none"
+        stroke="var(--accent-red)"
+        stroke-width="2"
+        stroke-dasharray="3,4"
+        marker-end="url(#m-red)"
+      />
+      <text
+        x="466"
+        y="464"
+        font-size="15"
+        font-weight="700"
+        fill="var(--accent-red)"
+        text-anchor="middle"
+        dominant-baseline="middle"
+      >
+        ✕
+      </text>
+      <text class="arrow-label-strong" x="392" y="479" fill="var(--accent-red)">
+        ③ FORBIDDEN direct import
+      </text>
+
+      <!-- Infrastructure -> Inbound -->
+      <line
+        x1="940"
+        y1="295"
+        x2="880"
+        y2="295"
+        stroke="var(--accent-amber)"
+        stroke-width="2"
+        marker-end="url(#m-amber)"
+      />
+      <text class="arrow-label" x="770" y="290" text-anchor="end">auth-context, cache tags,</text>
+      <text class="arrow-label" x="770" y="303" text-anchor="end">errors, logging</text>
+
+      <!-- Infrastructure -> Outbound -->
+      <line
+        x1="940"
+        y1="420"
+        x2="880"
+        y2="420"
+        stroke="var(--accent-amber)"
+        stroke-width="2"
+        marker-end="url(#m-amber)"
+      />
+      <text class="arrow-label" x="885" y="415">env, cache</text>
+      <text class="arrow-label" x="885" y="428">tags, errors</text>
+
+      <!-- Exception: server-state -> outbound (auth-events/realtime), routed through the corridor -->
+      <path
+        d="M880,165 C915,165 915,390 720,388"
+        fill="none"
+        stroke="var(--accent-purple)"
+        stroke-width="2"
+        marker-end="url(#m-purple)"
+      />
+      <text
+        class="arrow-label-strong"
+        x="924"
+        y="230"
+        fill="var(--accent-purple)"
+        transform="rotate(90 924 230)"
+      >
+        exception
+      </text>
+    </svg>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <span class="legend-swatch" style="border-top-color: var(--text-muted)"></span> Solid —
+      compile-time import
+    </div>
+    <div class="legend-item">
+      <span class="legend-swatch dashed" style="border-top-color: var(--accent-blue)"></span> Dashed
+      blue — runtime-only relationship
+    </div>
+    <div class="legend-item">
+      <span class="legend-swatch dashed" style="border-top-color: var(--accent-red)"></span> Dashed
+      red + ✕ — forbidden direction (ESLint-blocked)
+    </div>
+    <div class="legend-item">
+      <span class="legend-swatch" style="border-top-color: var(--accent-amber)"></span> Amber —
+      Infrastructure (cross-cutting)
+    </div>
+    <div class="legend-item">
+      <span class="legend-swatch" style="border-top-color: var(--accent-purple)"></span> Purple —
+      documented client-safe exception
+    </div>
+  </div>
+
+  <div class="callout forbidden">
+    <strong>Forbidden direction, explicit:</strong> <code>src/use-cases/**</code> must never import
+    <code>@/adapters/outbound/**</code> directly (③ above). ESLint's
+    <code>no-restricted-imports</code> blocks it, and the real code is <em>stricter</em> than the
+    rule requires — zero <code>infrastructure</code> or outbound imports were found anywhere in
+    <code>src/use-cases/</code> (T1 audit). Use-cases only ever see the port <em>type</em> (①
+    <code>import type</code>, erased at runtime) and receive a concrete implementation as a plain
+    function argument, injected by Inbound (② — a runtime call on an object, not an import).
+  </div>
+
+  <div class="callout exception">
+    <strong>Documented exception:</strong> <code>ui/server-state/auth-events.ts</code> and
+    <code>ui/server-state/realtime.ts</code> import two outbound Supabase modules directly — both
+    are the anon-key <strong>browser</strong> client (<code>adapters/supabase/client.ts</code>),
+    never a server/service-role client. This is the one sanctioned "client-safe outbound helper"
+    exception (T1), not a boundary violation.
+  </div>
+
+  <h2>Per-Layer "May Import" Table</h2>
+  <p>
+    Mirrors the <code>no-restricted-imports</code> blocks in <code>eslint.config.mjs</code>, file
+    group by file group.
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Layer / file glob</th>
+        <th>May import</th>
+        <th>Forbidden (ESLint-enforced)</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>src/domain/**</code></td>
+        <td>domain (self), external libs (valibot)</td>
+        <td>
+          <code>app</code>, <code>ui</code>, <code>use-cases</code>, <code>adapters</code>,
+          <code>infrastructure</code>
+        </td>
+        <td>Clean — zero leaks found (T1)</td>
+      </tr>
+      <tr>
+        <td><code>src/use-cases/**</code></td>
+        <td>domain, own <code>ports.ts</code>/<code>types.ts</code>, valibot</td>
+        <td>
+          <code>app</code>, <code>ui</code>, <code>adapters/inbound/**</code>,
+          <code>adapters/outbound/**</code>
+        </td>
+        <td>
+          ESLint's own message text still says "and infrastructure" — but the real code never
+          imports it. <code>.claude/rules/architecture.md</code> additionally claims outbound is
+          allowed; that's a documented contradiction (T1), scheduled for a doc fix, not a code
+          change.
+        </td>
+      </tr>
+      <tr>
+        <td><code>src/ui/server-state/**</code></td>
+        <td>inbound adapters (only UI layer allowed to), domain types, TanStack Query</td>
+        <td>
+          <code>app/**</code>, <code>outbound/api/**</code>, <code>outbound/transport/**</code>,
+          <code>outbound/supabase/*.operations</code>, <code>*.repository</code>,
+          <code>ui/components</code>, <code>ui/contexts</code>, <code>ui/layout(s)</code>,
+          <code>ui/messages</code>, <code>ui/providers</code>, <code>ui/stores</code>,
+          <code>ui/themes</code>
+        </td>
+        <td>
+          Exception: <code>auth-events.ts</code> / <code>realtime.ts</code> import 2 anon-key
+          browser Supabase modules directly (see callout above)
+        </td>
+      </tr>
+      <tr>
+        <td><code>src/ui/hooks/**</code></td>
+        <td>domain types, other UI code</td>
+        <td><code>app/**</code>, <code>adapters/outbound/**</code></td>
+        <td>Reusable hooks must stay adapter-free</td>
+      </tr>
+      <tr>
+        <td><code>src/app/**/route.ts</code></td>
+        <td>inbound route-handler adapters, infrastructure</td>
+        <td>
+          <code>adapters/outbound/**</code>, <code>adapters/api/**</code>,
+          <code>adapters/supabase/**</code>, <code>adapters/transport/**</code>
+        </td>
+        <td>
+          Route files stay thin — delegate to <code>adapters/inbound/next/route-handlers/*</code>
+        </td>
+      </tr>
+      <tr>
+        <td><code>ui/**/actions.ts</code>, <code>app/**/actions.ts</code></td>
+        <td>inbound adapters, domain</td>
+        <td>
+          <code>app/**</code>, outbound/api/supabase/transport, <code>ui/components</code>,
+          <code>ui/contexts</code>, <code>ui/layout(s)</code>, <code>ui/messages</code>,
+          <code>ui/providers</code>, <code>ui/server-state</code>, <code>ui/stores</code>,
+          <code>ui/themes</code>
+        </td>
+        <td>Thin direct Server Action wrapper only — no query keys, no cache invalidation</td>
+      </tr>
+      <tr>
+        <td>
+          Presentation <code>ui/**</code>, <code>app/**</code> (excl. server-state / actions.ts /
+          route.ts)
+        </td>
+        <td><code>ui/server-state</code>, feature-local <code>actions.ts</code>, domain types</td>
+        <td>
+          <code>adapters/inbound/**</code>, <code>adapters/outbound/**</code>,
+          <code>adapters/api/**</code>, <code>adapters/supabase/**</code>,
+          <code>adapters/transport/**</code>
+        </td>
+        <td>
+          Must go through <code>ui/server-state</code> or <code>actions.ts</code> — never adapters
+          directly
+        </td>
+      </tr>
+      <tr>
+        <td><code>src/adapters/inbound/**</code></td>
+        <td>outbound adapters, use-cases, domain, infrastructure</td>
+        <td><code>app/**</code>, <code>ui/**</code></td>
+        <td>The composition root — wires outbound instances into use-case calls</td>
+      </tr>
+      <tr>
+        <td>
+          <code>adapters/outbound/**</code>, <code>adapters/api/**</code>,
+          <code>adapters/supabase/**</code>, <code>adapters/transport/**</code>
+        </td>
+        <td>domain, use-case port <em>types</em> (import type only), infrastructure</td>
+        <td><code>app/**</code>, <code>ui/**</code>, <code>adapters/inbound/**</code></td>
+        <td>
+          ESLint only forbids app/ui/inbound here; the stricter "domain + port types only" rule from
+          the reference skill is not enforced and is quietly crossed by
+          <code>infrastructure</code> imports (not a runtime bug — flagged in T1)
+        </td>
+      </tr>
+      <tr>
+        <td><code>src/infrastructure/**</code></td>
+        <td>
+          domain, technical libs, and in practice <code>adapters/supabase/server</code> (low-level
+          client factory)
+        </td>
+        <td><em>No ESLint rule exists for this layer at all</em> — a real gap (T1)</td>
+        <td>
+          <code>infrastructure/auth/*</code> reaching into <code>adapters/supabase/server</code> is
+          acceptable in practice but unenforced — documented exception, not silently allowed
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size: 12.5px; color: var(--text-muted)">
+    Sourced from <code>eslint.config.mjs</code> (read directly for this page) and
+    <code>.superpowers-reports/t1-architecture-report.md</code> (per-layer verdicts, contradiction,
+    and gap findings).
+  </p>
+</main>
+
+<footer class="page-footer">
+  Architecture diagrams · <a href="./layers.html">Layers</a> · <a href="./flows.html">Flows</a> ·
+  <a href="./security.html">Security &amp; Errors</a> · <a href="./state.html">State Ownership</a> ·
+  <a href="../ARCHITECTURE.md">ARCHITECTURE.md</a>
+</footer>

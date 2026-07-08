@@ -6,7 +6,7 @@ src/ui/
 ├── server-state/     # React Query hooks (queries, mutations, keys)
 ├── hooks/            # Custom React hooks (shared across components)
 │   ├── server-action-form/
-│   ├── compose-hooks.tsx  # Core Smart/Dumb pattern utility
+│   ├── compose-hooks.tsx  # Core View + useProps pattern utility
 │   └── use-*.ts           # Simple hooks stay flat
 ├── themes/           # Mantine theme, palettes, color mappings
 ├── layout/           # App shell, page layouts (AuthLayout, ChatDashboard, Sidebar)

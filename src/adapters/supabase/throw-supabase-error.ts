@@ -1,4 +1,5 @@
 import type { PostgrestError } from '@supabase/supabase-js'
+import { createHttpError } from '@/infrastructure/errors/api-error'
 
 /**
  * PostgreSQL error codes that indicate transient connection/pooling issues.
@@ -47,22 +48,43 @@ function getSanitizedMessage(error: PostgrestError, operation: string): string {
   return `Failed to ${operation}: ${error.message}`
 }
 
+/** Postgrest code for "no rows returned" from a `.single()`/`.maybeSingle()` query. */
+const NOT_FOUND_PG_CODE = 'PGRST116'
+/** Postgres SQLSTATE for a unique constraint violation. */
+const UNIQUE_VIOLATION_PG_CODE = '23505'
+
 /**
- * Type guard that throws an error if the Supabase operation failed.
+ * Map a PostgrestError to the closest HTTP status in the existing ApiError taxonomy.
+ * Transient and otherwise-unclassified failures default to 500 (unexpected backend error) —
+ * they get captured to Sentry once at the inbound boundary (route/read wrapper) rather than
+ * being silently swallowed as a generic Error.
+ */
+function getHttpStatusForPostgrestError(error: PostgrestError): number {
+  if (error.code === NOT_FOUND_PG_CODE) return 404
+  if (error.code === UNIQUE_VIOLATION_PG_CODE) return 409
+  return 500
+}
+
+/**
+ * Type guard that throws a typed ApiError (see `@/infrastructure/errors/api-error`) if the
+ * Supabase operation failed.
  *
  * Sanitizes transient database errors (PgBouncer, connection pooling)
  * to prevent raw PostgreSQL messages from reaching the UI.
  *
  * @param error - PostgrestError from Supabase operation or null
  * @param operation - Description of the operation (e.g., "get labels", "create work item")
- * @throws Error with formatted message if error is not null
+ * @throws HttpError (NotFoundError/ClientError/ServerError) with a sanitized message if error is not null
  */
 export function throwIfError(
   error: PostgrestError | null,
   operation: string
 ): asserts error is null {
   if (error) {
-    throw new Error(getSanitizedMessage(error, operation))
+    throw createHttpError(
+      getHttpStatusForPostgrestError(error),
+      getSanitizedMessage(error, operation)
+    )
   }
 }
 

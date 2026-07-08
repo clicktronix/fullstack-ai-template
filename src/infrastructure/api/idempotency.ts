@@ -2,8 +2,8 @@ import 'server-only'
 
 import { createHash } from 'node:crypto'
 import type { Json } from '@/adapters/supabase/types'
-import { createActionError } from '@/lib/errors/action-error'
-import { CONFLICT_ERROR, VALIDATION_ERROR } from '@/lib/errors/codes'
+import { createActionError } from '@/infrastructure/errors/action-error'
+import { CONFLICT_ERROR, VALIDATION_ERROR } from '@/infrastructure/errors/codes'
 import type { ApiHandlerContext } from './context'
 
 type IdempotencyRow = {

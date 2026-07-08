@@ -128,7 +128,7 @@ background-color: rgba(37, 38, 43, 0.4);
 
 ```typescript
 import { useForm } from '@mantine/form'
-import { createMantineValidator } from '@/lib/create-mantine-validator'
+import { createMantineValidator } from '@/ui/create-mantine-validator'
 import { UserSchema } from '@/domain/user'
 
 export function useUserFormProps() {

@@ -1,6 +1,5 @@
 ---
-paths:
-  ['src/**/*', 'middleware.ts', 'next.config.ts', 'eslint.config.mjs', 'scripts/**/*', 'tests/**/*']
+paths: ['src/**/*', 'next.config.ts', 'eslint.config.mjs', 'scripts/**/*', 'tests/**/*']
 ---
 
 # Frontend Core Rules
@@ -12,7 +11,7 @@ paths:
 - ❌ No `interface` — use `type`
 - ❌ No classes — functional only
   - ✅ Exception: TypeScript module augmentation (`declare module ... { interface ... }`) is allowed where required by upstream typings (e.g. Mantine).
-  - ✅ Exception: Error types may use classes in `src/lib/errors/*` (extending `Error`) for ergonomics and `instanceof` checks.
+  - ✅ Exception: Error types may use classes in `src/infrastructure/errors/*` (extending `Error`) for ergonomics and `instanceof` checks.
 - ❌ No `any` types
 - ❌ Do NOT use `import * as v from 'valibot'` — import functions directly
 - ❌ **No barrel exports** — Never create `index.ts` just for re-exporting
@@ -37,7 +36,7 @@ paths:
 ### Architecture
 
 - ✅ Import domain types from `@/domain/entity`
-- ✅ Use `composeHooks` for Smart/Dumb separation
+- ✅ Use `composeHooks` for View + useProps separation
 - ✅ Dark theme is default (`defaultColorScheme="dark"`)
 - ✅ **Many types?** Extract to `interfaces.ts` file
 
@@ -206,6 +205,6 @@ const config = useMemo(() => ({ theme: 'dark' }), [])
 - `@.claude/rules/styling.md` - CSS Modules, Forms, Validation
 - `@.claude/rules/data-state.md` - State Management, Server Components
 - `@.claude/rules/quality.md` - Testing, Performance
-- `@docs/ARCHITECTURE/QUICK_REFERENCE.md` - One-page cheatsheet
-- `@docs/ARCHITECTURE/ARCHITECTURAL_RATIONALE.md` - Why the hybrid architecture exists
-- `@docs/ARCHITECTURE/ARCHITECTURE.md` - Complete architecture guide
+- `@wiki/ARCHITECTURE/QUICK_REFERENCE.md` - One-page cheatsheet
+- `@wiki/ARCHITECTURE/ARCHITECTURAL_RATIONALE.md` - Why the hybrid architecture exists
+- `@wiki/ARCHITECTURE/ARCHITECTURE.md` - Complete architecture guide

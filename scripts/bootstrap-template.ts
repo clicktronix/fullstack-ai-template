@@ -16,16 +16,16 @@ const TEXT_FILES = [
   'AGENTS.md',
   'CLAUDE.md',
   '.claude/settings.json',
-  'src/lib/constants.ts',
+  'src/infrastructure/constants.ts',
   'src/app/layout.tsx',
   'src/app/(public)/page.tsx',
   'src/app/(public)/_internal/ui/LandingView/messages.json',
   'src/infrastructure/i18n/locales/en.ts',
   'src/app/(protected)/admin/team/page.tsx',
   'src/app/(protected)/admin/settings/page.tsx',
-  'docs/TEMPLATE_GUIDE/GETTING_STARTED.md',
-  'docs/TEMPLATE_GUIDE/CUSTOMIZE_TEMPLATE.md',
-  'docs/TEMPLATE_GUIDE/FIRST_FEATURE.md',
+  'wiki/TEMPLATE_GUIDE/GETTING_STARTED.md',
+  'wiki/TEMPLATE_GUIDE/CUSTOMIZE_TEMPLATE.md',
+  'wiki/TEMPLATE_GUIDE/FIRST_FEATURE.md',
 ]
 
 function parseArgs(argv: string[]): BootstrapOptions {
@@ -92,7 +92,7 @@ async function main() {
 
   await updatePackageJson(options.name)
 
-  await replaceInFile('docs/TEMPLATE_GUIDE/GETTING_STARTED.md', [
+  await replaceInFile('wiki/TEMPLATE_GUIDE/GETTING_STARTED.md', [
     [
       'bun run bootstrap -- --name=my-new-app --title="My New App"',
       `bun run bootstrap -- --name=${options.name} --title="${options.title}"`,

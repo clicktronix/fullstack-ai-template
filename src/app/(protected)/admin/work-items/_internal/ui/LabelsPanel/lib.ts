@@ -1,12 +1,12 @@
 'use client'
 
-import { useForm } from '@mantine/form'
+import { useForm, type UseFormReturnType } from '@mantine/form'
 import { useCallback, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { minLength, object, optional, pipe, string, trim, nullable } from 'valibot'
 import type { Label } from '@/domain/label/label'
-import { createMantineValidator } from '@/lib/create-mantine-validator'
-import { notifications } from '@/lib/mantine-notifications'
+import { createMantineValidator } from '@/ui/create-mantine-validator'
+import { notifications } from '@/ui/mantine-notifications'
 import { useCreateLabel, useUpdateLabel } from '@/ui/server-state/labels/mutations'
 import messages from './messages.json'
 
@@ -21,7 +21,7 @@ export type LabelsPanelProps = {
 
 export type LabelsPanelViewProps = {
   labels: Label[]
-  form: ReturnType<typeof useForm<LabelFormValues>>
+  form: UseFormReturnType<LabelFormValues>
   editingLabelId: string | null
   isSubmitting: boolean
   namePlaceholder: string

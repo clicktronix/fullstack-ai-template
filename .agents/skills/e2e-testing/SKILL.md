@@ -64,4 +64,4 @@ For a new feature:
 ## References
 
 - `e2e/playwright.config.ts`
-- `docs/TEMPLATE_GUIDE/FIRST_FEATURE.md`
+- `wiki/TEMPLATE_GUIDE/FIRST_FEATURE.md`

@@ -49,7 +49,8 @@ ui/server-state/work-items/
 **Rules**:
 
 - ✅ Use-case files implement application scenarios
-- ✅ May depend on `domain`, `infrastructure`, and outbound adapters
+- ✅ May depend on `domain` and `infrastructure`
+- ❌ Must not import outbound adapters directly — outbound implementations are injected via ports (compile-time import is of the port type only; the concrete adapter is wired in by inbound adapters at runtime)
 - ❌ No `'use server'`
 - ❌ No `NextRequest`, `NextResponse`
 - ❌ No `revalidatePath`, `revalidateTag`
@@ -172,7 +173,8 @@ import { useWorkItems } from '@/ui/server-state/work-items/queries'
 // Server Action -> use-case
 import { createWorkItem } from '@/use-cases/work-items/work-items'
 
-// Use-case -> outbound adapter
+// Inbound adapter (composition root) wires the concrete outbound adapter into the use-case
+// as a dependency argument — the use-case itself only imports the port type, never this module
 import { createSupabaseWorkItemRepository } from '@/adapters/outbound/supabase/work-items.repository'
 ```
 

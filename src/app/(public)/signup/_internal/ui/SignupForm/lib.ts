@@ -1,8 +1,8 @@
-import { useForm } from '@mantine/form'
+import { useForm, type UseFormReturnType } from '@mantine/form'
 import { useActionState, useMemo } from 'react'
 import { type IntlShape, useIntl } from 'react-intl'
 import { email, minLength, object, pipe, string } from 'valibot'
-import { createMantineValidator } from '@/lib/create-mantine-validator'
+import { createMantineValidator } from '@/ui/create-mantine-validator'
 import { initialSignupFormState, submitSignupForm } from './actions'
 import messages from './messages.json'
 
@@ -44,7 +44,7 @@ export type SignupFormViewProps = {
   confirmationTitle: string
   confirmationDescription: string
   loginLinkLabel: string
-  form: ReturnType<typeof useForm<SignupFormValues>>
+  form: UseFormReturnType<SignupFormValues>
   isSubmitting: boolean
   error: string | null
   confirmationEmail: string | null

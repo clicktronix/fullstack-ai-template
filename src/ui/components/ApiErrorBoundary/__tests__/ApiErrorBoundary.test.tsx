@@ -9,8 +9,8 @@ import {
   UnauthorizedError,
   ClientError,
   createHttpError,
-} from '@/lib/errors/api-error'
-import { VALIDATION_ERROR } from '@/lib/errors/codes'
+} from '@/infrastructure/errors/api-error'
+import { VALIDATION_ERROR } from '@/infrastructure/errors/codes'
 import { ApiErrorBoundary, withApiErrorBoundary } from '../index'
 
 // Wrapper for Mantine and Intl components

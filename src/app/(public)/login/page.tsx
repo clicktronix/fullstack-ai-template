@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 import { verifySession } from '@/infrastructure/auth/verify-session'
-import { DEFAULT_AUTHENTICATED_ROUTE } from '@/lib/constants'
+import { DEFAULT_AUTHENTICATED_ROUTE } from '@/infrastructure/constants'
 import { AuthLayout } from '@/ui/layout/AuthLayout'
 import { LoginView } from './_internal/ui/LoginView'
 

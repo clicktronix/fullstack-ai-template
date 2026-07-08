@@ -2,10 +2,10 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getServerEnv } from '@/infrastructure/env/server'
-import { isAuthRoute } from '@/lib/auth-routes'
-import { DEFAULT_AUTHENTICATED_ROUTE } from '@/lib/constants'
-import { logger } from '@/lib/logger'
+import { isAuthRoute } from '@/infrastructure/auth/auth-routes'
+import { DEFAULT_AUTHENTICATED_ROUTE } from '@/infrastructure/constants'
+import { getSupabasePublishableKey, getSupabaseUrl } from '@/infrastructure/env/server'
+import { logger } from '@/infrastructure/logging/logger'
 
 type CookieToSet = {
   name: string
@@ -43,24 +43,18 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const cookieStore = await cookies()
-    const env = getServerEnv()
-
-    const supabase = createServerClient(
-      env.NEXT_PUBLIC_SUPABASE_URL,
-      env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll()
-          },
-          setAll(cookiesToSet: CookieToSet[]) {
-            for (const { name, value, options } of cookiesToSet) {
-              cookieStore.set(name, value, options)
-            }
-          },
+    const supabase = createServerClient(getSupabaseUrl(), getSupabasePublishableKey(), {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
         },
-      }
-    )
+        setAll(cookiesToSet: CookieToSet[]) {
+          for (const { name, value, options } of cookiesToSet) {
+            cookieStore.set(name, value, options)
+          }
+        },
+      },
+    })
 
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 

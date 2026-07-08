@@ -5,9 +5,9 @@ import { IconAlertCircle, IconRefresh, IconWifi, IconServer, IconClock } from '@
 import { type ReactNode, useCallback, useEffect, useRef } from 'react'
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary'
 import { FormattedMessage, type MessageDescriptor } from 'react-intl'
-import { UnauthorizedError, isApiError } from '@/lib/errors/api-error'
-import { presentError } from '@/lib/errors/presentation'
-import { logger } from '@/lib/logger'
+import { UnauthorizedError, isApiError } from '@/infrastructure/errors/api-error'
+import { presentError } from '@/infrastructure/errors/presentation'
+import { logger } from '@/infrastructure/logging/logger'
 import { useCountdown } from '@/ui/hooks/use-countdown'
 import messages from './messages.json'
 

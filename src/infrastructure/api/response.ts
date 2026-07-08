@@ -1,19 +1,31 @@
 import 'server-only'
 
-import { ValiError } from 'valibot'
-import { extractErrorCode } from '@/lib/errors/action-error'
-import { getErrorCode, isApiError } from '@/lib/errors/api-error'
 import {
   AUTHENTICATION_ERROR,
   AUTHORIZATION_ERROR,
+  BUSINESS_LOGIC_ERROR,
   CONFLICT_ERROR,
-  INTERNAL_ERROR,
+  CONNECTION_ERROR,
+  DATA_FETCH_ERROR,
+  DATA_PROVIDER_ERROR,
+  RATE_LIMIT_EXCEEDED,
   RESOURCE_NOT_FOUND,
+  TIMEOUT,
   VALIDATION_ERROR,
-  isValidErrorCode,
+  getStatusForCode,
   type ErrorCode,
-} from '@/lib/errors/codes'
-import { serverLogger } from '@/lib/server-logger'
+} from '@/infrastructure/errors/codes'
+import { serverLogger } from '@/infrastructure/logging/server-logger'
+import { getApiErrorCode } from './error-mapping'
+
+// Re-exported for existing server-only call sites (with-route-error-handling.ts,
+// safe-action.ts, with-server-read-error-handling.ts, tests) that import these from
+// './response'. The implementations live in isomorphic (non-`server-only`) modules —
+// `errors/codes.ts` and `api/error-mapping.ts` — so `ui/providers/query-client.ts`
+// (browser + server) and `errors/action-error.ts` (which would otherwise cycle back
+// through this file) can import them directly without pulling in `server-only`.
+export { getApiErrorCode } from './error-mapping'
+export { getStatusForCode } from '@/infrastructure/errors/codes'
 
 type ApiErrorEnvelope = {
   error: {
@@ -26,64 +38,6 @@ type ApiErrorEnvelope = {
 type ApiSuccessEnvelope<TData> = {
   data: TData
   requestId: string
-}
-
-function getStatusForCode(code: ErrorCode): number {
-  switch (code) {
-    case VALIDATION_ERROR: {
-      return 400
-    }
-    case AUTHENTICATION_ERROR: {
-      return 401
-    }
-    case AUTHORIZATION_ERROR: {
-      return 403
-    }
-    case RESOURCE_NOT_FOUND: {
-      return 404
-    }
-    case CONFLICT_ERROR: {
-      return 409
-    }
-    default: {
-      return 500
-    }
-  }
-}
-
-function getApiErrorCode(error: unknown): ErrorCode {
-  if (error instanceof ValiError) return VALIDATION_ERROR
-
-  if (error instanceof Error) {
-    const actionCode = extractErrorCode(error.message)
-    if (actionCode) return actionCode
-  }
-
-  if (isApiError(error)) {
-    const backendCode = getErrorCode(error)
-    if (backendCode && isValidErrorCode(backendCode)) return backendCode
-
-    switch (error.getStatus()) {
-      case 400:
-      case 422: {
-        return VALIDATION_ERROR
-      }
-      case 401: {
-        return AUTHENTICATION_ERROR
-      }
-      case 403: {
-        return AUTHORIZATION_ERROR
-      }
-      case 404: {
-        return RESOURCE_NOT_FOUND
-      }
-      case 409: {
-        return CONFLICT_ERROR
-      }
-    }
-  }
-
-  return INTERNAL_ERROR
 }
 
 function getPublicErrorMessage(code: ErrorCode): string {
@@ -102,6 +56,20 @@ function getPublicErrorMessage(code: ErrorCode): string {
     }
     case CONFLICT_ERROR: {
       return 'Request conflicts with existing state'
+    }
+    case RATE_LIMIT_EXCEEDED: {
+      return 'Too many requests'
+    }
+    case BUSINESS_LOGIC_ERROR: {
+      return 'Request cannot be processed'
+    }
+    case DATA_FETCH_ERROR:
+    case DATA_PROVIDER_ERROR:
+    case CONNECTION_ERROR: {
+      return 'Upstream service unavailable'
+    }
+    case TIMEOUT: {
+      return 'Upstream request timed out'
     }
     default: {
       return 'Internal server error'

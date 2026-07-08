@@ -1,0 +1,452 @@
+<title>State Ownership — Architecture Diagrams</title>
+<style>
+  :root {
+    --bg: #f6f8fa;
+    --surface: #ffffff;
+    --surface-2: #eef1f4;
+    --border: #d0d7de;
+    --text: #1f2328;
+    --text-muted: #57606a;
+    --accent-blue: #0969da;
+    --accent-purple: #8250df;
+    --accent-green: #1a7f37;
+    --accent-amber: #9a6700;
+    --accent-red: #cf222e;
+    --code-bg: #eef1f4;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-2: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #9198a1;
+      --accent-blue: #58a6ff;
+      --accent-purple: #bc8cff;
+      --accent-green: #56d364;
+      --accent-amber: #d29922;
+      --accent-red: #ff7b72;
+      --code-bg: #0d1117;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    }
+  }
+  :root[data-theme='dark'] {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface-2: #1c2128;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #9198a1;
+    --accent-blue: #58a6ff;
+    --accent-purple: #bc8cff;
+    --accent-green: #56d364;
+    --accent-amber: #d29922;
+    --accent-red: #ff7b72;
+    --code-bg: #0d1117;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+  :root[data-theme='light'] {
+    --bg: #f6f8fa;
+    --surface: #ffffff;
+    --surface-2: #eef1f4;
+    --border: #d0d7de;
+    --text: #1f2328;
+    --text-muted: #57606a;
+    --accent-blue: #0969da;
+    --accent-purple: #8250df;
+    --accent-green: #1a7f37;
+    --accent-amber: #9a6700;
+    --accent-red: #cf222e;
+    --code-bg: #eef1f4;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  * {
+    box-sizing: border-box;
+  }
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px 64px;
+  }
+  code,
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.92em;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.05em 0.4em;
+  }
+  header.page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 20px 16px;
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .eyebrow {
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-blue);
+  }
+  h1 {
+    margin: 0 0 12px;
+    font-size: 24px;
+  }
+  h2 {
+    font-size: 18px;
+    margin: 40px 0 12px;
+    border-top: 1px solid var(--border);
+    padding-top: 28px;
+  }
+  h2:first-of-type {
+    border-top: none;
+    padding-top: 0;
+  }
+  nav.diagram-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    align-items: center;
+    font-size: 14px;
+  }
+  a {
+    color: var(--accent-blue);
+  }
+  nav.diagram-nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 4px 2px;
+    border-bottom: 2px solid transparent;
+  }
+  nav.diagram-nav a:hover {
+    color: var(--accent-blue);
+  }
+  nav.diagram-nav a.current {
+    color: var(--text);
+    font-weight: 600;
+    border-bottom: 2px solid var(--accent-blue);
+  }
+  nav.diagram-nav .sep {
+    color: var(--border);
+  }
+  .diagram-scroll {
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 12px;
+    margin: 16px 0;
+  }
+  .diagram-scroll svg {
+    display: block;
+    min-width: 1000px;
+    width: 100%;
+    height: auto;
+  }
+  .diamond {
+    fill: var(--surface-2);
+    stroke: var(--accent-blue);
+    stroke-width: 1.5;
+  }
+  .diamond-text {
+    fill: var(--text);
+    font-size: 11.5px;
+    font-weight: 600;
+    text-anchor: middle;
+  }
+  .leaf {
+    fill: var(--surface);
+    stroke: var(--border);
+    stroke-width: 1.5;
+  }
+  .leaf-dashed {
+    fill: var(--surface);
+    stroke: var(--accent-amber);
+    stroke-width: 1.5;
+    stroke-dasharray: 5, 4;
+  }
+  .leaf-title {
+    fill: var(--text);
+    font-weight: 700;
+    font-size: 12.5px;
+  }
+  .leaf-sub {
+    fill: var(--text-muted);
+    font-size: 10.5px;
+  }
+  .edge-label {
+    fill: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin: 12px 0 24px;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th {
+    color: var(--text-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  tr:hover td {
+    background: var(--surface-2);
+  }
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent-amber);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 13.5px;
+  }
+  footer.page-footer {
+    max-width: 1100px;
+    margin: 40px auto 0;
+    padding: 20px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+  }
+</style>
+
+<header class="page-header">
+  <div class="header-inner">
+    <p class="eyebrow">Architecture Diagrams</p>
+    <h1>State Ownership Decision Tree</h1>
+    <nav class="diagram-nav">
+      <a href="./layers.html">Layers</a>
+      <a href="./flows.html">Flows</a>
+      <a href="./security.html">Security &amp; Errors</a>
+      <a href="./state.html" class="current">State Ownership</a>
+      <span class="sep">·</span>
+      <a href="../ARCHITECTURE.md">← ARCHITECTURE.md</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p>
+    Walks the same state categories as <code>.claude/rules/data-state.md</code>: Server State,
+    Global State, Form State, Component UI, and Page UI. The two right-hand leaves under
+    "server-owned, no client interactivity" reflect a real, current fact about this codebase rather
+    than a generic pattern — see the callout below.
+  </p>
+
+  <div class="diagram-scroll">
+    <svg
+      viewBox="0 0 1380 800"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Decision tree: does the state originate from the server and need to stay in sync; if not, is it needed outside one component, then component-local, feature-local, or Context; if yes, is it a form target, else does it need client caching leading to TanStack Query or, currently unused, direct RSC props."
+    >
+      <!-- Q1 root -->
+      <polygon class="diamond" points="660,5 850,60 660,115 470,60" />
+      <text class="diamond-text" x="660" y="55">Server-owned data (from Supabase)</text>
+      <text class="diamond-text" x="660" y="70">that must stay in sync?</text>
+
+      <!-- edges from Q1 -->
+      <line x1="530" y1="90" x2="330" y2="180" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="edge-label" x="400" y="130">no</text>
+      <line x1="790" y1="90" x2="1000" y2="180" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="edge-label" x="930" y="130">yes</text>
+
+      <!-- Q2 -->
+      <polygon class="diamond" points="280,150 440,210 280,270 120,210" />
+      <text class="diamond-text" x="280" y="205">Needed outside this</text>
+      <text class="diamond-text" x="280" y="220">one component?</text>
+
+      <!-- Q4 -->
+      <polygon class="diamond" points="1040,150 1210,210 1040,270 870,210" />
+      <text class="diamond-text" x="1040" y="200">Form submission target</text>
+      <text class="diamond-text" x="1040" y="215">needing field validation?</text>
+
+      <!-- Q2 -> L1 (no) -->
+      <line x1="200" y1="250" x2="140" y2="320" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="edge-label" x="130" y="290">no</text>
+      <rect class="leaf" x="30" y="330" width="230" height="90" rx="8" />
+      <text class="leaf-title" x="42" y="358">Component UI State</text>
+      <text class="leaf-sub" x="42" y="376">useState / useReducer</text>
+      <text class="leaf-sub" x="42" y="390">component-local</text>
+      <text class="leaf-sub" x="42" y="404">modals, dropdowns, toggles</text>
+
+      <!-- Q2 -> Q3 (yes) -->
+      <line x1="340" y1="250" x2="410" y2="300" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="edge-label" x="380" y="285">yes</text>
+
+      <!-- Q3 -->
+      <polygon class="diamond" points="430,300 580,355 430,410 280,355" />
+      <text class="diamond-text" x="430" y="350">Scoped to one page/feature,</text>
+      <text class="diamond-text" x="430" y="365">or truly app-wide?</text>
+
+      <line x1="360" y1="390" x2="330" y2="460" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="edge-label" x="300" y="430">page/feature</text>
+      <rect class="leaf" x="290" y="470" width="230" height="90" rx="8" />
+      <text class="leaf-title" x="302" y="498">Page UI State</text>
+      <text class="leaf-sub" x="302" y="516">feature-local useState /</text>
+      <text class="leaf-sub" x="302" y="530">useReducer hook</text>
+      <text class="leaf-sub" x="302" y="544">filters, tabs, layout mode</text>
+
+      <line x1="510" y1="390" x2="650" y2="460" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="edge-label" x="600" y="430">app-wide</text>
+      <rect class="leaf" x="580" y="470" width="240" height="90" rx="8" />
+      <text class="leaf-title" x="592" y="498">Global State</text>
+      <text class="leaf-sub" x="592" y="516">React Context — ui/providers/</text>
+      <text class="leaf-sub" x="592" y="530">user, theme, locale</text>
+
+      <rect class="leaf-dashed" x="580" y="572" width="240" height="60" rx="8" />
+      <text class="leaf-sub" x="592" y="592">ui/stores/ — reserved escalation</text>
+      <text class="leaf-sub" x="592" y="605">slot for when Context outgrows</text>
+      <text class="leaf-sub" x="592" y="618">itself; empty/unused today</text>
+
+      <!-- Q4 -> L4 (yes) -->
+      <line x1="1130" y1="250" x2="1170" y2="320" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="edge-label" x="1140" y="290">yes</text>
+      <rect class="leaf" x="1070" y="330" width="230" height="90" rx="8" />
+      <text class="leaf-title" x="1082" y="358">Form State</text>
+      <text class="leaf-sub" x="1082" y="376">Mantine Forms +</text>
+      <text class="leaf-sub" x="1082" y="390">createMantineValidator(schema)</text>
+      <text class="leaf-sub" x="1082" y="404">component-local, Valibot-backed</text>
+
+      <!-- Q4 -> Q5 (no) -->
+      <line x1="960" y1="250" x2="910" y2="300" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="edge-label" x="960" y="285">no</text>
+
+      <!-- Q5 -->
+      <polygon class="diamond" points="900,300 1060,355 900,410 740,355" />
+      <text class="diamond-text" x="900" y="345">Needs client caching / revalidation /</text>
+      <text class="diamond-text" x="900" y="360">optimistic updates after first paint?</text>
+
+      <line x1="850" y1="395" x2="840" y2="635" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="edge-label" x="790" y="500">yes</text>
+      <rect class="leaf" x="700" y="645" width="280" height="130" rx="8" />
+      <text class="leaf-title" x="712" y="673">Server State</text>
+      <text class="leaf-sub" x="712" y="691">
+        TanStack Query — ui/server-state/&lt;feature&gt;/
+      </text>
+      <text class="leaf-sub" x="712" y="705">(queries.ts / mutations.ts)</text>
+      <text class="leaf-sub" x="712" y="721">fetched via inbound Server Actions</text>
+      <text class="leaf-sub" x="712" y="737">SSR-prefetched with prefetchQuery +</text>
+      <text class="leaf-sub" x="712" y="751">HydrationBoundary in layout/page.tsx</text>
+
+      <line x1="960" y1="395" x2="1050" y2="480" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="edge-label" x="1010" y="440">no</text>
+      <rect class="leaf-dashed" x="1000" y="490" width="270" height="130" rx="8" />
+      <text class="leaf-title" x="1012" y="518" fill="var(--accent-amber)">Direct RSC props</text>
+      <text class="leaf-sub" x="1012" y="536">(no TanStack Query)</text>
+      <text class="leaf-sub" x="1012" y="554">withServerReadErrorHandling boundary</text>
+      <text class="leaf-sub" x="1012" y="568">exists and is tested, but</text>
+      <text class="leaf-sub" x="1012" y="586">0 live call sites today (T4) — every</text>
+      <text class="leaf-sub" x="1012" y="600">current read still goes through</text>
+      <text class="leaf-sub" x="1012" y="614">TanStack Query's prefetchQuery</text>
+    </svg>
+  </div>
+
+  <div class="callout">
+    <strong>Grounded in fact, not a generic template:</strong> this app has no page/layout that
+    reads a use-case or repository directly — every read, client-triggered or SSR, goes through
+    <code>queryClient.prefetchQuery({ queryFn: () =&gt; someAction() })</code> in
+    <code>ui/server-state/{work-items,labels}/prefetch.ts</code>, hydrated via
+    <code>&lt;HydrationBoundary&gt;</code> in <code>(protected)/layout.tsx</code> and the
+    <code>admin/work-items</code> pages. The right-hand "Direct RSC props" leaf is the boundary that
+    would matter <em>if</em> a future page added a direct DAL read — it is not a pattern in active
+    use (T4, Part B.3).
+  </div>
+
+  <div class="callout">
+    <strong>URL-shareable filters — not implemented yet:</strong> before escalating a Page UI state
+    to Context or a store, ask whether it should be bookmarkable/shareable via the URL. Today,
+    <code>WorkItemListParams</code> (<code>search</code>, <code>labelId</code>,
+    <code>priorityOnly</code>, <code>status</code>, <code>page</code>, <code>pageSize</code>) is
+    passed as plain function/component arguments, not read from <code>searchParams</code> — this
+    template does not currently sync list filters to the URL.
+  </div>
+
+  <h2>State Decision Table (mirrors <code>.claude/rules/data-state.md</code>)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>State Type</th>
+        <th>Tool</th>
+        <th>Location</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Server State</td>
+        <td>TanStack Query</td>
+        <td><code>ui/server-state/</code></td>
+        <td>User data, work items</td>
+      </tr>
+      <tr>
+        <td>Global State</td>
+        <td>React Context</td>
+        <td><code>ui/providers/</code></td>
+        <td>User, theme, locale</td>
+      </tr>
+      <tr>
+        <td>Form State</td>
+        <td>Mantine Forms + Valibot</td>
+        <td>Component-local</td>
+        <td>Edit forms, filters</td>
+      </tr>
+      <tr>
+        <td>Component UI</td>
+        <td>useState/useReducer</td>
+        <td>Component-local</td>
+        <td>Modals, dropdowns, toggles</td>
+      </tr>
+      <tr>
+        <td>Page UI</td>
+        <td>useState/useReducer</td>
+        <td>Feature-local hook</td>
+        <td>Filters, tabs, layout mode</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size: 12.5px; color: var(--text-muted)">
+    Rules: React Query hooks are feature-local integration code that may call inbound adapters or
+    safe feature fetchers — UI must not call outbound adapters directly. Feature-local
+    <code>actions.ts</code> files are for thin direct Server Action wrappers without query semantics
+    (blur-time uniqueness checks, shared form submit helpers) — they must not hold query keys,
+    optimistic updates, or cache invalidation.
+  </p>
+</main>
+
+<footer class="page-footer">
+  Architecture diagrams · <a href="./layers.html">Layers</a> · <a href="./flows.html">Flows</a> ·
+  <a href="./security.html">Security &amp; Errors</a> · <a href="./state.html">State Ownership</a> ·
+  <a href="../ARCHITECTURE.md">ARCHITECTURE.md</a>
+</footer>

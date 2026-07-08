@@ -3,7 +3,7 @@ import { cache } from 'react'
 import { parse } from 'valibot'
 import { createClient } from '@/adapters/supabase/server'
 import { UserSchema, type User } from '@/domain/user/user'
-import { logger } from '@/lib/logger'
+import { logger } from '@/infrastructure/logging/logger'
 import { getAuthenticatedUserId } from './authenticated-user'
 
 /**

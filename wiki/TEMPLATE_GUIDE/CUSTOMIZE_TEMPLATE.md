@@ -1,0 +1,94 @@
+# Customize Template
+
+## What the bootstrap script does
+
+`bun run bootstrap -- --name=<slug> --title="<Title>"`
+
+It updates:
+
+- `package.json`
+- `README.md`
+- `AGENTS.md`
+- `CLAUDE.md`
+- app metadata in `src/app/layout.tsx`
+- landing page title/copy
+- locale cookie key
+- key template-guide references
+
+## What you still change manually
+
+Bootstrap does not replace product domain decisions. Review these areas yourself:
+
+- `src/domain/`
+- `src/use-cases/`
+- `src/adapters/inbound/`
+- `src/adapters/outbound/`
+- `src/ui/server-state/`
+- `src/app/(protected)/admin/work-items`
+- locale strings that still mention the demo slice
+
+## Replace the starter role bootstrap early
+
+The template ships with a pragmatic default:
+
+- first signed-up user becomes `owner`
+- every later user becomes `pending`
+
+That is useful for a starter, but it should not stay implicit in a real product.
+
+Decide early:
+
+- who can create the first owner in production
+- how admins are promoted
+- whether `pending` users should see a waiting screen or be blocked completely
+- whether invitations should replace open signup
+
+## Replacing the demo slice
+
+Current demo slice:
+
+- `work-items`
+- `labels`
+
+Recommended sequence:
+
+1. Add your new domain schemas.
+2. Add use-cases and ports.
+3. Implement outbound adapters.
+4. Add inbound Server Actions or route handlers.
+5. Add `ui/server-state/<feature>/`.
+6. Replace the admin page entrypoints.
+7. Remove `work-items` only after your own slice is green.
+
+## Optional integrations
+
+Prepared but optional:
+
+- Storybook
+- Sentry
+- external AI suggestions endpoint
+
+If you do not need them:
+
+- remove related env vars from `.env.example`
+- remove npm scripts
+- delete setup files and docs references
+
+Reference guides:
+
+- `wiki/TEMPLATE_GUIDE/OPTIONAL_STORYBOOK.md`
+- `wiki/TEMPLATE_GUIDE/OPTIONAL_SENTRY.md`
+- `wiki/TEMPLATE_GUIDE/OPTIONAL_AI_ENDPOINT.md`
+
+## Skills and MCP
+
+The template intentionally keeps:
+
+- `.agents`
+- `.claude`
+- `.mcp.json`
+
+Adapt them in two passes:
+
+1. Replace project identity and vocabulary
+2. Keep architecture/process guardrails unless your team has a deliberate alternative

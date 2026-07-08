@@ -1,4 +1,10 @@
-import { beforeEach, describe, expect, test } from 'bun:test'
+import { beforeEach, describe, expect, mock, test } from 'bun:test'
+
+const mockCaptureError = mock()
+
+mock.module('@/infrastructure/sentry/capture', () => ({
+  captureError: mockCaptureError,
+}))
 
 const { POST } = await import('../route')
 
@@ -17,6 +23,27 @@ async function signPayload(secret: string, payload: string): Promise<string> {
 describe('/api/webhooks/example route handler', () => {
   beforeEach(() => {
     process.env.EXAMPLE_WEBHOOK_SECRET = 'test-webhook-secret'
+    mockCaptureError.mockReset()
+  })
+
+  // Regression test: a missing EXAMPLE_WEBHOOK_SECRET previously returned a 500 Response
+  // directly, bypassing withRouteErrorHandling's catch block — so it was logged but never
+  // captured to Sentry. It must now throw so the wrapper captures it.
+  test('captures a 500 to Sentry (via a generic envelope) when EXAMPLE_WEBHOOK_SECRET is missing', async () => {
+    delete process.env.EXAMPLE_WEBHOOK_SECRET
+
+    const response = await POST(
+      new Request('https://template.test/api/webhooks/example', {
+        method: 'POST',
+        body: JSON.stringify({ event: 'work_item.created' }),
+      })
+    )
+    const body = await response.json()
+
+    expect(response.status).toBe(500)
+    expect(body.error.code).toBe('INTERNAL_ERROR')
+    expect(body.error.message).toBe('Internal server error')
+    expect(mockCaptureError).toHaveBeenCalledTimes(1)
   })
 
   test('rejects requests without a webhook signature', async () => {
