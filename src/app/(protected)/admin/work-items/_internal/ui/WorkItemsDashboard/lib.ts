@@ -10,7 +10,7 @@ import type {
   WorkItem,
   WorkItemStatus,
 } from '@/domain/work-item/work-item'
-import { notifications } from '@/lib/mantine-notifications'
+import { notifications } from '@/ui/mantine-notifications'
 import { useLabels } from '@/ui/server-state/labels/queries'
 import {
   useArchiveWorkItem,

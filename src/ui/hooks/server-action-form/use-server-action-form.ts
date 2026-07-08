@@ -3,8 +3,8 @@
 import { useForm, type UseFormInput } from '@mantine/form'
 import { useCallback, useEffect, useLayoutEffect, useRef, useTransition } from 'react'
 import { useIntl } from 'react-intl'
-import { presentError } from '@/lib/errors/presentation'
-import { notifications } from '@/lib/mantine-notifications'
+import { presentError } from '@/infrastructure/errors/presentation'
+import { notifications } from '@/ui/mantine-notifications'
 import messages from './messages.json'
 
 export type ServerActionResult<T = unknown> =

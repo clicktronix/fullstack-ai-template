@@ -2,7 +2,7 @@ import { useForm } from '@mantine/form'
 import { useActionState } from 'react'
 import { useIntl } from 'react-intl'
 import { LoginCredentialsSchema, type LoginCredentials } from '@/domain/auth/auth'
-import { createMantineValidator } from '@/lib/create-mantine-validator'
+import { createMantineValidator } from '@/ui/create-mantine-validator'
 import { initialLoginFormState, submitLoginForm } from './actions'
 import messages from './messages.json'
 

@@ -16,7 +16,7 @@ const TEXT_FILES = [
   'AGENTS.md',
   'CLAUDE.md',
   '.claude/settings.json',
-  'src/lib/constants.ts',
+  'src/infrastructure/constants.ts',
   'src/app/layout.tsx',
   'src/app/(public)/page.tsx',
   'src/app/(public)/_internal/ui/LandingView/messages.json',

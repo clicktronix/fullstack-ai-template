@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl'
 import { array, boolean, minLength, nullable, object, optional, pipe, string, trim } from 'valibot'
 import type { Label } from '@/domain/label/label'
 import type { CreateWorkItem, UpdateWorkItem, WorkItem } from '@/domain/work-item/work-item'
-import { createMantineValidator } from '@/lib/create-mantine-validator'
+import { createMantineValidator } from '@/ui/create-mantine-validator'
 import messages from './messages.json'
 
 export type WorkItemFormValues = {

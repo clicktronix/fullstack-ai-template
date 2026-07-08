@@ -31,7 +31,7 @@ Before creating a hook, choose the right layer:
 - `@/ui/hooks/**`
 - `@/ui/stores/**`
 - `@/domain/**`
-- `@/lib/**`
+- `@/ui/formatters/**`, `@/ui/create-mantine-validator`, `@/ui/storage`, `@/ui/mantine-notifications`
 - `./actions`
 
 ### `Component/lib.ts` must NOT import
@@ -1056,10 +1056,10 @@ export function SettingsView({ editModalOpened, onOpenEdit, onCloseEdit }: ViewP
 
 ### Browser Storage
 
-For small browser-only preferences, use `src/lib/storage.ts`. Do not read `localStorage` in Server Components.
+For small browser-only preferences, use `src/ui/storage.ts`. Do not read `localStorage` in Server Components.
 
 ```typescript
-import { createStorageAccessor } from '@/lib/storage'
+import { createStorageAccessor } from '@/ui/storage'
 
 const workItemsViewStorage = createStorageAccessor({
   key: 'work-items-view',
@@ -1535,10 +1535,10 @@ describe('Component integration', () => {
 
 ### Formatting Utilities
 
-All formatting functions should be placed in `src/lib/` as pure functions:
+All formatting functions should be placed in `src/ui/formatters/` as pure functions:
 
 ```tsx
-// lib/format-currency.ts
+// ui/formatters/format-currency.ts
 export function formatCurrency(value: number, options: FormatCurrencyOptions = {}): string {
   const { currency = 'USD', locale = 'en-US', compact = false } = options
 
@@ -1552,7 +1552,7 @@ export function formatCurrency(value: number, options: FormatCurrencyOptions = {
   }).format(value)
 }
 
-// lib/format-content.ts
+// ui/formatters/format-content.ts
 export function replaceChartPlaceholders(content: string): string {
   return content.replaceAll(CHART_PLACEHOLDER_REGEX, '').trim()
 }
@@ -1566,7 +1566,7 @@ export function replaceChartPlaceholders(content: string): string {
 
 ```tsx
 // Component/lib.ts
-import { replaceChartPlaceholders } from '@/lib/format-content'
+import { replaceChartPlaceholders } from '@/ui/formatters/format-content'
 
 export function useMessageProps({ message }: MessageProps): MessageViewProps {
   const displayContent = useMemo(() => replaceChartPlaceholders(message.content), [message.content])
@@ -1584,10 +1584,10 @@ export const Message = composeHooks(MessageView)(useMessageProps)
 
 ### Visualization Value Formatters
 
-For compact numeric visualizations, use reusable formatters from `lib/formatters`:
+For compact numeric visualizations, use reusable formatters from `ui/formatters`:
 
 ```tsx
-import { formatCompactNumber } from '@/lib/formatters/number'
+import { formatCompactNumber } from '@/ui/formatters/number'
 ;<BarChart
   valueFormatter={formatCompactNumber}
   // ...

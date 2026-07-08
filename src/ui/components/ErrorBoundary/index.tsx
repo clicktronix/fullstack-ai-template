@@ -20,8 +20,8 @@ import {
   NotFoundError,
   ServerError,
   UnauthorizedError,
-} from '@/lib/errors/api-error'
-import { logger } from '@/lib/logger'
+} from '@/infrastructure/errors/api-error'
+import { logger } from '@/infrastructure/logging/logger'
 import { StatusBadge } from '@/ui/components/StatusBadge'
 import { TranslationText } from '@/ui/components/TranslationText'
 import { TranslationTitle } from '@/ui/components/TranslationTitle'

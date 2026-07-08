@@ -3,7 +3,7 @@
  * Centralized dayjs usage for date operations.
  */
 
-import dayjs from '@/lib/dayjs'
+import dayjs from '@/ui/formatters/dayjs'
 
 /**
  * Extract year from ISO date string.

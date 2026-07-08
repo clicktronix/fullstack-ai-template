@@ -19,7 +19,7 @@ import {
   unwrapVoidSafeActionResult,
 } from '@/infrastructure/actions/safe-action'
 import { verifySession } from '@/infrastructure/auth/verify-session'
-import { UnauthorizedError, createHttpError } from '@/lib/errors/api-error'
+import { UnauthorizedError, createHttpError } from '@/infrastructure/errors/api-error'
 
 type OAuthRedirectResult = {
   url: string | null

@@ -12,7 +12,7 @@ paths:
 - ❌ No `interface` — use `type`
 - ❌ No classes — functional only
   - ✅ Exception: TypeScript module augmentation (`declare module ... { interface ... }`) is allowed where required by upstream typings (e.g. Mantine).
-  - ✅ Exception: Error types may use classes in `src/lib/errors/*` (extending `Error`) for ergonomics and `instanceof` checks.
+  - ✅ Exception: Error types may use classes in `src/infrastructure/errors/*` (extending `Error`) for ergonomics and `instanceof` checks.
 - ❌ No `any` types
 - ❌ Do NOT use `import * as v from 'valibot'` — import functions directly
 - ❌ **No barrel exports** — Never create `index.ts` just for re-exporting

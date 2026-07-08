@@ -1,4 +1,4 @@
-import { DEFAULT_AUTHENTICATED_ROUTE, ROUTES } from '@/lib/constants'
+import { DEFAULT_AUTHENTICATED_ROUTE, ROUTES } from '@/infrastructure/constants'
 
 /**
  * Check if pathname is an auth route (login, register, OAuth callback).

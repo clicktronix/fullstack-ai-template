@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { DEFAULT_AUTHENTICATED_ROUTE } from '@/lib/constants'
+import { DEFAULT_AUTHENTICATED_ROUTE } from '@/infrastructure/constants'
 import { isAuthRoute, isProtectedRoute, isPublicRoute, getPostLoginRedirect } from '../auth-routes'
 
 describe('isAuthRoute', () => {

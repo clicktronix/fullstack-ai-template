@@ -8,7 +8,7 @@
  */
 
 import { ValiError } from 'valibot'
-import { logger } from '@/lib/logger'
+import { logger } from '@/infrastructure/logging/logger'
 import { INTERNAL_ERROR, VALIDATION_ERROR, isValidErrorCode, type ErrorCode } from './codes'
 
 /**

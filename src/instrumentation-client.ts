@@ -4,7 +4,7 @@
 
 import { init } from '@sentry/nextjs'
 import { getPublicEnv } from '@/infrastructure/env/public'
-import { getSentrySendDefaultPii, getSentryTracesSampleRate } from '@/lib/sentry/config'
+import { getSentrySendDefaultPii, getSentryTracesSampleRate } from '@/infrastructure/sentry/config'
 
 const env = getPublicEnv()
 

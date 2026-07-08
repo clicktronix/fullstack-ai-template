@@ -1,8 +1,8 @@
 import 'server-only'
 
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { createActionError } from '@/lib/errors/action-error'
-import { AUTHENTICATION_ERROR } from '@/lib/errors/codes'
+import { createActionError } from '@/infrastructure/errors/action-error'
+import { AUTHENTICATION_ERROR } from '@/infrastructure/errors/codes'
 
 type SupabaseServerClient = SupabaseClient
 

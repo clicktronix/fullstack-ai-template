@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
-import { LOCALE_COOKIE_NAME } from '@/lib/constants'
+import { LOCALE_COOKIE_NAME } from '@/infrastructure/constants'
 
 // --- next/server mocks ---
 

@@ -1,6 +1,6 @@
 import { type InferOutput, object, optional, safeParse, string } from 'valibot'
-import { createHttpError, NetworkError, ValidationError } from '@/lib/errors/api-error'
-import { logger } from '@/lib/logger'
+import { createHttpError, NetworkError, ValidationError } from '@/infrastructure/errors/api-error'
+import { logger } from '@/infrastructure/logging/logger'
 
 const BackendErrorSchema = object({
   detail: optional(string()),

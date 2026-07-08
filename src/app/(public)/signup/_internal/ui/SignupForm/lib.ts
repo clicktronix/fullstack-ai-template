@@ -2,7 +2,7 @@ import { useForm } from '@mantine/form'
 import { useActionState, useMemo } from 'react'
 import { type IntlShape, useIntl } from 'react-intl'
 import { email, minLength, object, pipe, string } from 'valibot'
-import { createMantineValidator } from '@/lib/create-mantine-validator'
+import { createMantineValidator } from '@/ui/create-mantine-validator'
 import { initialSignupFormState, submitSignupForm } from './actions'
 import messages from './messages.json'
 

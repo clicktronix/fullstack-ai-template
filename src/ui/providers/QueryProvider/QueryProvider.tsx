@@ -3,8 +3,8 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
-import { isDevelopment } from '@/lib/api-config'
-import { getQueryClient } from '@/lib/query-client'
+import { isDevelopment } from '@/infrastructure/api/api-config'
+import { getQueryClient } from '@/ui/providers/query-client'
 import { useRealtimeInvalidation } from '@/ui/server-state/realtime/use-realtime-invalidation'
 import { MutationErrorNotifier } from './MutationErrorNotifier'
 

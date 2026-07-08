@@ -1,8 +1,8 @@
 import 'server-only'
 
 import { createAuthenticatedContext } from '@/infrastructure/auth/authenticated-context'
-import { createActionError } from '@/lib/errors/action-error'
-import { AUTHORIZATION_ERROR } from '@/lib/errors/codes'
+import { createActionError } from '@/infrastructure/errors/action-error'
+import { AUTHORIZATION_ERROR } from '@/infrastructure/errors/codes'
 
 const REQUEST_ID_HEADER = 'x-request-id'
 

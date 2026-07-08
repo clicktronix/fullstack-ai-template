@@ -2,8 +2,8 @@ import { getRequestId } from '@/infrastructure/api/context'
 import { apiErrorWithCode, apiJson } from '@/infrastructure/api/response'
 import { verifyWebhookSignature } from '@/infrastructure/api/webhooks'
 import { getServerEnv } from '@/infrastructure/env/server'
-import { AUTHENTICATION_ERROR, INTERNAL_ERROR } from '@/lib/errors/codes'
-import { serverLogger } from '@/lib/server-logger'
+import { AUTHENTICATION_ERROR, INTERNAL_ERROR } from '@/infrastructure/errors/codes'
+import { serverLogger } from '@/infrastructure/logging/server-logger'
 
 export async function POST(request: Request) {
   const requestId = getRequestId(request)

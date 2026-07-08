@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test'
-import { AUTHORIZATION_ERROR, INTERNAL_ERROR } from '@/lib/errors/codes'
+import { AUTHORIZATION_ERROR, INTERNAL_ERROR } from '@/infrastructure/errors/codes'
 
 const mockCreateAuthenticatedContext = mock()
 
@@ -7,7 +7,7 @@ mock.module('../authenticated-context', () => ({
   createAuthenticatedContext: mockCreateAuthenticatedContext,
 }))
 
-// Do not mock @/lib/errors/action-error; use the real module.
+// Do not mock @/infrastructure/errors/action-error; use the real module.
 // Bun mock.module pollutes the global module cache and breaks
 // parallel tests in action-error.test.ts and presentation.test.ts.
 // The real handleActionError works correctly; Sentry.captureException

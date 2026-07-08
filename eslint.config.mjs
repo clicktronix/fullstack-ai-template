@@ -76,10 +76,9 @@ const eslintConfig = [
                 '@/use-cases/**',
                 '@/adapters/**',
                 '@/infrastructure/**',
-                '@/lib/**',
               ],
               message:
-                'Domain layer must stay pure and cannot depend on app, ui, use-cases, adapters, infrastructure, or lib.',
+                'Domain layer must stay pure and cannot depend on app, ui, use-cases, adapters, or infrastructure.',
             },
           ],
         },

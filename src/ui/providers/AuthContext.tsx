@@ -4,7 +4,7 @@ import type { Session } from '@supabase/supabase-js'
 import { usePathname } from 'next/navigation'
 import { createContext, Suspense, use, useMemo, useRef, type ReactNode } from 'react'
 import type { User } from '@/domain/user/user'
-import { isAuthRoute } from '@/lib/auth-routes'
+import { isAuthRoute } from '@/infrastructure/auth/auth-routes'
 import { useCurrentUser, useSession } from '@/ui/server-state/auth/queries'
 
 type AuthContextValue = {

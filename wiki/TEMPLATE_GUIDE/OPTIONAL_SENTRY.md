@@ -7,7 +7,7 @@ Sentry is included in the template as an optional monitoring integration. You do
 - `sentry.server.config.ts`
 - `sentry.edge.config.ts`
 - `src/instrumentation-client.ts`
-- `src/lib/sentry/config.ts`
+- `src/infrastructure/sentry/config.ts`
 
 These files already read environment variables and initialize `@sentry/nextjs`.
 
@@ -47,7 +47,7 @@ You can remove:
 - `sentry.server.config.ts`
 - `sentry.edge.config.ts`
 - `src/instrumentation-client.ts`
-- `src/lib/sentry/config.ts`
+- `src/infrastructure/sentry/config.ts`
 - `@sentry/nextjs` from `package.json`
 
 The rest of the template does not depend on Sentry.

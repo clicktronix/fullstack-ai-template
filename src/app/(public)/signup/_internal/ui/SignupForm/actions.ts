@@ -2,8 +2,8 @@
 
 import { redirect } from 'next/navigation'
 import { signUpAction } from '@/adapters/inbound/next/server-actions/auth'
-import { getPostLoginRedirect } from '@/lib/auth-routes'
-import { getUserFacingErrorMessage } from '@/lib/errors/presentation'
+import { getPostLoginRedirect } from '@/infrastructure/auth/auth-routes'
+import { getUserFacingErrorMessage } from '@/infrastructure/errors/presentation'
 
 export type SignupFormErrorKey = 'PASSWORDS_DO_NOT_MATCH'
 

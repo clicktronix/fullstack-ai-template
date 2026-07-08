@@ -1,8 +1,8 @@
 import 'server-only'
 
 import { ValiError } from 'valibot'
-import { extractErrorCode } from '@/lib/errors/action-error'
-import { getErrorCode, isApiError } from '@/lib/errors/api-error'
+import { extractErrorCode } from '@/infrastructure/errors/action-error'
+import { getErrorCode, isApiError } from '@/infrastructure/errors/api-error'
 import {
   AUTHENTICATION_ERROR,
   AUTHORIZATION_ERROR,
@@ -12,8 +12,8 @@ import {
   VALIDATION_ERROR,
   isValidErrorCode,
   type ErrorCode,
-} from '@/lib/errors/codes'
-import { serverLogger } from '@/lib/server-logger'
+} from '@/infrastructure/errors/codes'
+import { serverLogger } from '@/infrastructure/logging/server-logger'
 
 type ApiErrorEnvelope = {
   error: {

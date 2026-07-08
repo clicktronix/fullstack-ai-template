@@ -63,12 +63,17 @@ const config: KnipConfig = {
     'src/app/**/ui/**': ['exports'],
     // Theme exports - palette functions exported for customization
     'src/ui/themes/**': ['exports'],
-    // Lib utilities - helper functions
-    'src/lib/**': ['exports'],
+    // UI utilities relocated from lib - helper functions
+    'src/ui/formatters/**': ['exports'],
+    'src/ui/html/**': ['exports'],
+    'src/ui/storage.ts': ['exports'],
+    'src/ui/create-mantine-validator.ts': ['exports'],
+    'src/ui/mantine-notifications.ts': ['exports'],
+    'src/ui/providers/query-client.ts': ['exports'],
     // Infrastructure layer
     'src/infrastructure/**': ['exports'],
     // Locale cookie and localStorage keys intentionally share the same template placeholder.
-    'src/lib/constants.ts': ['duplicates'],
+    'src/infrastructure/constants.ts': ['duplicates'],
   },
 
   next: {

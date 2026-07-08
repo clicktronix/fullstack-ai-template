@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
-import { createActionError } from '@/lib/errors/action-error'
-import { UnauthorizedError, createHttpError } from '@/lib/errors/api-error'
-import { AUTHENTICATION_ERROR, INTERNAL_ERROR, VALIDATION_ERROR } from '@/lib/errors/codes'
+import { createActionError } from '@/infrastructure/errors/action-error'
+import { UnauthorizedError, createHttpError } from '@/infrastructure/errors/api-error'
+import { AUTHENTICATION_ERROR, INTERNAL_ERROR, VALIDATION_ERROR } from '@/infrastructure/errors/codes'
 import { actionClient, unwrapSafeActionResult } from '../safe-action'
 
 describe('actionClient error mapping', () => {

@@ -5,14 +5,14 @@ import {
   formatCurrency,
   formatCompactCurrency,
   type CurrencyFormatOptions,
-} from '@/lib/formatters/currency'
+} from '@/ui/formatters/currency'
 import {
   formatNumber,
   formatCompactNumber,
   formatRatio,
   formatPercentage,
   type NumberFormatOptions,
-} from '@/lib/formatters/number'
+} from '@/ui/formatters/number'
 import { useLocale, type Locale } from '@/ui/providers/LocaleContext'
 
 /**

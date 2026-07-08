@@ -8,7 +8,7 @@ import { createApiHandlerContext, getRequestId } from '@/infrastructure/api/cont
 import { runIdempotentCommand } from '@/infrastructure/api/idempotency'
 import { apiError, apiErrorWithCode, apiJson } from '@/infrastructure/api/response'
 import { cacheTags } from '@/infrastructure/cache/tags'
-import { VALIDATION_ERROR } from '@/lib/errors/codes'
+import { VALIDATION_ERROR } from '@/infrastructure/errors/codes'
 import { createWorkItem, listWorkItems } from '@/use-cases/work-items/work-items'
 
 const WorkItemsApiQuerySchema = object({

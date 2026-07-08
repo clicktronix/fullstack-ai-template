@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { connection } from 'next/server'
 import { Suspense, type ReactNode } from 'react'
 import { verifySession } from '@/infrastructure/auth/verify-session'
-import { getQueryClient } from '@/lib/query-client'
+import { getQueryClient } from '@/ui/providers/query-client'
 import { authKeys } from '@/ui/server-state/auth/keys'
 import ProtectedLoading from './loading'
 

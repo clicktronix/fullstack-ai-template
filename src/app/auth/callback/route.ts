@@ -3,9 +3,9 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getServerEnv, getSupabasePublishableKey } from '@/infrastructure/env/server'
-import { isAuthRoute } from '@/lib/auth-routes'
-import { DEFAULT_AUTHENTICATED_ROUTE } from '@/lib/constants'
-import { logger } from '@/lib/logger'
+import { isAuthRoute } from '@/infrastructure/auth/auth-routes'
+import { DEFAULT_AUTHENTICATED_ROUTE } from '@/infrastructure/constants'
+import { logger } from '@/infrastructure/logging/logger'
 
 type CookieToSet = {
   name: string

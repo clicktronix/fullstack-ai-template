@@ -1,7 +1,7 @@
 import { QueryClient, isServer } from '@tanstack/react-query'
 import { cache } from 'react'
 import { isTestEnvironment } from '@/infrastructure/env/runtime'
-import { ApiError, isRetryableError } from '@/lib/errors/api-error'
+import { ApiError, isRetryableError } from '@/infrastructure/errors/api-error'
 
 /**
  * Creates a new QueryClient with default configuration

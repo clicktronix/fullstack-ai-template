@@ -3,9 +3,9 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useIntl } from 'react-intl'
-import { extractErrorCode } from '@/lib/errors/action-error'
-import { presentError } from '@/lib/errors/presentation'
-import { notifications } from '@/lib/mantine-notifications'
+import { extractErrorCode } from '@/infrastructure/errors/action-error'
+import { presentError } from '@/infrastructure/errors/presentation'
+import { notifications } from '@/ui/mantine-notifications'
 
 let sentryPromise: Promise<typeof import('@sentry/nextjs')> | null = null
 function getSentry() {

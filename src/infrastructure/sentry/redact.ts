@@ -1,5 +1,5 @@
 import type { ErrorEvent, EventHint } from '@sentry/nextjs'
-import { redactSensitiveData } from '@/lib/log-redaction'
+import { redactSensitiveData } from '@/infrastructure/logging/log-redaction'
 
 export function redactSentryEvent(event: ErrorEvent, _hint: EventHint): ErrorEvent | null {
   event.request = redactSensitiveData(event.request) as ErrorEvent['request']

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
-import { NetworkError, ValidationError } from '@/lib/errors/api-error'
+import { NetworkError, ValidationError } from '@/infrastructure/errors/api-error'
 import {
   executeFetch,
   parseErrorBody,

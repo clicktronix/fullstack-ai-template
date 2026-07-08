@@ -2,8 +2,8 @@ import 'server-only'
 
 import { createSafeActionClient, isNavigationError } from 'next-safe-action'
 import { createAuthenticatedContext } from '@/infrastructure/auth/authenticated-context'
-import { createActionError, extractErrorCode } from '@/lib/errors/action-error'
-import { getErrorCode, isApiError } from '@/lib/errors/api-error'
+import { createActionError, extractErrorCode } from '@/infrastructure/errors/action-error'
+import { getErrorCode, isApiError } from '@/infrastructure/errors/api-error'
 import {
   AUTHENTICATION_ERROR,
   AUTHORIZATION_ERROR,
@@ -15,8 +15,8 @@ import {
   VALIDATION_ERROR,
   isValidErrorCode,
   type ErrorCode,
-} from '@/lib/errors/codes'
-import { serverLogger } from '@/lib/server-logger'
+} from '@/infrastructure/errors/codes'
+import { serverLogger } from '@/infrastructure/logging/server-logger'
 
 type SafeActionResultLike<TData> = {
   data?: TData

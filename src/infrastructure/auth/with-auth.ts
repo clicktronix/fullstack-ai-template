@@ -1,5 +1,5 @@
-import { createActionError, extractErrorCode, handleActionError } from '@/lib/errors/action-error'
-import { AUTHORIZATION_ERROR } from '@/lib/errors/codes'
+import { createActionError, extractErrorCode, handleActionError } from '@/infrastructure/errors/action-error'
+import { AUTHORIZATION_ERROR } from '@/infrastructure/errors/codes'
 import { createAuthenticatedContext, type AuthenticatedContext } from './authenticated-context'
 
 /**

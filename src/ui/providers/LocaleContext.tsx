@@ -11,10 +11,10 @@ import {
 } from 'react'
 import { defaultMessages, loadMessages } from '@/infrastructure/i18n'
 import type { Locale as I18nLocale, Messages } from '@/infrastructure/i18n'
-import { LOCALE_COOKIE_NAME, LOCALE_STORAGE_KEY } from '@/lib/constants'
-import dayjs from '@/lib/dayjs'
-import { logger } from '@/lib/logger'
-import { loadFromStorage, saveToStorage } from '@/lib/storage'
+import { LOCALE_COOKIE_NAME, LOCALE_STORAGE_KEY } from '@/infrastructure/constants'
+import dayjs from '@/ui/formatters/dayjs'
+import { logger } from '@/infrastructure/logging/logger'
+import { loadFromStorage, saveToStorage } from '@/ui/storage'
 
 export type { Locale } from '@/infrastructure/i18n'
 

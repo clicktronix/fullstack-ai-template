@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, spyOn, test } from 'bun:test'
-import { ApiError, ClientError, ServerError, NetworkError } from '../errors/api-error'
+import { ApiError, ClientError, ServerError, NetworkError } from '@/infrastructure/errors/api-error'
 import { logger } from '../logger'
 
 // Mock console methods

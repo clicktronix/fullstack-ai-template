@@ -4,8 +4,8 @@ import { object, pipe, string, uuid } from 'valibot'
 import { createSupabaseUsersRepository } from '@/adapters/outbound/supabase/users.repository'
 import { type UpdateUser, UpdateUserSchema, type User } from '@/domain/user/user'
 import { authActionClient, unwrapSafeActionResult } from '@/infrastructure/actions/safe-action'
-import { createActionError } from '@/lib/errors/action-error'
-import { AUTHORIZATION_ERROR } from '@/lib/errors/codes'
+import { createActionError } from '@/infrastructure/errors/action-error'
+import { AUTHORIZATION_ERROR } from '@/infrastructure/errors/codes'
 import { updateUserProfile } from '@/use-cases/users/users'
 
 type ActionResult<T> = { success: true; data: T }
