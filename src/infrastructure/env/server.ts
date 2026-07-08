@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { type InferOutput, minLength, object, optional, parse, pipe, string, url } from 'valibot'
+import { emptyStringToUndefined } from './empty-string'
 
 const ServerEnvSchema = object({
   NEXT_PUBLIC_SUPABASE_URL: pipe(string(), url()),
@@ -31,16 +32,20 @@ function assertNoPublicSecrets(): void {
 function readServerEnv(): ServerEnv {
   assertNoPublicSecrets()
   return parse(ServerEnvSchema, {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-    SUPABASE_URL: process.env.SUPABASE_URL,
-    SUPABASE_SECRET_KEY: process.env.SUPABASE_SECRET_KEY,
-    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
-    AI_SUGGESTIONS_API_URL: process.env.AI_SUGGESTIONS_API_URL,
-    AI_SUGGESTIONS_API_KEY: process.env.AI_SUGGESTIONS_API_KEY,
-    EXAMPLE_WEBHOOK_SECRET: process.env.EXAMPLE_WEBHOOK_SECRET,
+    NEXT_PUBLIC_SUPABASE_URL: emptyStringToUndefined(process.env.NEXT_PUBLIC_SUPABASE_URL),
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: emptyStringToUndefined(
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    ),
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: emptyStringToUndefined(
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    ),
+    NEXT_PUBLIC_SITE_URL: emptyStringToUndefined(process.env.NEXT_PUBLIC_SITE_URL),
+    SUPABASE_URL: emptyStringToUndefined(process.env.SUPABASE_URL),
+    SUPABASE_SECRET_KEY: emptyStringToUndefined(process.env.SUPABASE_SECRET_KEY),
+    SUPABASE_SERVICE_ROLE_KEY: emptyStringToUndefined(process.env.SUPABASE_SERVICE_ROLE_KEY),
+    AI_SUGGESTIONS_API_URL: emptyStringToUndefined(process.env.AI_SUGGESTIONS_API_URL),
+    AI_SUGGESTIONS_API_KEY: emptyStringToUndefined(process.env.AI_SUGGESTIONS_API_KEY),
+    EXAMPLE_WEBHOOK_SECRET: emptyStringToUndefined(process.env.EXAMPLE_WEBHOOK_SECRET),
   })
 }
 

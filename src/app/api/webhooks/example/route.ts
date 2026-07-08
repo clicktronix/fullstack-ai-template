@@ -3,7 +3,8 @@ import { apiErrorWithCode, apiJson } from '@/infrastructure/api/response'
 import { verifyWebhookSignature } from '@/infrastructure/api/webhooks'
 import { withRouteErrorHandling } from '@/infrastructure/api/with-route-error-handling'
 import { getServerEnv } from '@/infrastructure/env/server'
-import { AUTHENTICATION_ERROR, INTERNAL_ERROR } from '@/infrastructure/errors/codes'
+import { createHttpError } from '@/infrastructure/errors/api-error'
+import { AUTHENTICATION_ERROR } from '@/infrastructure/errors/codes'
 import { serverLogger } from '@/infrastructure/logging/server-logger'
 
 export const POST = withRouteErrorHandling('webhooks/example', async (request: Request) => {
@@ -13,7 +14,10 @@ export const POST = withRouteErrorHandling('webhooks/example', async (request: R
 
   if (!secret) {
     serverLogger.error({ requestId }, 'example webhook secret is not configured')
-    return apiErrorWithCode(INTERNAL_ERROR, requestId)
+    // Throw (instead of returning a Response) so withRouteErrorHandling's catch block
+    // converts + captures this as an unexpected 5xx. The public envelope stays generic
+    // (INTERNAL_ERROR / "Internal server error") — only the Sentry-side detail differs.
+    throw createHttpError(500, 'EXAMPLE_WEBHOOK_SECRET is not configured')
   }
 
   const isValid = verifyWebhookSignature(

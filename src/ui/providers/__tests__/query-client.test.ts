@@ -98,6 +98,67 @@ describe('QueryCache onError', () => {
 
     expect(mockCaptureError).toHaveBeenCalledTimes(2)
   })
+
+  test('two independent QueryClient instances each capture their own first failure for the same queryKey', async () => {
+    // Regression test: dedupe must be scoped per client/query instance, not process-global by
+    // queryHash. Server query clients are recreated per RSC request (getServerQueryClient uses
+    // React cache()), and the browser client can also be recreated — a distinct client's first
+    // terminal failure (errorUpdateCount === 1) for the same queryKey must never be suppressed
+    // just because another client already reported errorUpdateCount === 1 for that hash.
+    const queryKey = ['query-client-test', 'cross-client']
+    const clientA = makeQueryClient()
+    const clientB = makeQueryClient()
+
+    await clientA
+      .fetchQuery({
+        queryKey,
+        queryFn: () => Promise.reject(new ServerError(500, 'client-a failure')),
+        retry: false,
+      })
+      .catch(() => {})
+
+    await clientB
+      .fetchQuery({
+        queryKey,
+        queryFn: () => Promise.reject(new ServerError(500, 'client-b failure')),
+        retry: false,
+      })
+      .catch(() => {})
+
+    expect(mockCaptureError).toHaveBeenCalledTimes(2)
+  })
+
+  test('a safe-action-shaped error (already captured server-side) is not captured again but is still notified', async () => {
+    const client = makeQueryClient()
+    const alreadyCapturedError = new Error('[INTERNAL_ERROR] safeAction:captured')
+
+    await client
+      .fetchQuery({
+        queryKey: ['query-client-test', 'safe-action-captured'],
+        queryFn: () => Promise.reject(alreadyCapturedError),
+        retry: false,
+      })
+      .catch(() => {})
+
+    expect(mockCaptureError).not.toHaveBeenCalled()
+    expect(mockNotificationsShow).toHaveBeenCalledTimes(1)
+  })
+
+  test('a non-safe-action error is still captured normally', async () => {
+    const client = makeQueryClient()
+    const error = new ServerError(500, 'not from safe-action')
+
+    await client
+      .fetchQuery({
+        queryKey: ['query-client-test', 'plain-error'],
+        queryFn: () => Promise.reject(error),
+        retry: false,
+      })
+      .catch(() => {})
+
+    expect(mockCaptureError).toHaveBeenCalledTimes(1)
+    expect(mockCaptureError.mock.calls[0]?.[0]).toBe(error)
+  })
 })
 
 describe('shouldReportQueryError', () => {

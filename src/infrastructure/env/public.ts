@@ -1,4 +1,5 @@
 import { type InferOutput, object, optional, parse, pipe, string, url } from 'valibot'
+import { emptyStringToUndefined } from './empty-string'
 
 const PublicEnvSchema = object({
   NEXT_PUBLIC_SUPABASE_URL: optional(pipe(string(), url())),
@@ -17,14 +18,22 @@ let cachedPublicEnv: PublicEnv | null = null
 
 function readPublicEnv(): PublicEnv {
   return parse(PublicEnvSchema, {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
-    NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE: process.env.NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE,
-    NEXT_PUBLIC_SENTRY_SEND_DEFAULT_PII: process.env.NEXT_PUBLIC_SENTRY_SEND_DEFAULT_PII,
+    NEXT_PUBLIC_SUPABASE_URL: emptyStringToUndefined(process.env.NEXT_PUBLIC_SUPABASE_URL),
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: emptyStringToUndefined(
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    ),
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: emptyStringToUndefined(
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    ),
+    NEXT_PUBLIC_SITE_URL: emptyStringToUndefined(process.env.NEXT_PUBLIC_SITE_URL),
+    NEXT_PUBLIC_API_URL: emptyStringToUndefined(process.env.NEXT_PUBLIC_API_URL),
+    NEXT_PUBLIC_SENTRY_DSN: emptyStringToUndefined(process.env.NEXT_PUBLIC_SENTRY_DSN),
+    NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE: emptyStringToUndefined(
+      process.env.NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE
+    ),
+    NEXT_PUBLIC_SENTRY_SEND_DEFAULT_PII: emptyStringToUndefined(
+      process.env.NEXT_PUBLIC_SENTRY_SEND_DEFAULT_PII
+    ),
   })
 }
 

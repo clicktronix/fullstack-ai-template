@@ -30,6 +30,27 @@ export function extractErrorCode(message: string): ErrorCode | null {
 }
 
 /**
+ * Context suffix marking a safe-action `serverError` as already captured to Sentry
+ * server-side (see `safe-action.ts`'s `handleServerError`). Next.js only serializes
+ * `error.message` across the Server Action boundary, so this marker — not a property on
+ * the Error instance — is the only signal that survives the round trip to the client.
+ *
+ * Client-side error boundaries that re-throw a safe-action `serverError` (e.g.
+ * `unwrapSafeActionResult`) must check `isAlreadyCapturedActionErrorMessage` before
+ * reporting to Sentry again, to avoid double-capturing the same incident once server-side
+ * and once client-side.
+ */
+const CAPTURED_ACTION_CONTEXT_SUFFIX = ':captured'
+
+export function withCapturedActionContext(context: string): string {
+  return `${context}${CAPTURED_ACTION_CONTEXT_SUFFIX}`
+}
+
+export function isAlreadyCapturedActionErrorMessage(message: string): boolean {
+  return message.endsWith(CAPTURED_ACTION_CONTEXT_SUFFIX)
+}
+
+/**
  * Centralized error handler for server actions.
  * Logs, reports to Sentry, and throws with encoded error code.
  *
@@ -43,30 +64,19 @@ export function extractErrorCode(message: string): ErrorCode | null {
 export function handleActionError(error: unknown, actionName: string): never {
   logger.error(`[${actionName}] Failed:`, error)
 
-  // Resolve error code and create action error
-  let actionError: Error
-  let errorCode: string
-
-  if (error instanceof ValiError) {
-    // ValiError → VALIDATION_ERROR (check before generic Error since ValiError extends Error)
-    errorCode = VALIDATION_ERROR
-    actionError = createActionError(VALIDATION_ERROR, actionName)
-  } else if (error instanceof Error) {
-    const existingCode = extractErrorCode(error.message)
-    if (existingCode) {
-      // Already our format [CODE] — re-throw as-is
-      errorCode = existingCode
-      actionError = error
-    } else {
-      // Generic Error → INTERNAL_ERROR (don't leak server details to client)
-      errorCode = INTERNAL_ERROR
-      actionError = createActionError(INTERNAL_ERROR, actionName)
-    }
-  } else {
-    // Non-Error → INTERNAL_ERROR
-    errorCode = INTERNAL_ERROR
-    actionError = createActionError(INTERNAL_ERROR, actionName)
+  // Already our format [CODE] — the incident was handled/captured at its origin
+  // (or will be captured exactly once by safe-action's handleServerError when the
+  // code maps to a 5xx and the message is unmarked). Re-throw as-is, no capture —
+  // capturing here too would double-report the same incident.
+  if (error instanceof Error && extractErrorCode(error.message)) {
+    throw error
   }
+
+  // Uncoded error: THIS is the capture boundary. The thrown message carries the
+  // :captured marker so downstream boundaries (safe-action, QueryCache.onError)
+  // skip a second Sentry report of the same incident.
+  const errorCode = error instanceof ValiError ? VALIDATION_ERROR : INTERNAL_ERROR
+  const actionError = createActionError(errorCode, withCapturedActionContext(actionName))
 
   // Centralized Sentry reporting with original error details in extra
   import('@sentry/nextjs')

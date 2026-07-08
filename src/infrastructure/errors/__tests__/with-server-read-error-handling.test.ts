@@ -7,9 +7,9 @@ mock.module('@/infrastructure/sentry/capture', () => ({
 }))
 
 const { withServerReadErrorHandling } = await import('../with-server-read-error-handling')
-const { createActionError } = await import('../action-error')
+const { createActionError, withCapturedActionContext } = await import('../action-error')
 const { NotFoundError, ServerError } = await import('../api-error')
-const { VALIDATION_ERROR } = await import('../codes')
+const { DATA_PROVIDER_ERROR, INTERNAL_ERROR, VALIDATION_ERROR } = await import('../codes')
 
 beforeEach(() => {
   mockCaptureError.mockReset()
@@ -62,5 +62,37 @@ describe('withServerReadErrorHandling', () => {
 
     await expect(read()).rejects.toBe(generic)
     expect(mockCaptureError).toHaveBeenCalledTimes(1)
+  })
+
+  // Codex round-3: a CODED but UNMARKED 5xx error is not proof of an upstream capture —
+  // only the :captured marker is. Unmarked 5xx-coded errors are captured here once.
+  test('captures an unmarked 5xx-coded action error exactly once, then rethrows it', async () => {
+    const coded = createActionError(DATA_PROVIDER_ERROR, 'useCaseOrigin')
+    const read = withServerReadErrorHandling('readX', async () => {
+      throw coded
+    })
+
+    await expect(read()).rejects.toThrow(coded.message)
+    expect(mockCaptureError).toHaveBeenCalledTimes(1)
+  })
+
+  test('rethrows a MARKED coded error without capturing again', async () => {
+    const marked = createActionError(INTERNAL_ERROR, withCapturedActionContext('origin'))
+    const read = withServerReadErrorHandling('readY', async () => {
+      throw marked
+    })
+
+    await expect(read()).rejects.toThrow(marked.message)
+    expect(mockCaptureError).not.toHaveBeenCalled()
+  })
+
+  test('rethrows an unmarked 4xx-coded action error without capturing', async () => {
+    const coded = createActionError(VALIDATION_ERROR, 'formOrigin')
+    const read = withServerReadErrorHandling('readZ', async () => {
+      throw coded
+    })
+
+    await expect(read()).rejects.toThrow(coded.message)
+    expect(mockCaptureError).not.toHaveBeenCalled()
   })
 })

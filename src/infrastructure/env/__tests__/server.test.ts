@@ -42,6 +42,15 @@ describe('getSupabasePublishableKey', () => {
   test('throws when neither key is set', () => {
     expect(() => getSupabasePublishableKey()).toThrow()
   })
+
+  // Regression test: .env.example ships a blank `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=` line as
+  // a template. Before the fix, that blank '' value failed minLength(1) validation before the
+  // legacy fallback ever ran.
+  test('new key empty string + legacy set → legacy used', () => {
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = ''
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'legacy-anon-key'
+    expect(getSupabasePublishableKey()).toBe('legacy-anon-key')
+  })
 })
 
 describe('getSupabaseSecretKey', () => {
@@ -58,6 +67,13 @@ describe('getSupabaseSecretKey', () => {
 
   test('throws when neither key is set', () => {
     expect(() => getSupabaseSecretKey()).toThrow()
+  })
+
+  // Regression test: .env.example ships a blank `SUPABASE_SECRET_KEY=` line as a template.
+  test('new key empty string + legacy set → legacy used', () => {
+    process.env.SUPABASE_SECRET_KEY = ''
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'legacy-service-role-key'
+    expect(getSupabaseSecretKey()).toBe('legacy-service-role-key')
   })
 })
 

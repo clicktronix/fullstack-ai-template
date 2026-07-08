@@ -1,6 +1,7 @@
 import { QueryCache, QueryClient, isServer, type Query } from '@tanstack/react-query'
 import { cache } from 'react'
 import { isTestEnvironment } from '@/infrastructure/env/runtime'
+import { isAlreadyCapturedActionErrorMessage } from '@/infrastructure/errors/action-error'
 import { ApiError, isRetryableError } from '@/infrastructure/errors/api-error'
 import {
   getUserFacingErrorMessage,
@@ -30,14 +31,22 @@ declare module '@tanstack/react-query' {
 // `errorUpdateCount` (not `errorUpdatedAt`, a Date.now() timestamp) is used as the dedupe key
 // because it's a monotonically incrementing counter — safe even when two terminal failures
 // for the same query land in the same millisecond.
-const lastReportedErrorCount = new Map<string, number>()
+//
+// Keyed by the `Query` instance itself (WeakMap), not by `queryHash` (a string shared across
+// every QueryClient). Server query clients are recreated per RSC request and browser queries
+// can be GC'd/recreated, so two distinct `Query` objects can legitimately share a `queryHash`
+// while representing unrelated failures — each starts its own `errorUpdateCount` at 1. Keying
+// by object identity keeps their dedupe state independent instead of one client's recorded
+// count silently suppressing another client's first failure for the same key. The WeakMap
+// also lets entries for GC'd queries be collected instead of leaking for process lifetime.
+const lastReportedErrorCount = new WeakMap<Query<unknown, unknown, unknown>, number>()
 
 export function shouldReportQueryError(query: Query<unknown, unknown, unknown>): boolean {
   const { errorUpdateCount } = query.state
-  if (lastReportedErrorCount.get(query.queryHash) === errorUpdateCount) {
+  if (lastReportedErrorCount.get(query) === errorUpdateCount) {
     return false
   }
-  lastReportedErrorCount.set(query.queryHash, errorUpdateCount)
+  lastReportedErrorCount.set(query, errorUpdateCount)
   return true
 }
 
@@ -56,9 +65,17 @@ export function makeQueryClient() {
         // are handled separately by MutationErrorNotifier (breadcrumb + notification) — do
         // not also capture mutation errors here, and do not add Sentry capture to
         // MutationErrorNotifier, to keep each error captured at exactly one boundary.
-        captureError(error, {
-          tags: { queryHash: query.queryHash },
-        })
+        //
+        // Exception: safe-action-backed queries (e.g. work-items/labels queries and prefetch)
+        // call a Server Action whose `handleServerError` (safe-action.ts) already captured
+        // unexpected failures server-side before rethrowing a serialized `[CODE] safeAction`
+        // error. `isAlreadyCapturedActionErrorMessage` detects that marker so we don't
+        // double-capture the same incident — the user is still notified below.
+        if (!(error instanceof Error && isAlreadyCapturedActionErrorMessage(error.message))) {
+          captureError(error, {
+            tags: { queryHash: query.queryHash },
+          })
+        }
 
         // Notifications are browser-only and can be opted out per-query via `meta.silent`
         // (e.g. background/prefetch queries that shouldn't interrupt the user).

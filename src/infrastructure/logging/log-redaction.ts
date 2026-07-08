@@ -1,7 +1,7 @@
 const REDACTED = '[Redacted]'
 
 const SENSITIVE_KEY_PATTERN =
-  /^(authorization|cookie|set-cookie|password|access_token|refresh_token|api[_-]?key|token|secret|service_role|supabase_service_role_key)$/i
+  /^(authorization|cookie|set-cookie|password|access_token|refresh_token|api[_-]?key|token|secret|secret_key|service_role|supabase_service_role_key|supabase_secret_key)$/i
 
 export const pinoRedactPaths = [
   'authorization',
@@ -14,8 +14,10 @@ export const pinoRedactPaths = [
   'api_key',
   'token',
   'secret',
+  'secret_key',
   'service_role',
   'supabase_service_role_key',
+  'supabase_secret_key',
   'headers.authorization',
   'headers.cookie',
   'headers["set-cookie"]',

@@ -36,6 +36,15 @@ describe('getPublicSupabaseKey', () => {
   test('returns undefined when neither key is set', () => {
     expect(getPublicSupabaseKey()).toBeUndefined()
   })
+
+  // Regression test: .env.example ships a blank `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=` line as
+  // a template. Before the fix, `'' ?? legacyKey` returned '' (empty string wins over `??`)
+  // instead of falling back to the legacy anon key.
+  test('new key empty string + legacy set → legacy used', () => {
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = ''
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'legacy-anon-key'
+    expect(getPublicSupabaseKey()).toBe('legacy-anon-key')
+  })
 })
 
 describe('getRequiredPublicSupabaseKey', () => {

@@ -4,11 +4,22 @@ import { ValiError } from 'valibot'
 import { extractErrorCode } from '@/infrastructure/errors/action-error'
 import { getErrorCode, isApiError } from '@/infrastructure/errors/api-error'
 import {
+  ADMIN_OPERATION_ERROR,
+  AGENT_PROCESSING_ERROR,
+  ANALYSIS_ERROR,
   AUTHENTICATION_ERROR,
   AUTHORIZATION_ERROR,
+  BUSINESS_LOGIC_ERROR,
   CONFLICT_ERROR,
+  CONNECTION_ERROR,
+  DATA_FETCH_ERROR,
+  DATA_PROVIDER_ERROR,
+  HTTP_ERROR,
   INTERNAL_ERROR,
+  RATE_LIMIT_EXCEEDED,
   RESOURCE_NOT_FOUND,
+  TIMEOUT,
+  UNKNOWN_ERROR,
   VALIDATION_ERROR,
   isValidErrorCode,
   type ErrorCode,
@@ -30,7 +41,8 @@ type ApiSuccessEnvelope<TData> = {
 
 export function getStatusForCode(code: ErrorCode): number {
   switch (code) {
-    case VALIDATION_ERROR: {
+    case VALIDATION_ERROR:
+    case BUSINESS_LOGIC_ERROR: {
       return 400
     }
     case AUTHENTICATION_ERROR: {
@@ -44,6 +56,25 @@ export function getStatusForCode(code: ErrorCode): number {
     }
     case CONFLICT_ERROR: {
       return 409
+    }
+    case RATE_LIMIT_EXCEEDED: {
+      return 429
+    }
+    case DATA_FETCH_ERROR:
+    case DATA_PROVIDER_ERROR:
+    case CONNECTION_ERROR: {
+      return 502
+    }
+    case TIMEOUT: {
+      return 504
+    }
+    case INTERNAL_ERROR:
+    case ANALYSIS_ERROR:
+    case AGENT_PROCESSING_ERROR:
+    case ADMIN_OPERATION_ERROR:
+    case HTTP_ERROR:
+    case UNKNOWN_ERROR: {
+      return 500
     }
     default: {
       return 500
@@ -80,6 +111,9 @@ export function getApiErrorCode(error: unknown): ErrorCode {
       case 409: {
         return CONFLICT_ERROR
       }
+      case 429: {
+        return RATE_LIMIT_EXCEEDED
+      }
     }
   }
 
@@ -102,6 +136,20 @@ function getPublicErrorMessage(code: ErrorCode): string {
     }
     case CONFLICT_ERROR: {
       return 'Request conflicts with existing state'
+    }
+    case RATE_LIMIT_EXCEEDED: {
+      return 'Too many requests'
+    }
+    case BUSINESS_LOGIC_ERROR: {
+      return 'Request cannot be processed'
+    }
+    case DATA_FETCH_ERROR:
+    case DATA_PROVIDER_ERROR:
+    case CONNECTION_ERROR: {
+      return 'Upstream service unavailable'
+    }
+    case TIMEOUT: {
+      return 'Upstream request timed out'
     }
     default: {
       return 'Internal server error'

@@ -1,6 +1,12 @@
 import { describe, expect, test } from 'bun:test'
 import { ValiError } from 'valibot'
-import { createActionError, extractErrorCode, handleActionError } from '../action-error'
+import {
+  createActionError,
+  extractErrorCode,
+  handleActionError,
+  isAlreadyCapturedActionErrorMessage,
+  withCapturedActionContext,
+} from '../action-error'
 import { AUTHORIZATION_ERROR, INTERNAL_ERROR, VALIDATION_ERROR } from '../codes'
 
 describe('createActionError', () => {
@@ -91,7 +97,7 @@ describe('handleActionError', () => {
     try {
       handleActionError(dbError, 'createWorkItemAction')
     } catch (error) {
-      expect((error as Error).message).toBe('[INTERNAL_ERROR] createWorkItemAction')
+      expect((error as Error).message).toBe('[INTERNAL_ERROR] createWorkItemAction:captured')
       expect((error as Error).message).not.toContain('duplicate key')
     }
   })
@@ -104,5 +110,32 @@ describe('handleActionError', () => {
 
   test('converts undefined to INTERNAL_ERROR', () => {
     expect(() => handleActionError(undefined, 'testAction')).toThrow('[INTERNAL_ERROR] testAction')
+  })
+})
+
+describe('withCapturedActionContext / isAlreadyCapturedActionErrorMessage', () => {
+  test('marks a createActionError message as already captured', () => {
+    const message = createActionError(
+      INTERNAL_ERROR,
+      withCapturedActionContext('safeAction')
+    ).message
+
+    expect(message).toBe('[INTERNAL_ERROR] safeAction:captured')
+    expect(isAlreadyCapturedActionErrorMessage(message)).toBe(true)
+  })
+
+  test('does not flag an unmarked message as already captured', () => {
+    const message = createActionError(VALIDATION_ERROR, 'safeAction').message
+
+    expect(isAlreadyCapturedActionErrorMessage(message)).toBe(false)
+  })
+
+  test('extractErrorCode still resolves the code on a marked message', () => {
+    const message = createActionError(
+      INTERNAL_ERROR,
+      withCapturedActionContext('safeAction')
+    ).message
+
+    expect(extractErrorCode(message)).toBe(INTERNAL_ERROR)
   })
 })
