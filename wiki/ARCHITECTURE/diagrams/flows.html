@@ -1,0 +1,358 @@
+<title>Runtime Flows — Architecture Diagrams</title>
+<style>
+  :root {
+    --bg: #f6f8fa; --surface: #ffffff; --surface-2: #eef1f4; --border: #d0d7de;
+    --text: #1f2328; --text-muted: #57606a; --accent-blue: #0969da; --accent-purple: #8250df;
+    --accent-green: #1a7f37; --accent-amber: #9a6700; --accent-red: #cf222e;
+    --code-bg: #eef1f4; --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117; --surface: #161b22; --surface-2: #1c2128; --border: #30363d;
+      --text: #e6edf3; --text-muted: #9198a1; --accent-blue: #58a6ff; --accent-purple: #bc8cff;
+      --accent-green: #56d364; --accent-amber: #d29922; --accent-red: #ff7b72;
+      --code-bg: #0d1117; --shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    }
+  }
+  :root[data-theme='dark'] {
+    --bg: #0d1117; --surface: #161b22; --surface-2: #1c2128; --border: #30363d;
+    --text: #e6edf3; --text-muted: #9198a1; --accent-blue: #58a6ff; --accent-purple: #bc8cff;
+    --accent-green: #56d364; --accent-amber: #d29922; --accent-red: #ff7b72;
+    --code-bg: #0d1117; --shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+  :root[data-theme='light'] {
+    --bg: #f6f8fa; --surface: #ffffff; --surface-2: #eef1f4; --border: #d0d7de;
+    --text: #1f2328; --text-muted: #57606a; --accent-blue: #0969da; --accent-purple: #8250df;
+    --accent-green: #1a7f37; --accent-amber: #9a6700; --accent-red: #cf222e;
+    --code-bg: #eef1f4; --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; overflow-x: hidden; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  main { max-width: 1100px; margin: 0 auto; padding: 0 20px 64px; }
+  code, .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92em;
+    background: var(--code-bg); border: 1px solid var(--border); border-radius: 4px; padding: 0.05em 0.4em;
+  }
+  header.page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 20px 20px 16px; }
+  .header-inner { max-width: 1100px; margin: 0 auto; }
+  .eyebrow { margin: 0 0 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-blue); }
+  h1 { margin: 0 0 12px; font-size: 24px; }
+  h2 { font-size: 18px; margin: 40px 0 12px; border-top: 1px solid var(--border); padding-top: 28px; }
+  h2:first-of-type { border-top: none; padding-top: 0; }
+  nav.diagram-nav { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; font-size: 14px; }
+  nav.diagram-nav a { color: var(--text-muted); text-decoration: none; padding: 4px 2px; border-bottom: 2px solid transparent; }
+  nav.diagram-nav a:hover { color: var(--accent-blue); }
+  nav.diagram-nav a.current { color: var(--text); font-weight: 600; border-bottom: 2px solid var(--accent-blue); }
+  nav.diagram-nav .sep { color: var(--border); }
+  .diagram-scroll {
+    overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    box-shadow: var(--shadow); padding: 12px; margin: 16px 0;
+  }
+  .diagram-scroll svg { display: block; min-width: 900px; width: 100%; height: auto; }
+  .lane-box { fill: var(--surface-2); stroke: var(--border); stroke-width: 1.5; }
+  .lane-title { fill: var(--text); font-weight: 600; font-size: 12.5px; }
+  .lane-sub { fill: var(--text-muted); font-size: 10.5px; }
+  .lifeline { stroke: var(--border); stroke-width: 1.5; stroke-dasharray: 3, 4; }
+  .step-num {
+    fill: var(--surface); stroke: var(--accent-blue); stroke-width: 1.5;
+  }
+  .step-num-text { fill: var(--accent-blue); font-size: 11px; font-weight: 700; }
+  .step-label { fill: var(--text); font-size: 11.5px; }
+  .step-label-muted { fill: var(--text-muted); font-size: 10.5px; }
+  .badge-rect { stroke-width: 1.5; fill: var(--surface); }
+  .badge-text { fill: var(--text); font-size: 10.5px; font-weight: 600; }
+  .badge-sub { fill: var(--text-muted); font-size: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 12px 0 24px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; }
+  tr:hover td { background: var(--surface-2); }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 22px; font-size: 13px; margin: 14px 0 6px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; border: 1.5px solid var(--border); }
+  .callout {
+    background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent-amber);
+    border-radius: 6px; padding: 12px 16px; margin: 16px 0; font-size: 13.5px;
+  }
+  footer.page-footer { max-width: 1100px; margin: 40px auto 0; padding: 20px; font-size: 12.5px; color: var(--text-muted); border-top: 1px solid var(--border); }
+</style>
+
+<header class="page-header">
+  <div class="header-inner">
+    <p class="eyebrow">Architecture Diagrams</p>
+    <h1>Runtime Flows</h1>
+    <nav class="diagram-nav">
+      <a href="./layers.html">Layers</a>
+      <a href="./flows.html" class="current">Flows</a>
+      <a href="./security.html">Security &amp; Errors</a>
+      <a href="./state.html">State Ownership</a>
+      <span class="sep">·</span>
+      <a href="../ARCHITECTURE.md">← ARCHITECTURE.md</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p>
+    Three concrete request sequences through the <code>work-items</code> reference slice. Each
+    step cites the real file/function it corresponds to. Badges mark exactly where
+    validation, auth, cache invalidation, and Sentry capture happen — see
+    <a href="./security.html">Security &amp; Errors</a> for the full error-capture map.
+  </p>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:var(--accent-blue)"></span> Auth check</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--accent-amber)"></span> Validation</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--accent-green)"></span> Cache invalidation</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--accent-red)"></span> Sentry capture</div>
+  </div>
+
+  <h2>1. UI Command — form → Server Action → use-case → port → Supabase</h2>
+  <p><code>updateWorkItem.mutate({ id, input })</code> from a component, through <code>ui/server-state/work-items/mutations.ts</code>.</p>
+  <div class="diagram-scroll">
+    <svg viewBox="0 0 1120 660" xmlns="http://www.w3.org/2000/svg" role="img"
+      aria-label="UI command sequence diagram from component through server-state, inbound safe action, use-case, outbound repository to Supabase, with auth, validation and cache badges.">
+      <!-- lane headers -->
+      <g>
+        <rect class="lane-box" x="62" y="20" width="160" height="56" rx="6" /><text class="lane-title" x="72" y="42">UI Component</text><text class="lane-sub" x="72" y="58">WorkItemRow</text>
+        <rect class="lane-box" x="232" y="20" width="160" height="56" rx="6" /><text class="lane-title" x="242" y="42">ui/server-state</text><text class="lane-sub" x="242" y="58">mutations.ts</text>
+        <rect class="lane-box" x="402" y="20" width="160" height="56" rx="6" /><text class="lane-title" x="412" y="42">Inbound (Server Action)</text><text class="lane-sub" x="412" y="58">safe-action.ts</text>
+        <rect class="lane-box" x="572" y="20" width="160" height="56" rx="6" /><text class="lane-title" x="582" y="42">Use-Case</text><text class="lane-sub" x="582" y="58">updateWorkItem()</text>
+        <rect class="lane-box" x="742" y="20" width="160" height="56" rx="6" /><text class="lane-title" x="752" y="42">Outbound Repository</text><text class="lane-sub" x="752" y="58">work-items.repository.ts</text>
+        <rect class="lane-box" x="912" y="20" width="160" height="56" rx="6" /><text class="lane-title" x="922" y="42">Supabase</text><text class="lane-sub" x="922" y="58">Postgres + RLS</text>
+      </g>
+      <!-- lifelines -->
+      <line class="lifeline" x1="145" y1="76" x2="145" y2="630" />
+      <line class="lifeline" x1="315" y1="76" x2="315" y2="630" />
+      <line class="lifeline" x1="485" y1="76" x2="485" y2="630" />
+      <line class="lifeline" x1="655" y1="76" x2="655" y2="630" />
+      <line class="lifeline" x1="825" y1="76" x2="825" y2="630" />
+      <line class="lifeline" x1="995" y1="76" x2="995" y2="630" />
+
+      <!-- step 1 -->
+      <circle class="step-num" cx="145" cy="108" r="10" /><text class="step-num-text" x="145" y="112" text-anchor="middle">1</text>
+      <line x1="155" y1="108" x2="305" y2="108" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label" x="160" y="100">mutate({ id, input })</text>
+
+      <!-- step 2 -->
+      <circle class="step-num" cx="315" cy="140" r="10" /><text class="step-num-text" x="315" y="144" text-anchor="middle">2</text>
+      <line x1="325" y1="140" x2="475" y2="140" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label" x="330" y="132">updateWorkItemAction(id, input)</text>
+
+      <!-- badge: auth -->
+      <rect class="badge-rect" x="500" y="160" width="330" height="34" rx="6" stroke="var(--accent-blue)" />
+      <text class="badge-text" x="510" y="174">adminActionClient.use(): createAuthenticatedContext()</text>
+      <text class="badge-sub" x="510" y="188">re-verifies session + role; 403 if role is "pending" or not owner/admin</text>
+
+      <!-- badge: validation -->
+      <rect class="badge-rect" x="500" y="200" width="330" height="30" rx="6" stroke="var(--accent-amber)" />
+      <text class="badge-text" x="510" y="214">.inputSchema(UpdateWorkItemActionInputSchema)</text>
+      <text class="badge-sub" x="510" y="226">Valibot validation before the handler body runs</text>
+
+      <!-- step 3 -->
+      <circle class="step-num" cx="485" cy="260" r="10" /><text class="step-num-text" x="485" y="264" text-anchor="middle">3</text>
+      <line x1="495" y1="260" x2="645" y2="260" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label" x="500" y="252">updateWorkItem({ workItems: repo }, id, input)</text>
+      <text class="step-label-muted" x="500" y="274">Inbound constructs the outbound repo and injects it here</text>
+
+      <!-- step 4: dashed blue runtime port call -->
+      <circle class="step-num" cx="655" cy="310" r="10" stroke="var(--accent-blue)" /><text class="step-num-text" x="655" y="314" text-anchor="middle" fill="var(--accent-blue)">4</text>
+      <line x1="665" y1="310" x2="815" y2="310" stroke="var(--accent-blue)" stroke-width="1.5" stroke-dasharray="6,4" />
+      <text class="step-label" x="670" y="302" fill="var(--accent-blue)">workItems.update(id, input) — port call, no import</text>
+
+      <!-- step 5 -->
+      <circle class="step-num" cx="825" cy="350" r="10" /><text class="step-num-text" x="825" y="354" text-anchor="middle">5</text>
+      <line x1="835" y1="350" x2="985" y2="350" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label" x="840" y="342">UPDATE work_items … WHERE id = $1</text>
+      <text class="step-label-muted" x="840" y="364">RLS gates by role (owner/admin) — not per-row created_by (T1)</text>
+
+      <!-- return -->
+      <line x1="985" y1="386" x2="835" y2="386" stroke="var(--text-muted)" stroke-width="1.5" marker-end="none" />
+      <text class="step-label-muted" x="840" y="380">row, or PostgrestError</text>
+      <rect class="badge-rect" x="742" y="396" width="330" height="30" rx="6" stroke="var(--text-muted)" />
+      <text class="badge-text" x="752" y="410">throwIfError() → typed ApiError on failure</text>
+      <text class="badge-sub" x="752" y="422">NotFoundError (PGRST116) / ClientError 409 (23505) / ServerError 500 (default)</text>
+
+      <!-- cache badge on Inbound lane -->
+      <rect class="badge-rect" x="402" y="450" width="330" height="46" rx="6" stroke="var(--accent-green)" />
+      <text class="badge-text" x="412" y="466">success → revalidateWorkItemsCache(userId, id)</text>
+      <text class="badge-sub" x="412" y="479">updateTag(user) · updateTag(lists) · updateTag(detail)</text>
+      <text class="badge-sub" x="412" y="491">revalidateTag(all, 'minutes') — Server Action only, read-your-writes</text>
+
+      <!-- capture badge on Inbound lane -->
+      <rect class="badge-rect" x="402" y="504" width="330" height="46" rx="6" stroke="var(--accent-red)" />
+      <text class="badge-text" x="412" y="520">unexpected/HTTP_ERROR failure → handleServerError</text>
+      <text class="badge-sub" x="412" y="533">captureError once, tags { boundary: 'safe-action' }</text>
+      <text class="badge-sub" x="412" y="545">expected coded errors (auth/validation/not-found) are NOT captured</text>
+
+      <!-- return to component / notifier -->
+      <line x1="315" y1="580" x2="145" y2="580" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label" x="150" y="572">result / thrown ApiError back to the mutation</text>
+      <rect class="badge-rect" x="62" y="592" width="330" height="30" rx="6" stroke="var(--text-muted)" />
+      <text class="badge-text" x="72" y="606">MutationErrorNotifier: notification + Sentry breadcrumb only</text>
+      <text class="badge-sub" x="72" y="618">no second Sentry capture — the safe-action boundary already did it once</text>
+    </svg>
+  </div>
+
+  <h2>2. Client-Interactive Read — component → TanStack Query → inbound → use-case</h2>
+  <p><code>useWorkItems(params)</code> in a component, backed by <code>ui/server-state/work-items/queries.ts</code>.</p>
+  <div class="diagram-scroll">
+    <svg viewBox="0 0 1120 560" xmlns="http://www.w3.org/2000/svg" role="img"
+      aria-label="Client-interactive read sequence: component to TanStack Query to inbound server action to use-case to outbound repository to Supabase, with auth badge and QueryCache error capture badge.">
+      <g>
+        <rect class="lane-box" x="62" y="20" width="160" height="56" rx="6" /><text class="lane-title" x="72" y="42">UI Component</text><text class="lane-sub" x="72" y="58">useWorkItems()</text>
+        <rect class="lane-box" x="232" y="20" width="160" height="56" rx="6" /><text class="lane-title" x="242" y="42">ui/server-state</text><text class="lane-sub" x="242" y="58">queries.ts (TanStack Query)</text>
+        <rect class="lane-box" x="402" y="20" width="160" height="56" rx="6" /><text class="lane-title" x="412" y="42">Inbound (Server Action)</text><text class="lane-sub" x="412" y="58">getWorkItemsAction()</text>
+        <rect class="lane-box" x="572" y="20" width="160" height="56" rx="6" /><text class="lane-title" x="582" y="42">Use-Case</text><text class="lane-sub" x="582" y="58">listWorkItems()</text>
+        <rect class="lane-box" x="742" y="20" width="160" height="56" rx="6" /><text class="lane-title" x="752" y="42">Outbound Repository</text><text class="lane-sub" x="752" y="58">work-items.repository.ts</text>
+        <rect class="lane-box" x="912" y="20" width="160" height="56" rx="6" /><text class="lane-title" x="922" y="42">Supabase</text><text class="lane-sub" x="922" y="58">Postgres + RLS</text>
+      </g>
+      <line class="lifeline" x1="145" y1="76" x2="145" y2="540" />
+      <line class="lifeline" x1="315" y1="76" x2="315" y2="540" />
+      <line class="lifeline" x1="485" y1="76" x2="485" y2="540" />
+      <line class="lifeline" x1="655" y1="76" x2="655" y2="540" />
+      <line class="lifeline" x1="825" y1="76" x2="825" y2="540" />
+      <line class="lifeline" x1="995" y1="76" x2="995" y2="540" />
+
+      <circle class="step-num" cx="145" cy="108" r="10" /><text class="step-num-text" x="145" y="112" text-anchor="middle">1</text>
+      <line x1="155" y1="108" x2="305" y2="108" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label" x="160" y="100">render → useWorkItems(params)</text>
+
+      <circle class="step-num" cx="315" cy="140" r="10" /><text class="step-num-text" x="315" y="144" text-anchor="middle">2</text>
+      <line x1="325" y1="140" x2="475" y2="140" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label" x="330" y="132">queryFn: () =&gt; getWorkItemsAction(params)</text>
+
+      <rect class="badge-rect" x="500" y="160" width="330" height="34" rx="6" stroke="var(--accent-blue)" />
+      <text class="badge-text" x="510" y="174">adminActionClient.use(): createAuthenticatedContext()</text>
+      <text class="badge-sub" x="510" y="188">same session + role re-check as the mutation path</text>
+
+      <circle class="step-num" cx="485" cy="220" r="10" /><text class="step-num-text" x="485" y="224" text-anchor="middle">3</text>
+      <line x1="495" y1="220" x2="645" y2="220" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label" x="500" y="212">listWorkItems({ workItems: repo }, params)</text>
+
+      <circle class="step-num" cx="655" cy="260" r="10" stroke="var(--accent-blue)" /><text class="step-num-text" x="655" y="264" text-anchor="middle" fill="var(--accent-blue)">4</text>
+      <line x1="665" y1="260" x2="815" y2="260" stroke="var(--accent-blue)" stroke-width="1.5" stroke-dasharray="6,4" />
+      <text class="step-label" x="670" y="252" fill="var(--accent-blue)">workItems.list(params) — port call, no import</text>
+
+      <circle class="step-num" cx="825" cy="300" r="10" /><text class="step-num-text" x="825" y="304" text-anchor="middle">5</text>
+      <line x1="835" y1="300" x2="985" y2="300" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label" x="840" y="292">SELECT explicit column list … WHERE role-gated by RLS</text>
+
+      <line x1="985" y1="330" x2="835" y2="330" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label-muted" x="840" y="324">rows</text>
+      <rect class="badge-rect" x="742" y="340" width="330" height="30" rx="6" stroke="var(--text-muted)" />
+      <text class="badge-text" x="752" y="354">parse(WorkItemSchema, row) before returning (DTO out)</text>
+      <text class="badge-sub" x="752" y="366">raw Postgrest rows never reach the UI</text>
+
+      <line x1="315" y1="400" x2="145" y2="400" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label" x="150" y="392">result / thrown ApiError back to the query</text>
+
+      <rect class="badge-rect" x="232" y="412" width="330" height="58" rx="6" stroke="var(--accent-red)" />
+      <text class="badge-text" x="242" y="428">QueryCache.onError (query-client.ts)</text>
+      <text class="badge-sub" x="242" y="441">capture once, deduped via query.state.errorUpdateCount</text>
+      <text class="badge-sub" x="242" y="453">notify unless meta.silent · throwOnError only for 5xx/network → ErrorBoundary</text>
+
+      <rect class="badge-rect" x="62" y="480" width="330" height="44" rx="6" stroke="var(--text-muted)" />
+      <text class="badge-text" x="72" y="496">Same queryFn also runs from prefetchWorkItems() (SSR)</text>
+      <text class="badge-sub" x="72" y="509">prefetchQuery shares this QueryCache — NOT re-wrapped by</text>
+      <text class="badge-sub" x="72" y="519">withServerReadErrorHandling (0 live call sites, deliberate — T4)</text>
+    </svg>
+  </div>
+
+  <h2>3. Service/Webhook Command — external client → Route Handler → use-case</h2>
+  <p><code>POST /api/work-items</code> via <code>route-handlers/work-items.ts</code>, wrapped in <code>withRouteErrorHandling</code>.</p>
+  <div class="diagram-scroll">
+    <svg viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg" role="img"
+      aria-label="Service command sequence: external client to route handler wrapped in withRouteErrorHandling, to use-case, to outbound repository, to Supabase, with auth, validation, idempotency, cache and capture badges.">
+      <g>
+        <rect class="lane-box" x="62" y="20" width="160" height="56" rx="6" /><text class="lane-title" x="72" y="42">External Client</text><text class="lane-sub" x="72" y="58">session cookie + Idempotency-Key</text>
+        <rect class="lane-box" x="232" y="20" width="230" height="56" rx="6" /><text class="lane-title" x="242" y="42">Route Handler</text><text class="lane-sub" x="242" y="58">withRouteErrorHandling(...)</text>
+        <rect class="lane-box" x="472" y="20" width="160" height="56" rx="6" /><text class="lane-title" x="482" y="42">Use-Case</text><text class="lane-sub" x="482" y="58">createWorkItem()</text>
+        <rect class="lane-box" x="642" y="20" width="160" height="56" rx="6" /><text class="lane-title" x="652" y="42">Outbound Repository</text><text class="lane-sub" x="652" y="58">work-items.repository.ts</text>
+        <rect class="lane-box" x="812" y="20" width="140" height="56" rx="6" /><text class="lane-title" x="822" y="42">Supabase</text><text class="lane-sub" x="822" y="58">Postgres + RLS</text>
+      </g>
+      <line class="lifeline" x1="145" y1="76" x2="145" y2="570" />
+      <line class="lifeline" x1="347" y1="76" x2="347" y2="570" />
+      <line class="lifeline" x1="552" y1="76" x2="552" y2="570" />
+      <line class="lifeline" x1="722" y1="76" x2="722" y2="570" />
+      <line class="lifeline" x1="882" y1="76" x2="882" y2="570" />
+
+      <circle class="step-num" cx="145" cy="108" r="10" /><text class="step-num-text" x="145" y="112" text-anchor="middle">1</text>
+      <line x1="155" y1="108" x2="337" y2="108" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label" x="160" y="100">POST /api/work-items (Idempotency-Key header, body)</text>
+
+      <rect class="badge-rect" x="232" y="126" width="270" height="34" rx="6" stroke="var(--accent-blue)" />
+      <text class="badge-text" x="242" y="140">createApiHandlerContext(request, { allowedRoles })</text>
+      <text class="badge-sub" x="242" y="152">createAuthenticatedContext() re-verifies session + role</text>
+
+      <rect class="badge-rect" x="232" y="164" width="270" height="30" rx="6" stroke="var(--accent-amber)" />
+      <text class="badge-text" x="242" y="178">parse(CreateWorkItemSchema, body)</text>
+      <text class="badge-sub" x="242" y="190">400 VALIDATION_ERROR if Idempotency-Key is missing</text>
+
+      <rect class="badge-rect" x="232" y="202" width="270" height="30" rx="6" stroke="var(--accent-green)" />
+      <text class="badge-text" x="242" y="216">runIdempotentCommand({ key, method, path… })</text>
+      <text class="badge-sub" x="242" y="228">dedups retried POSTs by idempotency key + request hash</text>
+
+      <circle class="step-num" cx="347" cy="260" r="10" /><text class="step-num-text" x="347" y="264" text-anchor="middle">2</text>
+      <line x1="357" y1="260" x2="542" y2="260" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label" x="362" y="252">createWorkItem({ workItems: repo }, input)</text>
+
+      <circle class="step-num" cx="552" cy="300" r="10" stroke="var(--accent-blue)" /><text class="step-num-text" x="552" y="304" text-anchor="middle" fill="var(--accent-blue)">3</text>
+      <line x1="562" y1="300" x2="712" y2="300" stroke="var(--accent-blue)" stroke-width="1.5" stroke-dasharray="6,4" />
+      <text class="step-label" x="567" y="292" fill="var(--accent-blue)">workItems.create(input) — port call, no import</text>
+
+      <circle class="step-num" cx="722" cy="340" r="10" /><text class="step-num-text" x="722" y="344" text-anchor="middle">4</text>
+      <line x1="732" y1="340" x2="872" y2="340" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label" x="737" y="332">INSERT INTO work_items …</text>
+
+      <line x1="872" y1="368" x2="732" y2="368" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label-muted" x="737" y="362">row, or PostgrestError → throwIfError() → typed ApiError</text>
+
+      <rect class="badge-rect" x="232" y="400" width="270" height="44" rx="6" stroke="var(--accent-green)" />
+      <text class="badge-text" x="242" y="416">success → revalidateTag(tag, 'minutes') ×3 (+ detail)</text>
+      <text class="badge-sub" x="242" y="429">Route Handlers use revalidateTag only — updateTag() is Server-Action-only</text>
+
+      <rect class="badge-rect" x="232" y="450" width="270" height="46" rx="6" stroke="var(--accent-red)" />
+      <text class="badge-text" x="242" y="466">5xx → withRouteErrorHandling captures once</text>
+      <text class="badge-sub" x="242" y="479">captureError, tags { route, method }; then apiError(error, requestId)</text>
+      <text class="badge-sub" x="242" y="491">maps to a public JSON envelope — raw message never leaks</text>
+
+      <line x1="347" y1="520" x2="145" y2="520" stroke="var(--text-muted)" stroke-width="1.5" />
+      <text class="step-label" x="150" y="512">201 + work item JSON, or mapped error JSON (with requestId)</text>
+
+      <rect class="badge-rect" x="62" y="532" width="440" height="30" rx="6" stroke="var(--text-muted)" />
+      <text class="badge-text" x="72" y="546">Pure-webhook variant: app/api/webhooks/example (POST)</text>
+      <text class="badge-sub" x="72" y="558">verifyWebhookSignature(payload, header, secret) instead of session auth; still wrapped by withRouteErrorHandling; no use-case call in this demo (accept + log only)</text>
+    </svg>
+  </div>
+
+  <h2>Where each annotation is sourced from</h2>
+  <table>
+    <thead><tr><th>Annotation</th><th>Source file</th></tr></thead>
+    <tbody>
+      <tr><td>Safe-action auth/role check</td><td><code>src/infrastructure/actions/safe-action.ts</code> (<code>authActionClient</code>/<code>adminActionClient</code>)</td></tr>
+      <tr><td>Route Handler auth/role check</td><td><code>src/infrastructure/api/context.ts</code> (<code>createApiHandlerContext</code>)</td></tr>
+      <tr><td>Cache tags / updateTag vs revalidateTag</td><td><code>src/infrastructure/cache/tags.ts</code>, <code>server-actions/work-items.ts</code>, <code>route-handlers/work-items.ts</code></td></tr>
+      <tr><td>Idempotency</td><td><code>src/infrastructure/api/idempotency.ts</code>, <code>route-handlers/work-items.ts</code></td></tr>
+      <tr><td>Once-only Sentry capture rule</td><td><code>.superpowers-reports/t4-report.md</code> ("Once-only capture rule" table) — full map on <a href="./security.html">Security &amp; Errors</a></td></tr>
+      <tr><td>Typed adapter errors</td><td><code>src/adapters/supabase/throw-supabase-error.ts</code>, <code>src/infrastructure/errors/api-error.ts</code></td></tr>
+      <tr><td>DTO-out parsing / no raw rows to UI</td><td><code>.superpowers-reports/t1-architecture-report.md</code> (Security Patterns Verdict)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Not fabricated:</strong> both read paths in this codebase (client-triggered and SSR
+    <code>prefetchQuery</code>) call the <em>same</em> Server Action and share the same
+    <code>QueryCache</code> — there is currently no page/layout in this app that reads a
+    use-case/repository directly, bypassing TanStack Query (T4 Part B.3).
+  </div>
+</main>
+
+<footer class="page-footer">
+  Architecture diagrams · <a href="./layers.html">Layers</a> ·
+  <a href="./flows.html">Flows</a> · <a href="./security.html">Security &amp; Errors</a> ·
+  <a href="./state.html">State Ownership</a> · <a href="../ARCHITECTURE.md">ARCHITECTURE.md</a>
+</footer>

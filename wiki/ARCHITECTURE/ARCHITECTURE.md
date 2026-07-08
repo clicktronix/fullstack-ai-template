@@ -109,6 +109,15 @@ Do not use `fallback={null}` around a large layout or provider tree when no-JS f
 
 The `work-items` + `labels` vertical slice is the canonical example. Follow its layer order when adding features — see [`USE_CASES.md`](./USE_CASES.md), [`DATA_ACCESS.md`](./DATA_ACCESS.md), and [`BACKEND_SERVICE_PATTERNS.md`](./BACKEND_SERVICE_PATTERNS.md).
 
+## Diagrams
+
+Self-contained HTML visualizations (no build step, open directly in a browser):
+
+- [`diagrams/layers.html`](./diagrams/layers.html) — the layer dependency graph, with compile-time vs. runtime-only relationships and the per-layer "may import" table
+- [`diagrams/flows.html`](./diagrams/flows.html) — three runtime sequences: UI command, client-interactive read, service/webhook command
+- [`diagrams/security.html`](./diagrams/security.html) — the auth boundary chain and the error-capture map (which boundary captures to Sentry for each error origin)
+- [`diagrams/state.html`](./diagrams/state.html) — the state-ownership decision tree
+
 ## Where Rules Live
 
 - **Runtime**: ESLint boundary rules in `eslint.config.mjs` catch leaks at build time

@@ -49,3 +49,5 @@ app/ui -> ui/server-state | actions.ts -> inbound adapters -> use-cases -> outbo
 `work-items` + `labels` — the canonical reference. Exercises every layer: domain schemas, use-case ports, Supabase outbound, Server Actions, Route Handlers, TanStack Query, SSR prefetch, `composeHooks` UI.
 
 Backend service boundaries: [`BACKEND_SERVICE_PATTERNS.md`](./BACKEND_SERVICE_PATTERNS.md).
+
+Self-contained visual diagrams (layers, flows, security/errors, state): [`diagrams/`](./diagrams/layers.html).
