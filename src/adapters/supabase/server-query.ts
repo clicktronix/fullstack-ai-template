@@ -11,14 +11,7 @@ import 'server-only'
 // ===== Types =====
 
 export type FilterOperator =
-  | 'eq'
-  | 'neq'
-  | 'ilike'
-  | 'gte'
-  | 'lte'
-  | 'in'
-  | 'is_not_null'
-  | 'is_null'
+  'eq' | 'neq' | 'ilike' | 'gte' | 'lte' | 'in' | 'is_not_null' | 'is_null'
 
 export type FilterConfig = {
   column: string

@@ -1,3 +1,4 @@
+import { PostgrestError } from '@supabase/supabase-js'
 import { describe, expect, mock, test } from 'bun:test'
 import {
   ApiError,
@@ -16,13 +17,18 @@ const createPostgrestError = (
     hint: string
     name: string
   }> = {}
-) => ({
-  message: overrides.message ?? 'some error',
-  details: overrides.details ?? '',
-  hint: overrides.hint ?? '',
-  code: overrides.code ?? '',
-  name: overrides.name ?? 'PostgrestError',
-})
+) => {
+  const error = new PostgrestError({
+    message: overrides.message ?? 'some error',
+    details: overrides.details ?? '',
+    hint: overrides.hint ?? '',
+    code: overrides.code ?? '',
+  })
+  if (overrides.name) {
+    error.name = overrides.name
+  }
+  return error
+}
 
 describe('throwIfError', () => {
   test('does not throw when error is null', () => {

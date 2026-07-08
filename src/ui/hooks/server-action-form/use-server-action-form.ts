@@ -8,8 +8,7 @@ import { notifications } from '@/ui/mantine-notifications'
 import messages from './messages.json'
 
 export type ServerActionResult<T = unknown> =
-  | { success: true; data?: T }
-  | { success: false; error: string }
+  { success: true; data?: T } | { success: false; error: string }
 
 export type UseServerActionFormOptions<
   TValues extends Record<string, unknown>,
