@@ -4,7 +4,7 @@ paths: ['src/ui/**/*', 'src/app/**/*']
 
 # Component Patterns
 
-## Smart/Dumb Pattern with composeHooks
+## View + useProps Pattern with composeHooks
 
 ```typescript
 // Component/index.tsx
@@ -13,7 +13,7 @@ import { TranslationText } from '@/ui/components/TranslationText'
 import messages from './messages.json'
 import type { UserInfoViewProps } from './lib'
 
-// Dumb component (pure presentation)
+// View component (pure presentation)
 export function UserInfoView({ displayName, isLoading }: UserInfoViewProps) {
   if (isLoading) return <Skeleton height={40} />
 
@@ -66,10 +66,10 @@ export type UserInfoViewProps = {
 ````
 
 **Rules**:
-- ✅ Use `composeHooks` for Smart/Dumb separation
+- ✅ Use `composeHooks` for View + useProps separation
 - ✅ All text via `<TranslationText {...messages.key} />`
-- ✅ Dumb components receive only primitive props + callbacks
-- ✅ Smart hooks contain business logic, formatters, mappers
+- ✅ View components receive only primitive props + callbacks
+- ✅ `useProps` hooks contain business logic, formatters, mappers
 - ✅ Helper functions go in `lib.ts` next to the component
 - ✅ **Prefer Mantine components** — `Box`, `Stack`, `Group`, `Text`, `Button`, etc.
 - ✅ **Use Mantine color props** — `c="blue.6"`, `bg="dark.7"`, NOT hex colors
@@ -115,7 +115,7 @@ export type UserInfoViewProps = {
    export function useComponentProps(props: ComponentProps): ComponentViewProps { ... }
    ```
 
-4. **Create dumb component in `index.tsx`**:
+4. **Create the View component in `index.tsx`**:
 
    ```typescript
    // DO NOT re-export anything here! Only component implementation.

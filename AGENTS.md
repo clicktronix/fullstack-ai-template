@@ -57,7 +57,7 @@ Compile-time imports differ: `use-cases` import only `domain` and their own port
 
 **Domain Validation**: Valibot schemas for runtime validation + inferred TypeScript types.
 
-**Component Pattern**: Smart/Dumb separation via `composeHooks(View)(useProps)`.
+**Component Pattern**: View + useProps separation via `composeHooks(View)(useProps)`.
 
 **State Management**: UI state (`useState` / `useReducer`), Server state (TanStack Query), Global (Context).
 
@@ -93,7 +93,7 @@ Compile-time imports differ: `use-cases` import only `domain` and their own port
 - ❌ No direct `process.env` in runtime code — use `src/infrastructure/env/*`
 - ❌ No hardcoded hex colors — use Mantine CSS vars or `ui/themes/palette-*.ts`
 - ✅ Import domain types from `@/domain/entity`
-- ✅ Use `composeHooks` for Smart/Dumb separation
+- ✅ Use `composeHooks` for View + useProps separation
 - ✅ Use `TranslationText` for i18n, never hardcoded strings
 - ✅ Dark theme is default (`defaultColorScheme="dark"`)
 - ✅ Many types in component? Create `interfaces.ts` file

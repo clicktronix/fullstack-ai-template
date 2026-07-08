@@ -89,6 +89,34 @@ Read env through `src/infrastructure/env/public.ts`, `client.ts`, `server.ts`, o
 
 `src/proxy.ts` is the active Next.js Proxy file because this project uses `src/app`. It sets security headers for every matched request. CSP intentionally keeps `script-src 'unsafe-inline'` and `style-src 'unsafe-inline'` while Cache Components/PPR are enabled: Next.js nonces require fully dynamic rendering, but PPR shells contain build-time scripts/styles that cannot receive a request-time nonce. If a route is moved out of PPR and made fully dynamic, nonce CSP can be enabled for that route and verified in HTML.
 
+## Error Handling
+
+`src/adapters/supabase/throw-supabase-error.ts` (`throwIfError()`) is the single conversion point
+for every Supabase/PostgREST failure in the outbound layer: it throws a typed `ApiError` subclass
+(`NotFoundError` for `PGRST116`, `ClientError`/409 for a unique-violation, `ServerError`/500
+otherwise) instead of a generic `Error`. `src/adapters/outbound/api/assistant-suggestions.ts` does
+the same for non-ok `fetch` responses. Outbound adapters never call Sentry themselves — they only
+convert the failure to a typed error; the boundary that first catches it (below) captures once.
+
+Each error origin is captured at exactly one boundary — see
+[`QUICK_REFERENCE.md`](./QUICK_REFERENCE.md#error-handling) for the compact map and
+[`diagrams/security.html`](./diagrams/security.html) for the full error-capture diagram. In short:
+
+- Server Action business logic is captured in `infrastructure/actions/safe-action.ts`'s
+  `handleServerError` (unexpected/`HTTP_ERROR`-mapped failures only).
+- Route Handlers are captured once by `withRouteErrorHandling`
+  (`src/infrastructure/api/with-route-error-handling.ts`).
+- TanStack Query/Mutation failures (client fetch or SSR `prefetchQuery`) are captured once by the
+  `QueryCache.onError` hook in `src/ui/providers/query-client.ts`.
+- `withServerReadErrorHandling` (`src/infrastructure/errors/with-server-read-error-handling.ts`) is
+  the pattern to use when a Server Component reads a use-case/repository directly without going
+  through TanStack Query. It has no live call site today — every current RSC read goes through
+  `prefetchQuery`, which is already covered by `QueryCache.onError`.
+
+All three Sentry entry points (`sentry.server.config.ts`, `sentry.edge.config.ts`,
+`src/instrumentation-client.ts`) set `beforeSend: redactSentryEvent`, so captured events are
+redacted before they leave the process/browser regardless of which boundary captured them.
+
 ## Cache Invalidation
 
 Server and client invalidation target different caches:

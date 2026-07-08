@@ -4,7 +4,7 @@
 
 ## Philosophy
 
-Components in the application follow the **Smart/Dumb** separation principle through the `composeHooks` pattern. This ensures:
+Components in the application follow a **View + useProps** separation through the `composeHooks` pattern. This ensures:
 
 - ✅ Pure presentation components (easy to test)
 - ✅ Reusable logic in hooks
@@ -49,7 +49,7 @@ If a component needs server data, it should consume `ui/server-state` hooks. If 
 
 ```
 Component/
-├── index.tsx                  # View + Smart component (NO re-exports!)
+├── index.tsx                  # View + composed component (NO re-exports!)
 ├── lib.ts                     # Hooks with logic, utilities
 ├── interfaces.ts              # Types (if > 5 types, extract here)
 ├── messages.json              # i18n keys (optional)
@@ -103,7 +103,7 @@ function ComposedComponent(props) {
 import { composeHooks } from '@/ui/hooks/compose-hooks'
 import { useComponentProps } from './lib'
 
-// 1. Dumb component (pure function)
+// 1. View component (pure function)
 export type ComponentViewProps = {
   title: string
   count: number
@@ -120,7 +120,7 @@ export function ComponentView({ title, count, onIncrement }: ComponentViewProps)
   )
 }
 
-// 2. Smart component (logic via hook)
+// 2. Composed component (logic via useProps hook)
 export const Component = composeHooks(ComponentView)(useComponentProps)
 ```
 
@@ -464,7 +464,7 @@ export type WorkItemsListViewProps = {
   error: string | null
 }
 
-// Dumb component
+// View component
 export function WorkItemsListView({ items, isLoading, error }: WorkItemsListViewProps) {
   // ...
 }
@@ -483,7 +483,7 @@ export function useWorkItemsListProps({ ownerId, status }: ExternalProps): WorkI
   }
 }
 
-// Smart component with explicit generics (MANDATORY when ExternalProps !== ViewProps)
+// Composed component with explicit generics (MANDATORY when ExternalProps !== ViewProps)
 export const WorkItemsList = composeHooks<WorkItemsListViewProps, ExternalProps>(WorkItemsListView)(
   useWorkItemsListProps
 )
@@ -713,7 +713,7 @@ export function useChartProps({ data }: { data: DataPoint[] }) {
 }
 ```
 
-### 3. React.memo for Dumb Components
+### 3. React.memo for View Components
 
 ```tsx
 import { memo } from 'react'
@@ -1336,7 +1336,7 @@ Use this approach for dashboards, admin panels, tables, and feature cards:
 
 ## Testing
 
-### Testing a Dumb Component
+### Testing a View Component
 
 ```tsx
 // Component/index.test.tsx
@@ -1383,7 +1383,7 @@ describe('useComponentProps', () => {
 })
 ```
 
-### Testing a Smart Component (integration)
+### Testing a Composed Component (integration)
 
 ```tsx
 // Component/index.integration.test.tsx

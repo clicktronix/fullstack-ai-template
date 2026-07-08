@@ -37,7 +37,7 @@ paths:
 ### Architecture
 
 - ✅ Import domain types from `@/domain/entity`
-- ✅ Use `composeHooks` for Smart/Dumb separation
+- ✅ Use `composeHooks` for View + useProps separation
 - ✅ Dark theme is default (`defaultColorScheme="dark"`)
 - ✅ **Many types?** Extract to `interfaces.ts` file
 

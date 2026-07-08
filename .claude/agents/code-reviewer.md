@@ -64,7 +64,7 @@ When reviewing code, follow this systematic approach:
 
 **Required patterns - FAIL review if missing:**
 
-- ✅ Smart/Dumb separation via `composeHooks(View)(useProps)`
+- ✅ View + useProps separation via `composeHooks(View)(useProps)`
 - ✅ Valibot schemas for all domain entities with InferOutput types
 - ✅ TanStack Query for server state (useQuery, useMutation)
 - ✅ Mantine Forms with `createMantineValidator(ValibotSchema)`
@@ -118,7 +118,7 @@ When reviewing code, follow this systematic approach:
 **Component Structure:**
 
 ```typescript
-// CORRECT: Smart/Dumb separation
+// CORRECT: View + useProps separation
 function ComponentView({ data, isLoading }: ViewProps) {
   if (isLoading) return <Loader />
   return <div>{data.name}</div>

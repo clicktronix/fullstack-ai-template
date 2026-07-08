@@ -138,7 +138,7 @@ Full list: see `CLAUDE.md` → Commands section.
 - Demo vertical slice (`work-items` + `labels` + optional AI suggestions)
 - Service API example (`GET/POST /api/work-items`) with idempotency and JSON error envelopes
 - Webhook example with HMAC signature verification
-- Smart/Dumb component pattern via `composeHooks(View)(useProps)`
+- View + useProps component pattern via `composeHooks(View)(useProps)`
 - i18n via React Intl with `en` baseline + auto-sync script (extensible to additional locales)
 - ESLint boundary rules enforcing architecture layers
 - Unit tests (Bun + Testing Library), E2E (Playwright)

@@ -46,7 +46,8 @@ flowchart LR
     ServerState --> Inbound
     App -.->|feature-local actions.ts<br/>direct Server Action wrapper| Inbound
     Inbound --> UseCases
-    UseCases --> Outbound
+    Inbound -->|wires concrete adapter into| Outbound
+    UseCases -.->|port type only; injected by Inbound at runtime| Outbound
     UseCases --> Domain
     Outbound --> Domain
     Inbound --> Infra
@@ -59,12 +60,14 @@ flowchart LR
     class App,UIcmp,ServerState ui
 ```
 
+Solid arrows are compile-time `import` statements. The dashed `UseCases -.-> Outbound` arrow is a **runtime-only** relationship: `use-cases` import only the port's type (e.g. `WorkItemRepository`), never the concrete outbound module — the inbound adapter (composition root) imports the concrete adapter and passes it into the use-case as a plain function argument. See [`diagrams/layers.html`](./diagrams/layers.html) for the full compile-time-vs-runtime breakdown.
+
 ## Layer Responsibilities
 
 | Layer              | What it does                                                                                   | What it must NOT do                                               |
 | ------------------ | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | **Domain**         | Valibot schemas, inferred types, invariants, pure helpers                                      | Import anything outside `domain`                                  |
-| **Use-Cases**      | Application scenarios, ports (repository types), orchestration                                 | Use `use server`, `NextRequest/Response`, or framework cache APIs |
+| **Use-Cases**      | Application scenarios, ports (repository types), orchestration                                 | Import outbound adapters directly (depend on ports; adapters are injected at runtime); use `use server`, `NextRequest/Response`, or framework cache APIs |
 | **Outbound**       | Supabase repositories, HTTP clients, transport                                                 | Depend on inbound or UI                                           |
 | **Inbound**        | Safe Server Actions, route handlers, auth/session context, request mapping, cache invalidation | Contain business logic (delegate to use-cases)                    |
 | **Server-State**   | TanStack Query keys/hooks, SSR prefetch, cache orchestration                                   | Be imported by non-UI code                                        |
@@ -104,6 +107,18 @@ With `cacheComponents: true`, request-time data such as `cookies()`, `headers()`
 Client hooks such as `usePathname()` and `useSearchParams()` can also force a client-side dynamic boundary when used under dynamic App Router segments. If a provider needs them, isolate that provider under `Suspense` without hiding the rest of the shell.
 
 Do not use `fallback={null}` around a large layout or provider tree when no-JS forms must remain visible. Login/signup use `useActionState` plus `<form action={formAction}>`; their parent shell must render enough HTML for progressive submission before hydration.
+
+## Error Handling
+
+Errors are captured to Sentry exactly once, at the boundary that first handles them —
+`infrastructure/actions/safe-action.ts` (Server Actions), `withRouteErrorHandling` (Route
+Handlers), `QueryCache.onError` (`ui/providers/query-client.ts`, covers client fetches and SSR
+`prefetchQuery`), or `withServerReadErrorHandling` (`infrastructure/errors/`, the pattern for a
+future direct DAL/RSC read outside TanStack Query — no live call site yet). Outbound adapters only
+convert failures to typed `ApiError`s (`throwIfError()` in `adapters/supabase/`); they never
+capture. See [`DATA_ACCESS.md`](./DATA_ACCESS.md#error-handling) for the full write-up,
+[`QUICK_REFERENCE.md`](./QUICK_REFERENCE.md#error-handling) for the compact table, and
+[`diagrams/security.html`](./diagrams/security.html) for the error-capture diagram.
 
 ## Reference Slice
 
