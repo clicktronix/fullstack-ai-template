@@ -88,7 +88,7 @@ Next.js 16 defaults in this template:
 
 `src/proxy.ts` is not the authorization boundary. Server-side data access re-checks auth/authz through server-only DAL helpers and safe Server Action middleware.
 
-Full architecture guide: [`docs/ARCHITECTURE/ARCHITECTURE.md`](docs/ARCHITECTURE/ARCHITECTURE.md)
+Full architecture guide: [`wiki/ARCHITECTURE/ARCHITECTURE.md`](wiki/ARCHITECTURE/ARCHITECTURE.md)
 
 ## Agent Tooling
 
@@ -114,7 +114,7 @@ This template ships with complete AI agent configuration:
 
 Vercel agent-skills (installed via `bun run setup:skills`): `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`.
 
-Details: [`docs/TEMPLATE_GUIDE/SKILLS_AND_PLUGINS.md`](docs/TEMPLATE_GUIDE/SKILLS_AND_PLUGINS.md)
+Details: [`wiki/TEMPLATE_GUIDE/SKILLS_AND_PLUGINS.md`](wiki/TEMPLATE_GUIDE/SKILLS_AND_PLUGINS.md)
 
 ## Commands
 
@@ -145,7 +145,7 @@ Full list: see `CLAUDE.md` → Commands section.
 - Storybook with theme palette stories
 - CI workflow (lint, typecheck, test, e2e)
 - Docker baseline
-- Optional integrations: [Sentry](docs/TEMPLATE_GUIDE/OPTIONAL_SENTRY.md), [AI endpoint](docs/TEMPLATE_GUIDE/OPTIONAL_AI_ENDPOINT.md), [Storybook](docs/TEMPLATE_GUIDE/OPTIONAL_STORYBOOK.md)
+- Optional integrations: [Sentry](wiki/TEMPLATE_GUIDE/OPTIONAL_SENTRY.md), [AI endpoint](wiki/TEMPLATE_GUIDE/OPTIONAL_AI_ENDPOINT.md), [Storybook](wiki/TEMPLATE_GUIDE/OPTIONAL_STORYBOOK.md)
 
 ## Environment
 
@@ -160,9 +160,9 @@ The first signed-up user becomes `owner` automatically; subsequent users start a
 | Document                                       | Purpose                                                             |
 | ---------------------------------------------- | ------------------------------------------------------------------- |
 | [`CLAUDE.md`](CLAUDE.md)                       | Agent project context                                               |
-| [`docs/ARCHITECTURE/`](docs/ARCHITECTURE/)     | Architecture guide, quick reference, component patterns, theming    |
-| [`docs/TESTING/`](docs/TESTING/)               | Testing strategy, patterns by layer, mocking rules                  |
-| [`docs/TEMPLATE_GUIDE/`](docs/TEMPLATE_GUIDE/) | Getting started, customization, skills setup, optional integrations |
+| [`wiki/ARCHITECTURE/`](wiki/ARCHITECTURE/)     | Architecture guide, quick reference, component patterns, theming    |
+| [`wiki/TESTING/`](wiki/TESTING/)               | Testing strategy, patterns by layer, mocking rules                  |
+| [`wiki/TEMPLATE_GUIDE/`](wiki/TEMPLATE_GUIDE/) | Getting started, customization, skills setup, optional integrations |
 | [`CHANGELOG.md`](CHANGELOG.md)                 | Template baseline release notes                                     |
 
 ## License

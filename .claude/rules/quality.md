@@ -4,7 +4,7 @@ paths: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}']
 
 # Testing Quick Rules
 
-Auto-loaded when editing test files. For the full strategy (pyramid, commands, patterns by layer, mocking rules, coverage targets, E2E), see [`docs/TESTING/TESTING_STRATEGY.md`](../../docs/TESTING/TESTING_STRATEGY.md).
+Auto-loaded when editing test files. For the full strategy (pyramid, commands, patterns by layer, mocking rules, coverage targets, E2E), see [`wiki/TESTING/TESTING_STRATEGY.md`](../../wiki/TESTING/TESTING_STRATEGY.md).
 
 ## Core Invariants
 
@@ -81,4 +81,4 @@ const expensiveValue = useMemo(() => computeExpensiveValue(data), [data])
 const handleClick = useCallback(() => doSomething(id), [id])
 ```
 
-See [`TESTING_STRATEGY.md`](../../docs/TESTING/TESTING_STRATEGY.md#patterns-by-layer) for integration and E2E examples.
+See [`TESTING_STRATEGY.md`](../../wiki/TESTING/TESTING_STRATEGY.md#patterns-by-layer) for integration and E2E examples.

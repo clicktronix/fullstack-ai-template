@@ -12,7 +12,7 @@ bun run setup:skills                # install Claude plugins + Vercel skills
 bun run bootstrap                   # (optional) rename template for a new product
 ```
 
-Native Claude plugins and marketplaces are declared in `.claude/settings.json` (`extraKnownMarketplaces` + `enabledPlugins`). On first `claude` invocation in the trusted repo, Claude Code prompts to install them automatically — the `setup:skills` script is a fallback for CI and headless setups, and it also installs Vercel `agent-skills` which are separate from native plugins. See [Skills & Plugins](docs/TEMPLATE_GUIDE/SKILLS_AND_PLUGINS.md).
+Native Claude plugins and marketplaces are declared in `.claude/settings.json` (`extraKnownMarketplaces` + `enabledPlugins`). On first `claude` invocation in the trusted repo, Claude Code prompts to install them automatically — the `setup:skills` script is a fallback for CI and headless setups, and it also installs Vercel `agent-skills` which are separate from native plugins. See [Skills & Plugins](wiki/TEMPLATE_GUIDE/SKILLS_AND_PLUGINS.md).
 
 ## Commands
 
@@ -74,7 +74,7 @@ Hybrid Clean Architecture with clear layering:
 **Dependency Flow**:
 `app/ui → ui/server-state | actions.ts → inbound adapters → use-cases → outbound adapters → domain`
 
-(Full tree: `@docs/ARCHITECTURE/FOLDER_STRUCTURE.md`.)
+(Full tree: `@wiki/ARCHITECTURE/FOLDER_STRUCTURE.md`.)
 
 ## Core Rules
 
@@ -164,7 +164,7 @@ If the feature needs server data in UI:
 5. add `ui/server-state/<feature>/queries.ts` or `mutations.ts`
 6. consume from UI
 
-See `@.claude/rules/architecture.md` and `@docs/ARCHITECTURE/ARCHITECTURE.md` + `COMPONENT_PATTERNS.md` for the full per-layer code walkthrough.
+See `@.claude/rules/architecture.md` and `@wiki/ARCHITECTURE/ARCHITECTURE.md` + `COMPONENT_PATTERNS.md` for the full per-layer code walkthrough.
 
 ## Naming Conventions
 
@@ -203,15 +203,15 @@ Detailed documentation:
 | Document                                     | Purpose                                                                           |
 | -------------------------------------------- | --------------------------------------------------------------------------------- |
 | `nextjs-clean-skills@nextjs-clean-skills`    | Next.js 16 Hybrid Clean Architecture + Server/Client component skills marketplace |
-| `@docs/ARCHITECTURE/QUICK_REFERENCE.md`      | One-page cheatsheet                                                               |
-| `@docs/ARCHITECTURE/ARCHITECTURE.md`         | Complete architecture guide                                                       |
-| `@docs/ARCHITECTURE/COMPONENT_PATTERNS.md`   | composeHooks + Custom Hooks Library                                               |
-| `@docs/ARCHITECTURE/DATA_ACCESS.md`          | API adapters, Supabase                                                            |
-| `@docs/ARCHITECTURE/FOLDER_STRUCTURE.md`     | Project structure                                                                 |
-| `@docs/TEMPLATE_GUIDE/GETTING_STARTED.md`    | First-time setup                                                                  |
-| `@docs/TEMPLATE_GUIDE/CUSTOMIZE_TEMPLATE.md` | Adapting the template to a new product                                            |
-| `@docs/TEMPLATE_GUIDE/SKILLS_AND_PLUGINS.md` | Skill/plugin install & authoring                                                  |
-| `@docs/TESTING/TESTING_STRATEGY.md`          | Testing pyramid, patterns by layer, mocking rules                                 |
+| `@wiki/ARCHITECTURE/QUICK_REFERENCE.md`      | One-page cheatsheet                                                               |
+| `@wiki/ARCHITECTURE/ARCHITECTURE.md`         | Complete architecture guide                                                       |
+| `@wiki/ARCHITECTURE/COMPONENT_PATTERNS.md`   | composeHooks + Custom Hooks Library                                               |
+| `@wiki/ARCHITECTURE/DATA_ACCESS.md`          | API adapters, Supabase                                                            |
+| `@wiki/ARCHITECTURE/FOLDER_STRUCTURE.md`     | Project structure                                                                 |
+| `@wiki/TEMPLATE_GUIDE/GETTING_STARTED.md`    | First-time setup                                                                  |
+| `@wiki/TEMPLATE_GUIDE/CUSTOMIZE_TEMPLATE.md` | Adapting the template to a new product                                            |
+| `@wiki/TEMPLATE_GUIDE/SKILLS_AND_PLUGINS.md` | Skill/plugin install & authoring                                                  |
+| `@wiki/TESTING/TESTING_STRATEGY.md`          | Testing pyramid, patterns by layer, mocking rules                                 |
 | `.agents/skills/project-onboarding/SKILL.md` | Project onboarding entry point                                                    |
 
 ## Environment Variables
@@ -234,7 +234,7 @@ The template uses placeholder env variables for:
 - optional Sentry config
 - optional external AI gateway config
 
-Customize them before first real project use. Optional integrations add their own env variables (Sentry, external AI gateway) — see `docs/TEMPLATE_GUIDE/OPTIONAL_*`.
+Customize them before first real project use. Optional integrations add their own env variables (Sentry, external AI gateway) — see `wiki/TEMPLATE_GUIDE/OPTIONAL_*`.
 
 <!-- cc-tuner:karpathy-guidelines -->
 ## Coding Guidelines

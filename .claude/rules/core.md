@@ -206,6 +206,6 @@ const config = useMemo(() => ({ theme: 'dark' }), [])
 - `@.claude/rules/styling.md` - CSS Modules, Forms, Validation
 - `@.claude/rules/data-state.md` - State Management, Server Components
 - `@.claude/rules/quality.md` - Testing, Performance
-- `@docs/ARCHITECTURE/QUICK_REFERENCE.md` - One-page cheatsheet
-- `@docs/ARCHITECTURE/ARCHITECTURAL_RATIONALE.md` - Why the hybrid architecture exists
-- `@docs/ARCHITECTURE/ARCHITECTURE.md` - Complete architecture guide
+- `@wiki/ARCHITECTURE/QUICK_REFERENCE.md` - One-page cheatsheet
+- `@wiki/ARCHITECTURE/ARCHITECTURAL_RATIONALE.md` - Why the hybrid architecture exists
+- `@wiki/ARCHITECTURE/ARCHITECTURE.md` - Complete architecture guide

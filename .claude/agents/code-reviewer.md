@@ -269,10 +269,10 @@ Architectural skills (`nextjs-architecture`, `react-component-creator`) live in 
 
 Subagents do not inherit `CLAUDE.md` automatically. When rule files are insufficient and you need deeper rationale, load the relevant doc explicitly via `@`-references in your analysis:
 
-- `@docs/ARCHITECTURE/ARCHITECTURE.md` — full layer contract
-- `@docs/ARCHITECTURE/COMPONENT_PATTERNS.md` — composeHooks and hook library
-- `@docs/ARCHITECTURE/USE_CASES.md` — TanStack Query patterns
-- `@docs/ARCHITECTURE/DATA_ACCESS.md` — Supabase adapters
+- `@wiki/ARCHITECTURE/ARCHITECTURE.md` — full layer contract
+- `@wiki/ARCHITECTURE/COMPONENT_PATTERNS.md` — composeHooks and hook library
+- `@wiki/ARCHITECTURE/USE_CASES.md` — TanStack Query patterns
+- `@wiki/ARCHITECTURE/DATA_ACCESS.md` — Supabase adapters
 
 Only load what the review actually needs — do not pull all docs by default.
 
