@@ -1,6 +1,6 @@
 'use client'
 
-import { useForm } from '@mantine/form'
+import { useForm, type UseFormReturnType } from '@mantine/form'
 import { useEffect, useMemo } from 'react'
 import { useIntl } from 'react-intl'
 import { array, boolean, minLength, nullable, object, optional, pipe, string, trim } from 'valibot'
@@ -33,7 +33,7 @@ export type WorkItemFormModalViewProps = Omit<WorkItemFormModalProps, 'onSubmitI
   titlePlaceholder: string
   descriptionPlaceholder: string
   labelsPlaceholder: string
-  form: ReturnType<typeof useForm<WorkItemFormValues>>
+  form: UseFormReturnType<WorkItemFormValues>
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
   labelOptions: Array<{ value: string; label: string }>
 }

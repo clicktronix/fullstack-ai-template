@@ -1,4 +1,4 @@
-import { useForm } from '@mantine/form'
+import { useForm, type UseFormReturnType } from '@mantine/form'
 import { useActionState } from 'react'
 import { useIntl } from 'react-intl'
 import { LoginCredentialsSchema, type LoginCredentials } from '@/domain/auth/auth'
@@ -14,7 +14,7 @@ export type LoginFormViewProps = {
   emailLabel: string
   passwordLabel: string
   submitButtonLabel: string
-  form: ReturnType<typeof useForm<LoginCredentials>>
+  form: UseFormReturnType<LoginCredentials>
   isSubmitting: boolean
   error: string | null
   formAction: (formData: FormData) => void

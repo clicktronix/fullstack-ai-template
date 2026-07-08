@@ -1,6 +1,6 @@
 'use client'
 
-import { useForm } from '@mantine/form'
+import { useForm, type UseFormReturnType } from '@mantine/form'
 import { useCallback, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { minLength, object, optional, pipe, string, trim, nullable } from 'valibot'
@@ -21,7 +21,7 @@ export type LabelsPanelProps = {
 
 export type LabelsPanelViewProps = {
   labels: Label[]
-  form: ReturnType<typeof useForm<LabelFormValues>>
+  form: UseFormReturnType<LabelFormValues>
   editingLabelId: string | null
   isSubmitting: boolean
   namePlaceholder: string
