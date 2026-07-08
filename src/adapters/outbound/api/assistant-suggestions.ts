@@ -6,6 +6,7 @@ import {
 } from '@/domain/assistant-suggestion/assistant-suggestion'
 import { cacheTags } from '@/infrastructure/cache/tags'
 import { getServerEnv } from '@/infrastructure/env/server'
+import { createHttpError } from '@/infrastructure/errors/api-error'
 import type { AssistantSuggestionsGateway } from '@/use-cases/assistant-suggestions/ports'
 
 function buildFallbackSuggestions(
@@ -87,7 +88,10 @@ async function fetchAssistantSuggestionsFromApi(
     return parse(AssistantSuggestionsResultSchema, await response.json())
   }
 
-  throw new Error(`Assistant suggestions API error: ${response.status} ${response.statusText}`)
+  throw createHttpError(
+    response.status,
+    `Assistant suggestions API error: ${response.status} ${response.statusText}`
+  )
 }
 
 export function createAssistantSuggestionsGateway(userId: string): AssistantSuggestionsGateway {

@@ -17,6 +17,7 @@ import {
   type ErrorCode,
 } from '@/infrastructure/errors/codes'
 import { serverLogger } from '@/infrastructure/logging/server-logger'
+import { captureError } from '@/infrastructure/sentry/capture'
 
 type SafeActionResultLike<TData> = {
   data?: TData
@@ -66,15 +67,27 @@ export const actionClient = createSafeActionClient({
 
     serverLogger.error({ error }, 'safe action failed')
 
+    // This is the inbound boundary for every Server Action built on actionClient/
+    // authActionClient/adminActionClient — capture unexpected errors here exactly once.
+    // Already-coded errors (thrown via createActionError elsewhere, e.g. the pending/role
+    // checks in the `.use()` middleware below) are expected, typed outcomes — not incidents —
+    // so they are re-thrown/mapped without a Sentry capture.
     if (error instanceof Error && extractErrorCode(error.message)) {
       return error.message
     }
 
     const apiErrorCode = getApiActionErrorCode(error)
     if (apiErrorCode) {
+      // HTTP_ERROR means an ApiError whose status didn't map to a known client-facing code
+      // (i.e. an unexpected 5xx) — that is an incident worth capturing. The other codes
+      // (auth/validation/not-found/conflict/rate-limit) are expected, user-facing outcomes.
+      if (apiErrorCode === HTTP_ERROR) {
+        captureError(error, { tags: { boundary: 'safe-action' } })
+      }
       return createActionError(apiErrorCode, 'safeAction').message
     }
 
+    captureError(error, { tags: { boundary: 'safe-action' } })
     return createActionError(INTERNAL_ERROR, 'safeAction').message
   },
 })

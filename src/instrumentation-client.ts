@@ -5,6 +5,7 @@
 import { init } from '@sentry/nextjs'
 import { getPublicEnv } from '@/infrastructure/env/public'
 import { getSentrySendDefaultPii, getSentryTracesSampleRate } from '@/infrastructure/sentry/config'
+import { redactSentryEvent } from '@/infrastructure/sentry/redact'
 
 const env = getPublicEnv()
 
@@ -17,6 +18,10 @@ init({
   // Disable default PII unless explicitly enabled by env.
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
   sendDefaultPii: getSentrySendDefaultPii(),
+
+  // Redact sensitive data before it leaves the browser, matching sentry.server.config.ts
+  // and sentry.edge.config.ts.
+  beforeSend: redactSentryEvent,
 })
 
 export { captureRouterTransitionStart as onRouterTransitionStart } from '@sentry/nextjs'

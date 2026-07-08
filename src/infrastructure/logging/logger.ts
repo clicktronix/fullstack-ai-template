@@ -1,5 +1,5 @@
-import { isApiError } from '@/infrastructure/errors/api-error'
 import { isDevelopment } from '@/infrastructure/api/api-config'
+import { isApiError } from '@/infrastructure/errors/api-error'
 
 /**
  * Conditional logger that only logs in development.

@@ -1,14 +1,79 @@
-import { QueryClient, isServer } from '@tanstack/react-query'
+import { QueryCache, QueryClient, isServer, type Query } from '@tanstack/react-query'
 import { cache } from 'react'
 import { isTestEnvironment } from '@/infrastructure/env/runtime'
 import { ApiError, isRetryableError } from '@/infrastructure/errors/api-error'
+import {
+  getUserFacingErrorMessage,
+  getUserFacingErrorTitle,
+} from '@/infrastructure/errors/presentation'
+import { captureError } from '@/infrastructure/sentry/capture'
+import { notifications } from '@/ui/mantine-notifications'
+
+type QueryMeta = {
+  /** Skip the failed-query toast notification. The error is still captured to Sentry. */
+  silent?: boolean
+} & Record<string, unknown>
+
+declare module '@tanstack/react-query' {
+  interface Register {
+    queryMeta: QueryMeta
+  }
+}
+
+// A query can re-enter its terminal error state more than once over its lifetime (e.g. a
+// background refetch fails again later) — each such occurrence is a distinct, real failure
+// and should be reported. What must NOT happen is reporting the *same* terminal failure
+// twice: TanStack Query already dispatches the cache's 'error' action (and calls
+// QueryCache.onError) exactly once per terminal failure — intermediate retry attempts update
+// `query.state.fetchFailureReason`, not `query.state.error`/`errorUpdateCount` — but this map
+// is a defensive guard against any duplicate onError invocation for the same failure.
+// `errorUpdateCount` (not `errorUpdatedAt`, a Date.now() timestamp) is used as the dedupe key
+// because it's a monotonically incrementing counter — safe even when two terminal failures
+// for the same query land in the same millisecond.
+const lastReportedErrorCount = new Map<string, number>()
+
+export function shouldReportQueryError(query: Query<unknown, unknown, unknown>): boolean {
+  const { errorUpdateCount } = query.state
+  if (lastReportedErrorCount.get(query.queryHash) === errorUpdateCount) {
+    return false
+  }
+  lastReportedErrorCount.set(query.queryHash, errorUpdateCount)
+  return true
+}
 
 /**
- * Creates a new QueryClient with default configuration
- * Used internally by getQueryClient()
+ * Creates a new QueryClient with default configuration.
+ * Exported (in addition to being used internally by getQueryClient()) so tests can build an
+ * isolated client instead of sharing the browser/server singletons.
  */
-function makeQueryClient() {
+export function makeQueryClient() {
   return new QueryClient({
+    queryCache: new QueryCache({
+      onError: (error, query) => {
+        if (!shouldReportQueryError(query)) return
+
+        // Queries capture here, exactly once per terminal failure (deduped above). Mutations
+        // are handled separately by MutationErrorNotifier (breadcrumb + notification) — do
+        // not also capture mutation errors here, and do not add Sentry capture to
+        // MutationErrorNotifier, to keep each error captured at exactly one boundary.
+        captureError(error, {
+          tags: { queryHash: query.queryHash },
+        })
+
+        // Notifications are browser-only and can be opted out per-query via `meta.silent`
+        // (e.g. background/prefetch queries that shouldn't interrupt the user).
+        if (isServer || query.meta?.silent) return
+
+        // Outside a component we don't have react-intl's useIntl(); presentError() already
+        // provides pre-formatted English strings for exactly this kind of non-component use
+        // (the template currently only ships an English locale).
+        notifications.show({
+          title: getUserFacingErrorTitle(error),
+          message: getUserFacingErrorMessage(error),
+          color: 'red',
+        })
+      },
+    }),
     defaultOptions: {
       queries: {
         // Default refetchOnMount: true — refetch stale data on component mount.

@@ -28,7 +28,7 @@ type ApiSuccessEnvelope<TData> = {
   requestId: string
 }
 
-function getStatusForCode(code: ErrorCode): number {
+export function getStatusForCode(code: ErrorCode): number {
   switch (code) {
     case VALIDATION_ERROR: {
       return 400
@@ -51,7 +51,7 @@ function getStatusForCode(code: ErrorCode): number {
   }
 }
 
-function getApiErrorCode(error: unknown): ErrorCode {
+export function getApiErrorCode(error: unknown): ErrorCode {
   if (error instanceof ValiError) return VALIDATION_ERROR
 
   if (error instanceof Error) {

@@ -3,7 +3,10 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import { init } from '@sentry/nextjs'
-import { getSentrySendDefaultPii, getSentryTracesSampleRate } from './src/infrastructure/sentry/config'
+import {
+  getSentrySendDefaultPii,
+  getSentryTracesSampleRate,
+} from './src/infrastructure/sentry/config'
 import { redactSentryEvent } from './src/infrastructure/sentry/redact'
 
 init({

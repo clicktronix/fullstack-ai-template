@@ -1,4 +1,10 @@
 import { describe, expect, mock, test } from 'bun:test'
+import {
+  ApiError,
+  ClientError,
+  NotFoundError,
+  ServerError,
+} from '@/infrastructure/errors/api-error'
 import { throwIfError, withRetry } from '../throw-supabase-error'
 
 // Helper for creating PostgrestError-like objects.
@@ -49,6 +55,45 @@ describe('throwIfError', () => {
     expect(() => throwIfError(error, 'get data')).toThrow(
       'Failed to get data: temporary database issue, please try again'
     )
+  })
+
+  test('throws a typed ApiError (not a generic Error) for any Postgrest failure', () => {
+    const error = createPostgrestError({ code: '42501', message: 'permission denied' })
+    expect(() => throwIfError(error, 'get labels')).toThrow(ApiError)
+  })
+
+  test('maps an unclassified/transient Postgrest error to a 500 ServerError', () => {
+    const error = createPostgrestError({ code: '42P05', message: 'prepared statement exists' })
+    try {
+      throwIfError(error, 'get work items')
+      throw new Error('expected throwIfError to throw')
+    } catch (error_) {
+      expect(error_).toBeInstanceOf(ServerError)
+      expect((error_ as ApiError).getStatus()).toBe(500)
+      expect((error_ as ApiError).isRetryable()).toBe(true)
+    }
+  })
+
+  test('maps a unique_violation (23505) to a 409 ClientError', () => {
+    const error = createPostgrestError({ code: '23505', message: 'duplicate key value' })
+    try {
+      throwIfError(error, 'create work item')
+      throw new Error('expected throwIfError to throw')
+    } catch (error_) {
+      expect(error_).toBeInstanceOf(ClientError)
+      expect((error_ as ApiError).getStatus()).toBe(409)
+    }
+  })
+
+  test('maps a PGRST116 (no rows) error to a 404 NotFoundError', () => {
+    const error = createPostgrestError({ code: 'PGRST116', message: 'no rows returned' })
+    try {
+      throwIfError(error, 'get work item')
+      throw new Error('expected throwIfError to throw')
+    } catch (error_) {
+      expect(error_).toBeInstanceOf(NotFoundError)
+      expect((error_ as ApiError).getStatus()).toBe(404)
+    }
   })
 })
 

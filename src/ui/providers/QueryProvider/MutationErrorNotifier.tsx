@@ -20,6 +20,13 @@ function getSentry() {
  * localized error notifications for any failed mutation.
  * This keeps notification logic in the UI layer,
  * while use-cases stay clean (data + rollback only).
+ *
+ * This is the mutations channel: it only adds a breadcrumb (for context on whatever error
+ * report follows), not a full Sentry capture — mutations reach here via safe-action.ts
+ * (actionClient/authActionClient/adminActionClient), which already captures unexpected
+ * errors once at that boundary. Do not add Sentry.captureException here, or the same
+ * error would be reported twice. Query errors are a separate channel — see the
+ * QueryCache `onError` in `ui/providers/query-client.ts`.
  */
 export function MutationErrorNotifier() {
   const queryClient = useQueryClient()

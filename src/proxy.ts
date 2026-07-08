@@ -1,11 +1,11 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { isAuthRoute, isProtectedRoute } from '@/infrastructure/auth/auth-routes'
+import { DEFAULT_AUTHENTICATED_ROUTE, LOCALE_COOKIE_NAME } from '@/infrastructure/constants'
 import { getPublicEnv, getPublicSupabaseKey } from '@/infrastructure/env/public'
 import { isDevelopmentEnvironment } from '@/infrastructure/env/runtime'
 import { resolveInitialLocale } from '@/infrastructure/i18n/locale-detection'
-import { isAuthRoute, isProtectedRoute } from '@/infrastructure/auth/auth-routes'
-import { DEFAULT_AUTHENTICATED_ROUTE, LOCALE_COOKIE_NAME } from '@/infrastructure/constants'
 
 const isDevelopment = isDevelopmentEnvironment()
 
