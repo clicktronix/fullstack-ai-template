@@ -9,7 +9,7 @@
  *
  * Uses environment variables:
  * - NEXT_PUBLIC_SUPABASE_URL
- * - NEXT_PUBLIC_SUPABASE_ANON_KEY
+ * - NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (falls back to legacy NEXT_PUBLIC_SUPABASE_ANON_KEY)
  */
 
 import 'server-only'
@@ -17,7 +17,7 @@ import 'server-only'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { cache } from 'react'
-import { getServerEnv } from '@/infrastructure/env/server'
+import { getServerEnv, getSupabasePublishableKey } from '@/infrastructure/env/server'
 import type { Database } from './types'
 
 // Environment variables with validation
@@ -26,7 +26,7 @@ function getSupabaseUrl(): string {
 }
 
 function getSupabaseAnonKey(): string {
-  return getServerEnv().NEXT_PUBLIC_SUPABASE_ANON_KEY
+  return getSupabasePublishableKey()
 }
 
 // Cookie type for setAll
