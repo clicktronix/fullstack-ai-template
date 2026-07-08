@@ -2,59 +2,24 @@
 
 Next.js 16 template for AI products and full-stack B2B apps, powered by Supabase and designed for rapid bootstrapping with coding agents.
 
+**Tech Stack**: Next.js 16 (App Router), React 19, TypeScript, Mantine UI + CSS Modules, Valibot (domain schemas), TanStack Query (server state), React Context (global state), Supabase (Postgres + Auth SSR), React Intl (i18n), Bun (package manager). Optional: Storybook, Sentry, OpenTelemetry via `@vercel/otel`.
+
 ## First-Time Setup
 
-```bash
-bun install
-cp .env.example .env.local          # fill in Supabase keys
-bun run setup:mcp                   # configure MCP servers
-bun run setup:skills                # install Claude plugins + Vercel skills
-bun run bootstrap                   # (optional) rename template for a new product
-```
-
-Native Claude plugins and marketplaces are declared in `.claude/settings.json` (`extraKnownMarketplaces` + `enabledPlugins`). On first `claude` invocation in the trusted repo, Claude Code prompts to install them automatically — the `setup:skills` script is a fallback for CI and headless setups, and it also installs Vercel `agent-skills` which are separate from native plugins. See [Skills & Plugins](wiki/TEMPLATE_GUIDE/SKILLS_AND_PLUGINS.md).
+Run in order: `bun install`, `cp .env.example .env.local` (fill in Supabase keys), `bun run setup:mcp`, `bun run setup:skills`, `bun run bootstrap` (optional, renames the template).
 
 ## Commands
 
-| Command                         | Purpose                                       |
-| ------------------------------- | --------------------------------------------- |
-| `bun run dev`                   | Development server (port 3000)                |
-| `bun run build`                 | Production build                              |
-| `bun run lint`                  | ESLint                                        |
-| `bun run format`                | Prettier + ESLint `--fix`                     |
-| `bun run typecheck`             | TypeScript validation                         |
-| `bun run check`                 | `lint + typecheck + format:check + i18n:sync` |
-| `bun run knip`                  | Detect unused exports/dependencies            |
-| `bun test`                      | Unit tests                                    |
-| `bun test path/to/file.test.ts` | Run a single test file                        |
-| `bun run test:watch`            | Watch mode for unit tests                     |
-| `bun run test:coverage`         | Unit tests with coverage report               |
-| `bun run test:e2e`              | Playwright e2e                                |
-| `bun run storybook`             | Component explorer (port 6006)                |
-| `bun run i18n:sync`             | Verify English translation keys               |
-| `bun run gen:types`             | Generate Supabase TypeScript types            |
-| `bun run bootstrap`             | Rename/rebrand template to a new project      |
-| `bun run setup:mcp`             | Configure MCP servers                         |
-| `bun run setup:skills`          | Install marketplace plugins + Vercel skills   |
-| `bun run skills:doctor`         | Verify skills/plugins state without changes   |
-| `bun run mcp:doctor`            | Verify MCP servers state without changes      |
-
-## Tech Stack
-
-- **Framework**: Next.js 16 (App Router), React 19, TypeScript
-- **UI**: Mantine UI, CSS Modules
-- **Validation**: Valibot (domain schemas)
-- **State**: TanStack Query (server), React state/reducer (page UI), React Context (global)
-- **Database**: Supabase (PostgreSQL)
-- **Auth**: Supabase Auth (SSR)
-- **i18n**: React Intl
-- **Package Manager**: Bun
-
-Optional integrations prepared in the template:
-
-- Storybook
-- Sentry
-- OpenTelemetry via `@vercel/otel`
+| Command             | Purpose                                       |
+| ------------------- | --------------------------------------------- |
+| `bun run dev`       | Development server (port 3000)                |
+| `bun run build`     | Production build                              |
+| `bun run lint`      | ESLint                                        |
+| `bun run format`    | Prettier + ESLint `--fix`                     |
+| `bun run typecheck` | TypeScript validation                         |
+| `bun run check`     | `lint + typecheck + format:check + i18n:sync` |
+| `bun test`          | Unit tests                                    |
+| `bun run test:e2e`  | Playwright e2e                                |
 
 ## Architecture
 
@@ -71,8 +36,10 @@ Hybrid Clean Architecture with clear layering:
 | **UI**             | `src/app/`, `src/ui/`        | Pages, layouts, components, presentation hooks             |
 | **Infrastructure** | `src/infrastructure/`        | Auth, i18n, logging, config, common support                |
 
-**Dependency Flow**:
+**Runtime Call Flow**:
 `app/ui → ui/server-state | actions.ts → inbound adapters → use-cases → outbound adapters → domain`
+
+Compile-time imports differ: `use-cases` import only `domain` and their own ports — outbound implementations are injected by the composition root (inbound adapters/DAL), never imported directly by `use-cases`.
 
 (Full tree: `@wiki/ARCHITECTURE/FOLDER_STRUCTURE.md`.)
 
@@ -80,28 +47,11 @@ Hybrid Clean Architecture with clear layering:
 
 - `domain` depends on nothing except domain
 - `use-cases` must not import `app`, `ui`, or inbound adapters
+- `use-cases` must not import outbound adapters — depend on ports; adapters are injected
 - `ui/server-state` is the only UI layer allowed to depend on inbound adapters
 - presentation UI must not import outbound adapters directly
 - `app/` files stay thin and delegate
 - if UI needs a one-off Server Action call without TanStack Query, create local `actions.ts`
-
-## Project Structure
-
-```text
-src/
-├── app/
-├── domain/
-├── use-cases/
-├── adapters/
-│   ├── inbound/next/
-│   └── outbound/
-├── infrastructure/
-└── ui/
-    ├── server-state/
-    ├── components/
-    ├── hooks/
-    └── providers/
-```
 
 ## Key Patterns
 
@@ -151,52 +101,26 @@ src/
 - ✅ Keep architecture boundaries enforced by ESLint
 - ✅ Use `data-testid` for critical interactive UI used in e2e
 
-## Adding Features
+## Reference
 
-Follow layer order: **Domain → Use-Case ports/types → Outbound Adapter → Inbound Adapter (safe Server Action / route handler) → Server-State or feature-local action → UI**
-
-If the feature needs server data in UI:
-
-1. create domain schemas
-2. add use-cases and ports
-3. implement outbound adapter
-4. add safe Server Action / route handler
-5. add `ui/server-state/<feature>/queries.ts` or `mutations.ts`
-6. consume from UI
-
-See `@.claude/rules/architecture.md` and `@wiki/ARCHITECTURE/ARCHITECTURE.md` + `COMPONENT_PATTERNS.md` for the full per-layer code walkthrough.
-
-## Naming Conventions
-
-| Type         | Convention            | Example                                              |
-| ------------ | --------------------- | ---------------------------------------------------- |
-| Domain files | kebab-case            | `work-item.ts`, `assistant-suggestion.ts`            |
-| Components   | PascalCase folders    | `WorkItemList/`, `LabelBadge/`                       |
-| Hooks        | camelCase             | `useWorkItems()`, `useLabels()`                      |
-| Types        | Inferred from schemas | `type WorkItem = InferOutput<typeof WorkItemSchema>` |
-
-## Demo Slice
-
-The template ships with one neutral vertical slice around:
-
-- `work-items`
-- `labels`
-- optional `assistant-suggestions`
-
-Use it as the reference example for new product features. Replace or extend with your own domain.
+- **Adding Features**: follow layer order **Domain → Use-Case ports/types → Outbound Adapter → Inbound Adapter (safe Server Action / route handler) → Server-State or feature-local action → UI**; full walkthrough in `@.claude/rules/architecture.md` and `@wiki/ARCHITECTURE/ARCHITECTURE.md` + `COMPONENT_PATTERNS.md`
+- **Project Structure**: full annotated tree in `@wiki/ARCHITECTURE/FOLDER_STRUCTURE.md`
+- **Naming Conventions**: see `.claude/rules/core.md` (File Naming Reference)
+- **Demo Slice**: `work-items` + `labels` (+ optional `assistant-suggestions`) — reference vertical slice for new product features; replace or extend with your own domain
+- **All commands**: `package.json` scripts or `wiki/TEMPLATE_GUIDE/GETTING_STARTED.md`
 
 ## Modular Documentation
 
 Rules files loaded conditionally by file path:
 
-| Document                         | Paths                                                  | Purpose                                       |
-| -------------------------------- | ------------------------------------------------------ | --------------------------------------------- |
-| `@.claude/rules/core.md`         | `frontend/**/*`                                        | Critical constraints, naming, common pitfalls |
-| `@.claude/rules/architecture.md` | `src/domain/**`, `src/adapters/**`, `src/use-cases/**` | Clean Architecture layers                     |
-| `@.claude/rules/components.md`   | `src/ui/**`, `src/app/**`                              | composeHooks, i18n, Server/Client components  |
-| `@.claude/rules/styling.md`      | `**/*.module.css`, `**/*Form*/**`                      | CSS Modules, Form validation                  |
-| `@.claude/rules/data-state.md`   | `src/use-cases/**`, `src/ui/widgets/store/**`          | State management decision tree                |
-| `@.claude/rules/quality.md`      | `**/*.test.{ts,tsx}`                                   | Testing, Performance                          |
+| Document                         | Paths                                                                                                                | Purpose                                       |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| `@.claude/rules/core.md`         | `src/**/*`, `next.config.ts`, `eslint.config.mjs`, `scripts/**/*`, `tests/**/*`                                      | Critical constraints, naming, common pitfalls |
+| `@.claude/rules/architecture.md` | `src/domain/**/*`, `src/adapters/**/*`, `src/use-cases/**/*`, `src/app/**/*`, `src/ui/**/*`                          | Clean Architecture layers                     |
+| `@.claude/rules/components.md`   | `src/ui/**/*`, `src/app/**/*`                                                                                        | composeHooks, i18n, Server/Client components  |
+| `@.claude/rules/styling.md`      | `**/*.module.css`, `**/*Form*/**/*`, `**/*form*`, `src/ui/**/*`                                                      | CSS Modules, Form validation                  |
+| `@.claude/rules/data-state.md`   | `src/use-cases/**/*`, `src/ui/server-state/**/*`, `src/ui/hooks/**/*`, `src/ui/stores/**/*`, `src/ui/providers/**/*` | State management decision tree                |
+| `@.claude/rules/quality.md`      | `**/*.test.{ts,tsx}`, `**/*.spec.{ts,tsx}`                                                                           | Testing, Performance                          |
 
 Detailed documentation:
 
@@ -216,25 +140,7 @@ Detailed documentation:
 
 ## Environment Variables
 
-Copy `.env.example` → `.env.local` and fill in values.
-
-Required in `.env.local`:
-
-| Variable                        | Description               |
-| ------------------------------- | ------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL      |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key    |
-| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase service role key |
-
-Env values are validated in `src/infrastructure/env/*`. Optional browser-safe values live in `public.ts`, required browser client values in `client.ts`, server-only values in `server.ts`, and runtime flags in `runtime.ts`. Never create `NEXT_PUBLIC_*` variants for service role keys or backend API keys.
-
-The template uses placeholder env variables for:
-
-- Supabase URL / anon key / service role key
-- optional Sentry config
-- optional external AI gateway config
-
-Customize them before first real project use. Optional integrations add their own env variables (Sentry, external AI gateway) — see `wiki/TEMPLATE_GUIDE/OPTIONAL_*`.
+Copy `.env.example` → `.env.local` and fill in Supabase + optional Sentry/AI-gateway values before first real project use. Env values are validated in `src/infrastructure/env/*`; never create `NEXT_PUBLIC_*` variants for secret/service-role keys. Full variable list and descriptions: `wiki/TEMPLATE_GUIDE/GETTING_STARTED.md` (optional integrations: `wiki/TEMPLATE_GUIDE/OPTIONAL_*`).
 
 <!-- cc-tuner:karpathy-guidelines -->
 ## Coding Guidelines

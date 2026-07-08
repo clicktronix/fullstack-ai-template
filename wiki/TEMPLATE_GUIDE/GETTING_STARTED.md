@@ -28,9 +28,13 @@ cp .env.example .env.local
 
 Fill at least:
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
+| Variable                               | Description                                                                                              |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Supabase project URL                                                                                     |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key (fallback: `NEXT_PUBLIC_SUPABASE_ANON_KEY`, deprecated by Supabase end of 2026) |
+| `SUPABASE_SECRET_KEY`                  | Supabase secret key (fallback: `SUPABASE_SERVICE_ROLE_KEY`, deprecated by Supabase end of 2026)          |
+
+Env values are validated in `src/infrastructure/env/*`. Optional browser-safe values live in `public.ts`, required browser client values in `client.ts`, server-only values in `server.ts`, and runtime flags in `runtime.ts`. Never create `NEXT_PUBLIC_*` variants for secret/service-role keys or backend API keys.
 
 Optional:
 

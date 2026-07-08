@@ -11,7 +11,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "ROOT=$(git rev-parse --show-toplevel 2>/dev/null) && cd \"$ROOT\" && if ! git diff --quiet -- . ':(exclude).claude/settings.json'; then bun run format && bun run check; fi"
+            "command": "ROOT=$(git rev-parse --show-toplevel 2>/dev/null) && cd \"$ROOT\" && if ! git diff --quiet -- . ':(exclude).claude/settings.json' || [ -n \"$(git ls-files --others --exclude-standard)\" ]; then bun run format && bun run check; fi"
           }
         ]
       }
