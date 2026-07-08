@@ -13,7 +13,13 @@
  */
 
 let sentryPromise: Promise<typeof import('@sentry/nextjs')> | null = null
-function getSentry() {
+
+/**
+ * Memoized `import('@sentry/nextjs')`. Exported so call sites that need direct SDK access
+ * beyond `captureError` (e.g. `MutationErrorNotifier`'s `addBreadcrumb`) share this single
+ * import promise instead of each keeping their own copy.
+ */
+export function getSentry() {
   sentryPromise ??= import('@sentry/nextjs')
   return sentryPromise
 }

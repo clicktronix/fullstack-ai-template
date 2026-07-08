@@ -5,13 +5,8 @@ import { useEffect } from 'react'
 import { useIntl } from 'react-intl'
 import { extractErrorCode } from '@/infrastructure/errors/action-error'
 import { presentError } from '@/infrastructure/errors/presentation'
+import { getSentry } from '@/infrastructure/sentry/capture'
 import { notifications } from '@/ui/mantine-notifications'
-
-let sentryPromise: Promise<typeof import('@sentry/nextjs')> | null = null
-function getSentry() {
-  sentryPromise ??= import('@sentry/nextjs')
-  return sentryPromise
-}
 
 /**
  * Global mutation error handler.

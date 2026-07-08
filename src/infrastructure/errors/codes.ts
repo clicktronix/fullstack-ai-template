@@ -151,3 +151,56 @@ export function isRateLimitErrorCode(code: string): boolean {
 export function isAuthErrorCode(code: string): boolean {
   return AUTH_CODES.has(code)
 }
+
+/**
+ * Map an ErrorCode to its HTTP status code.
+ *
+ * Lives in this leaf module (no imports of its own) rather than in
+ * `infrastructure/api/response.ts` so it can be imported both from
+ * `server-only` boundaries (route handlers, safe-action) and from isomorphic
+ * code that also runs in the browser (the TanStack Query QueryCache config,
+ * `action-error.ts`) without pulling in `response.ts`'s `server-only` marker
+ * or creating an action-error.ts <-> response.ts import cycle.
+ */
+export function getStatusForCode(code: ErrorCode): number {
+  switch (code) {
+    case VALIDATION_ERROR:
+    case BUSINESS_LOGIC_ERROR: {
+      return 400
+    }
+    case AUTHENTICATION_ERROR: {
+      return 401
+    }
+    case AUTHORIZATION_ERROR: {
+      return 403
+    }
+    case RESOURCE_NOT_FOUND: {
+      return 404
+    }
+    case CONFLICT_ERROR: {
+      return 409
+    }
+    case RATE_LIMIT_EXCEEDED: {
+      return 429
+    }
+    case DATA_FETCH_ERROR:
+    case DATA_PROVIDER_ERROR:
+    case CONNECTION_ERROR: {
+      return 502
+    }
+    case TIMEOUT: {
+      return 504
+    }
+    case INTERNAL_ERROR:
+    case ANALYSIS_ERROR:
+    case AGENT_PROCESSING_ERROR:
+    case ADMIN_OPERATION_ERROR:
+    case HTTP_ERROR:
+    case UNKNOWN_ERROR: {
+      return 500
+    }
+    default: {
+      return 500
+    }
+  }
+}

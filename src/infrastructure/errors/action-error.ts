@@ -9,7 +9,14 @@
 
 import { ValiError } from 'valibot'
 import { logger } from '@/infrastructure/logging/logger'
-import { INTERNAL_ERROR, VALIDATION_ERROR, isValidErrorCode, type ErrorCode } from './codes'
+import { captureError } from '@/infrastructure/sentry/capture'
+import {
+  getStatusForCode,
+  INTERNAL_ERROR,
+  VALIDATION_ERROR,
+  isValidErrorCode,
+  type ErrorCode,
+} from './codes'
 
 /**
  * Create an Error with encoded error code in message.
@@ -72,21 +79,25 @@ export function handleActionError(error: unknown, actionName: string): never {
     throw error
   }
 
-  // Uncoded error: THIS is the capture boundary. The thrown message carries the
-  // :captured marker so downstream boundaries (safe-action, QueryCache.onError)
-  // skip a second Sentry report of the same incident.
+  // Uncoded error: classify it, then decide whether it's an incident.
   const errorCode = error instanceof ValiError ? VALIDATION_ERROR : INTERNAL_ERROR
+
+  // 4xx outcomes (e.g. ValiError -> VALIDATION_ERROR) are expected, user-facing results,
+  // not incidents — throw the coded error unmarked, same as safe-action's 4xx handling.
+  // No Sentry capture, no `:captured` marker.
+  if (getStatusForCode(errorCode) < 500) {
+    throw createActionError(errorCode, actionName)
+  }
+
+  // 5xx (generic uncoded errors): THIS is the capture boundary. The thrown message carries
+  // the :captured marker so downstream boundaries (safe-action, QueryCache.onError) skip a
+  // second Sentry report of the same incident.
   const actionError = createActionError(errorCode, withCapturedActionContext(actionName))
 
-  // Centralized Sentry reporting with original error details in extra
-  import('@sentry/nextjs')
-    .then((Sentry) => {
-      Sentry.captureException(error, {
-        tags: { action: actionName, errorCode },
-        extra: { originalMessage: error instanceof Error ? error.message : String(error) },
-      })
-    })
-    .catch(() => {})
+  captureError(error, {
+    tags: { action: actionName, errorCode },
+    extra: { originalMessage: error instanceof Error ? error.message : String(error) },
+  })
 
   throw actionError
 }

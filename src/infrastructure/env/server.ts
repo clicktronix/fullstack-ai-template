@@ -1,20 +1,44 @@
 import 'server-only'
 
-import { type InferOutput, minLength, object, optional, parse, pipe, string, url } from 'valibot'
+import {
+  check,
+  type InferOutput,
+  minLength,
+  object,
+  optional,
+  parse,
+  pipe,
+  string,
+  url,
+} from 'valibot'
 import { emptyStringToUndefined } from './empty-string'
 
-const ServerEnvSchema = object({
-  NEXT_PUBLIC_SUPABASE_URL: pipe(string(), url()),
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: optional(pipe(string(), minLength(1))),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: optional(pipe(string(), minLength(1))),
-  NEXT_PUBLIC_SITE_URL: optional(pipe(string(), url())),
-  SUPABASE_URL: optional(pipe(string(), url())),
-  SUPABASE_SECRET_KEY: optional(pipe(string(), minLength(1))),
-  SUPABASE_SERVICE_ROLE_KEY: optional(pipe(string(), minLength(1))),
-  AI_SUGGESTIONS_API_URL: optional(pipe(string(), url())),
-  AI_SUGGESTIONS_API_KEY: optional(string()),
-  EXAMPLE_WEBHOOK_SECRET: optional(pipe(string(), minLength(1))),
-})
+// Both the new publishable key and the legacy anon key are individually optional (either
+// name may be used), but the browser client needs *one* of them to authenticate — so at
+// least one must be present. Before the publishable/secret key migration, only the legacy
+// NEXT_PUBLIC_SUPABASE_ANON_KEY existed and was a required field, so this parse-time check
+// restores the original boot-time fail-fast instead of deferring the failure to whenever
+// getSupabasePublishableKey() first happens to be called.
+const ServerEnvSchema = pipe(
+  object({
+    NEXT_PUBLIC_SUPABASE_URL: pipe(string(), url()),
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: optional(pipe(string(), minLength(1))),
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: optional(pipe(string(), minLength(1))),
+    NEXT_PUBLIC_SITE_URL: optional(pipe(string(), url())),
+    SUPABASE_URL: optional(pipe(string(), url())),
+    SUPABASE_SECRET_KEY: optional(pipe(string(), minLength(1))),
+    SUPABASE_SERVICE_ROLE_KEY: optional(pipe(string(), minLength(1))),
+    AI_SUGGESTIONS_API_URL: optional(pipe(string(), url())),
+    AI_SUGGESTIONS_API_KEY: optional(string()),
+    EXAMPLE_WEBHOOK_SECRET: optional(pipe(string(), minLength(1))),
+  }),
+  check(
+    (input) =>
+      Boolean(input.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) ||
+      Boolean(input.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+    'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (or legacy NEXT_PUBLIC_SUPABASE_ANON_KEY) is required'
+  )
+)
 
 export type ServerEnv = InferOutput<typeof ServerEnvSchema>
 
@@ -54,6 +78,19 @@ export function getServerEnv(): ServerEnv {
 
   cachedServerEnv ??= readServerEnv()
   return cachedServerEnv
+}
+
+/**
+ * Supabase project URL. Prefers the private `SUPABASE_URL` (e.g. for a direct/internal
+ * host distinct from the public one) and falls back to `NEXT_PUBLIC_SUPABASE_URL`.
+ *
+ * Single source of truth for every server-side Supabase client (admin, SSR/cookie-based) —
+ * they previously each defined their own `getSupabaseUrl` with divergent precedence
+ * (one honored `SUPABASE_URL`, the other didn't), which could point them at different hosts.
+ */
+export function getSupabaseUrl(): string {
+  const env = getServerEnv()
+  return env.SUPABASE_URL ?? env.NEXT_PUBLIC_SUPABASE_URL
 }
 
 /** Prefers the new publishable key, falls back to the legacy anon key. */

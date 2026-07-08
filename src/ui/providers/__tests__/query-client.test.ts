@@ -11,8 +11,10 @@ mock.module('@/ui/mantine-notifications', () => ({
   notifications: { show: mockNotificationsShow },
 }))
 
-const { makeQueryClient, shouldReportQueryError } = await import('../query-client')
-const { ServerError } = await import('@/infrastructure/errors/api-error')
+const { makeQueryClient, shouldReportQueryError, shouldThrowToErrorBoundary } =
+  await import('../query-client')
+const { ServerError, NotFoundError, ForbiddenError } =
+  await import('@/infrastructure/errors/api-error')
 
 beforeEach(() => {
   mockCaptureError.mockReset()
@@ -20,7 +22,7 @@ beforeEach(() => {
 })
 
 describe('QueryCache onError', () => {
-  test('captures a failing query once and shows a notification', async () => {
+  test('captures a failing query once', async () => {
     const client = makeQueryClient()
     const error = new ServerError(500, 'boom')
 
@@ -34,7 +36,94 @@ describe('QueryCache onError', () => {
 
     expect(mockCaptureError).toHaveBeenCalledTimes(1)
     expect(mockCaptureError.mock.calls[0]?.[0]).toBe(error)
+  })
+
+  // Regression test for finding 3: a 5xx error is re-thrown to the nearest Error Boundary by
+  // `throwOnError` (same predicate as `shouldThrowToErrorBoundary`) — showing a toast here too
+  // would surface the same failure to the user twice. The boundary owns the UI for it.
+  test('does not show a toast for a 5xx failure — the Error Boundary owns it', async () => {
+    const client = makeQueryClient()
+    const error = new ServerError(500, 'boom')
+
+    await client
+      .fetchQuery({
+        queryKey: ['query-client-test', '5xx-no-toast'],
+        queryFn: () => Promise.reject(error),
+        retry: false,
+      })
+      .catch(() => {})
+
+    expect(mockNotificationsShow).not.toHaveBeenCalled()
+  })
+
+  // Regression test for finding 3: a network failure (TypeError) is also thrown to the
+  // boundary, so it must not double-surface as a toast either.
+  test('does not show a toast for a network (TypeError) failure', async () => {
+    const client = makeQueryClient()
+    const error = new TypeError('Failed to fetch')
+
+    await client
+      .fetchQuery({
+        queryKey: ['query-client-test', 'network-no-toast'],
+        queryFn: () => Promise.reject(error),
+        retry: false,
+      })
+      .catch(() => {})
+
+    expect(mockNotificationsShow).not.toHaveBeenCalled()
+  })
+
+  // Regression test for finding 1: 4xx query outcomes (not found, forbidden, ...) are expected,
+  // user-facing results, not incidents — they must not be captured to Sentry.
+  test('does not capture a 404 ApiError, and shows an inline toast (not thrown to boundary)', async () => {
+    const client = makeQueryClient()
+    const error = new NotFoundError('missing')
+
+    await client
+      .fetchQuery({
+        queryKey: ['query-client-test', '404-not-captured'],
+        queryFn: () => Promise.reject(error),
+        retry: false,
+      })
+      .catch(() => {})
+
+    expect(mockCaptureError).not.toHaveBeenCalled()
     expect(mockNotificationsShow).toHaveBeenCalledTimes(1)
+  })
+
+  test('does not capture a 403 ApiError', async () => {
+    const client = makeQueryClient()
+    const error = new ForbiddenError('nope')
+
+    await client
+      .fetchQuery({
+        queryKey: ['query-client-test', '403-not-captured'],
+        queryFn: () => Promise.reject(error),
+        retry: false,
+      })
+      .catch(() => {})
+
+    expect(mockCaptureError).not.toHaveBeenCalled()
+    expect(mockNotificationsShow).toHaveBeenCalledTimes(1)
+  })
+
+  // Regression test for finding 1: an undefined-status ApiError and a network TypeError are
+  // both unclassifiable as a specific 4xx, so getApiErrorCode falls back to INTERNAL_ERROR
+  // (500) — they must still be captured once.
+  test('captures a network (TypeError) failure once', async () => {
+    const client = makeQueryClient()
+    const error = new TypeError('Failed to fetch')
+
+    await client
+      .fetchQuery({
+        queryKey: ['query-client-test', 'network-captured'],
+        queryFn: () => Promise.reject(error),
+        retry: false,
+      })
+      .catch(() => {})
+
+    expect(mockCaptureError).toHaveBeenCalledTimes(1)
+    expect(mockCaptureError.mock.calls[0]?.[0]).toBe(error)
   })
 
   test('captures the terminal failure only once even after internal retries', async () => {
@@ -128,14 +217,35 @@ describe('QueryCache onError', () => {
     expect(mockCaptureError).toHaveBeenCalledTimes(2)
   })
 
-  test('a safe-action-shaped error (already captured server-side) is not captured again but is still notified', async () => {
+  test('a safe-action-shaped 5xx error (already captured) is neither re-captured nor toasted — the ErrorBoundary owns it', async () => {
     const client = makeQueryClient()
     const alreadyCapturedError = new Error('[INTERNAL_ERROR] safeAction:captured')
+
+    // 5xx coded message -> shouldThrowToErrorBoundary true -> boundary shows it, no toast.
+    expect(shouldThrowToErrorBoundary(alreadyCapturedError)).toBe(true)
 
     await client
       .fetchQuery({
         queryKey: ['query-client-test', 'safe-action-captured'],
         queryFn: () => Promise.reject(alreadyCapturedError),
+        retry: false,
+      })
+      .catch(() => {})
+
+    expect(mockCaptureError).not.toHaveBeenCalled()
+    expect(mockNotificationsShow).not.toHaveBeenCalled()
+  })
+
+  test('a safe-action-shaped 4xx error is not captured and IS toasted inline (no boundary)', async () => {
+    const client = makeQueryClient()
+    const codedFourxx = new Error('[VALIDATION_ERROR] safeAction')
+
+    expect(shouldThrowToErrorBoundary(codedFourxx)).toBe(false)
+
+    await client
+      .fetchQuery({
+        queryKey: ['query-client-test', 'safe-action-4xx'],
+        queryFn: () => Promise.reject(codedFourxx),
         retry: false,
       })
       .catch(() => {})

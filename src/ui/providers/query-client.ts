@@ -1,8 +1,10 @@
 import { QueryCache, QueryClient, isServer, type Query } from '@tanstack/react-query'
 import { cache } from 'react'
+import { getApiErrorCode } from '@/infrastructure/api/error-mapping'
 import { isTestEnvironment } from '@/infrastructure/env/runtime'
 import { isAlreadyCapturedActionErrorMessage } from '@/infrastructure/errors/action-error'
-import { ApiError, isRetryableError } from '@/infrastructure/errors/api-error'
+import { isRetryableError } from '@/infrastructure/errors/api-error'
+import { getStatusForCode } from '@/infrastructure/errors/codes'
 import {
   getUserFacingErrorMessage,
   getUserFacingErrorTitle,
@@ -51,6 +53,24 @@ export function shouldReportQueryError(query: Query<unknown, unknown, unknown>):
 }
 
 /**
+ * Shared predicate for "this error is unexpected and should reach the nearest
+ * Error Boundary" — server errors (5xx) and network failures. Used by BOTH
+ * `throwOnError` (below, so React Query actually re-throws it there) and
+ * `QueryCache.onError` (so the inline toast is skipped when the boundary will
+ * already show the error — otherwise the user sees the failure surfaced twice).
+ * Expected, user-facing outcomes (4xx: not found, forbidden, validation, ...) are
+ * NOT thrown here — they stay as query error state for inline/toast handling.
+ */
+export function shouldThrowToErrorBoundary(error: unknown): boolean {
+  // Classify by mapped status, not by instanceof: safe-action query failures arrive as a
+  // plain Error whose message is `[CODE] ...:captured` (serialized across the Server Action
+  // boundary), NOT as an ApiError instance. getApiErrorCode resolves the code from either
+  // shape (typed ApiError, coded message, ValiError) and defaults unknown/network errors to
+  // INTERNAL_ERROR (500), so 5xx + network -> boundary, expected 4xx -> inline/toast.
+  return getStatusForCode(getApiErrorCode(error)) >= 500
+}
+
+/**
  * Creates a new QueryClient with default configuration.
  * Exported (in addition to being used internally by getQueryClient()) so tests can build an
  * isolated client instead of sharing the browser/server singletons.
@@ -71,7 +91,12 @@ export function makeQueryClient() {
         // unexpected failures server-side before rethrowing a serialized `[CODE] safeAction`
         // error. `isAlreadyCapturedActionErrorMessage` detects that marker so we don't
         // double-capture the same incident — the user is still notified below.
-        if (!(error instanceof Error && isAlreadyCapturedActionErrorMessage(error.message))) {
+        //
+        // 4xx query outcomes (not found, forbidden, validation, ...) are expected, user-facing
+        // results, not incidents — only capture when the mapped status is a genuine 5xx.
+        const alreadyCaptured =
+          error instanceof Error && isAlreadyCapturedActionErrorMessage(error.message)
+        if (!alreadyCaptured && getStatusForCode(getApiErrorCode(error)) >= 500) {
           captureError(error, {
             tags: { queryHash: query.queryHash },
           })
@@ -80,6 +105,11 @@ export function makeQueryClient() {
         // Notifications are browser-only and can be opted out per-query via `meta.silent`
         // (e.g. background/prefetch queries that shouldn't interrupt the user).
         if (isServer || query.meta?.silent) return
+
+        // 5xx/network errors are re-thrown to the nearest Error Boundary by `throwOnError`
+        // below (same predicate) — the boundary owns the UI for those. Showing a toast here
+        // too would surface the same failure to the user twice.
+        if (shouldThrowToErrorBoundary(error)) return
 
         // Outside a component we don't have react-intl's useIntl(); presentError() already
         // provides pre-formatted English strings for exactly this kind of non-component use
@@ -113,16 +143,7 @@ export function makeQueryClient() {
         retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30_000),
         // Propagate errors to Error Boundary only for unexpected errors (5xx, network)
         // Keep 4xx errors (not found, forbidden) as query errors for inline handling
-        throwOnError: (error) => {
-          // Only throw to Error Boundary for server errors and network failures
-          if (error instanceof ApiError) {
-            const status = error.getStatus()
-            // NetworkError has no status (undefined) — should also be thrown to ErrorBoundary
-            return status === undefined || status >= 500
-          }
-          // Network errors (TypeError) should go to Error Boundary
-          return error instanceof TypeError
-        },
+        throwOnError: shouldThrowToErrorBoundary,
       },
       mutations: {
         retry: 0, // Don't retry mutations by default
