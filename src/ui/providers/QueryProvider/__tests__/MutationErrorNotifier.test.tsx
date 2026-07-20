@@ -6,6 +6,7 @@ import { IntlProvider } from 'react-intl'
 const mockNotificationsShow = mock()
 const mockAddBreadcrumb = mock()
 const mockCaptureException = mock()
+const mockCaptureError = mock()
 
 mock.module('@/ui/mantine-notifications', () => ({
   notifications: { show: mockNotificationsShow },
@@ -15,6 +16,7 @@ mock.module('@/ui/mantine-notifications', () => ({
 // `getSentry` memoized-import helper duplicated from `infrastructure/sentry/capture.ts`. It
 // now imports the shared `getSentry` export from that module instead.
 mock.module('@/infrastructure/sentry/capture', () => ({
+  captureError: mockCaptureError,
   getSentry: () =>
     Promise.resolve({
       addBreadcrumb: mockAddBreadcrumb,
@@ -37,6 +39,7 @@ function Wrapper({ queryClient }: { queryClient: QueryClient }) {
 beforeEach(() => {
   mockNotificationsShow.mockReset()
   mockAddBreadcrumb.mockReset()
+  mockCaptureError.mockReset()
   mockCaptureException.mockReset()
 })
 
@@ -64,6 +67,7 @@ describe('MutationErrorNotifier', () => {
     // originating boundary (safe-action's handleServerError). Capturing again here would
     // double-report the same incident.
     expect(mockAddBreadcrumb).toHaveBeenCalledTimes(1)
+    expect(mockCaptureError).not.toHaveBeenCalled()
     expect(mockCaptureException).not.toHaveBeenCalled()
   })
 })
