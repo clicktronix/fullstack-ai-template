@@ -4,6 +4,11 @@ const mockCaptureError = mock()
 
 mock.module('@/infrastructure/sentry/capture', () => ({
   captureError: mockCaptureError,
+  getSentry: () =>
+    Promise.resolve({
+      addBreadcrumb: mock(),
+      captureException: mock(),
+    }),
 }))
 
 const { createActionError, isAlreadyCapturedActionErrorMessage, withCapturedActionContext } =

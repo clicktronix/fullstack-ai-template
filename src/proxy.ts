@@ -17,15 +17,31 @@ function createNonce(): string | null {
   return null
 }
 
+function toWebSocketOrigin(url: string): string {
+  if (!url) return ''
+
+  const websocketUrl = new URL(url)
+  if (websocketUrl.protocol === 'https:') websocketUrl.protocol = 'wss:'
+  else if (websocketUrl.protocol === 'http:') websocketUrl.protocol = 'ws:'
+  else return ''
+
+  return websocketUrl.origin
+}
+
 function buildContentSecurityPolicy(req: NextRequest, nonce: string | null): string {
   const publicEnv = getPublicEnv()
   // Build allowed connect-src origins from environment
   const supabaseUrl = publicEnv.NEXT_PUBLIC_SUPABASE_URL ?? ''
+  const supabaseRealtimeUrl = toWebSocketOrigin(supabaseUrl)
   const apiUrl = publicEnv.NEXT_PUBLIC_API_URL ?? ''
   const sentryIngestDomain = 'https://*.ingest.us.sentry.io'
-  const baseConnectSrc = ["connect-src 'self'", supabaseUrl, apiUrl, sentryIngestDomain].filter(
-    Boolean
-  )
+  const baseConnectSrc = [
+    "connect-src 'self'",
+    supabaseUrl,
+    supabaseRealtimeUrl,
+    apiUrl,
+    sentryIngestDomain,
+  ].filter(Boolean)
 
   const connectSrc = isDevelopment
     ? // Development: allow localhost connections for HMR and local services
