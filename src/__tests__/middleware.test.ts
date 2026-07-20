@@ -335,6 +335,14 @@ describe('proxy', () => {
       expect(csp).toContain("form-action 'self'")
     })
 
+    test('allows the Supabase Realtime WebSocket origin', async () => {
+      const req = createMockRequest('/')
+
+      const response = (await proxy(req as never)) as unknown as MockResponse
+
+      expect(response.headers.get('Content-Security-Policy')).toContain('wss://example.supabase.co')
+    })
+
     test('does not add nonce for PPR protected routes', async () => {
       mockGetUserResult = {
         data: { user: { id: 'user-123' } },
