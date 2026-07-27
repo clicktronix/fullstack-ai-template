@@ -108,6 +108,7 @@ export type Database = {
           status: 'active' | 'archived'
           is_priority: boolean
           label_ids: string[]
+          due_at: string | null
           created_by: string | null
           created_at: string
           updated_at: string
@@ -119,6 +120,7 @@ export type Database = {
           status?: 'active' | 'archived'
           is_priority?: boolean
           label_ids?: string[]
+          due_at?: string | null
           created_by?: string | null
           created_at?: string
           updated_at?: string
@@ -130,6 +132,7 @@ export type Database = {
           status?: 'active' | 'archived'
           is_priority?: boolean
           label_ids?: string[]
+          due_at?: string | null
           created_by?: string | null
           created_at?: string
           updated_at?: string

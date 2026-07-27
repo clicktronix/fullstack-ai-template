@@ -65,6 +65,13 @@ export function WorkItemFormModalView({
           checked={form.values.is_priority}
           {...form.getInputProps('is_priority', { type: 'checkbox' })}
         />
+
+        <TextInput
+          type="datetime-local"
+          label={<TranslationText {...messages.dueDateLabel} />}
+          data-testid="work-item-form-due-at"
+          {...form.getInputProps('due_at')}
+        />
       </Stack>
     </FormModalShell>
   )

@@ -28,6 +28,7 @@ function WorkItemFormStory({ mode }: { mode: 'create' | 'edit' }) {
           : 'Use this modal as the baseline example for forms, validation, and label selection.',
       label_ids: mode === 'create' ? [] : ['label-1'],
       is_priority: mode === 'edit',
+      due_at: mode === 'create' ? '' : '2026-08-01T09:00',
     },
   })
 

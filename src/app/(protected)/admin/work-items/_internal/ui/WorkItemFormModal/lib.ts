@@ -14,6 +14,7 @@ export type WorkItemFormValues = {
   description: string
   label_ids: string[]
   is_priority: boolean
+  due_at: string
 }
 
 export type WorkItemFormModalProps = {
@@ -44,6 +45,7 @@ function createWorkItemFormSchema(titleRequiredMessage: string) {
     description: optional(nullable(string())),
     label_ids: optional(array(string())),
     is_priority: optional(boolean()),
+    due_at: optional(string()),
   })
 }
 
@@ -53,6 +55,7 @@ function getInitialValues(workItem?: WorkItem | null): WorkItemFormValues {
     description: workItem?.description ?? '',
     label_ids: workItem?.label_ids ?? [],
     is_priority: workItem?.is_priority ?? false,
+    due_at: workItem?.due_at ?? '',
   }
 }
 
@@ -107,6 +110,7 @@ export function useWorkItemFormModalProps({
         description: values.description.length > 0 ? values.description : null,
         label_ids: values.label_ids,
         is_priority: values.is_priority,
+        due_at: values.due_at.length > 0 ? new Date(values.due_at).toISOString() : null,
       })
       form.reset()
     }),

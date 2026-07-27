@@ -98,6 +98,7 @@ export async function createWorkItemOperation(
     description: input.description ?? null,
     is_priority: input.is_priority ?? false,
     label_ids: input.label_ids ?? [],
+    due_at: input.due_at ?? null,
     created_by: userId,
   }
 
@@ -125,6 +126,7 @@ export async function updateWorkItemOperation(
   if (input.description !== undefined) payload.description = input.description
   if (input.is_priority !== undefined) payload.is_priority = input.is_priority
   if (input.label_ids !== undefined) payload.label_ids = input.label_ids
+  if (input.due_at !== undefined) payload.due_at = input.due_at
 
   const { data, error } = await supabase
     .from('work_items')

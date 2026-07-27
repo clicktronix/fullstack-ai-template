@@ -22,6 +22,7 @@ export const WorkItemSchema = object({
   status: WorkItemStatusSchema,
   is_priority: boolean(),
   label_ids: array(string()),
+  due_at: optional(nullable(pipe(string(), isoTimestamp()))),
   created_at: pipe(string(), isoTimestamp()),
   updated_at: pipe(string(), isoTimestamp()),
 })
@@ -31,6 +32,7 @@ export const CreateWorkItemSchema = object({
   description: optional(nullable(string())),
   is_priority: optional(boolean()),
   label_ids: optional(array(string())),
+  due_at: optional(nullable(pipe(string(), isoTimestamp()))),
 })
 
 export const UpdateWorkItemSchema = object({
@@ -38,6 +40,7 @@ export const UpdateWorkItemSchema = object({
   description: optional(nullable(string())),
   is_priority: optional(boolean()),
   label_ids: optional(array(string())),
+  due_at: optional(nullable(pipe(string(), isoTimestamp()))),
 })
 
 export type WorkItem = InferOutput<typeof WorkItemSchema>

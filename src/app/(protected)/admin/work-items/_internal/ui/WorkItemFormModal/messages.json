@@ -35,6 +35,10 @@
     "id": "workItemForm.priorityLabel",
     "defaultMessage": "Priority item"
   },
+  "dueDateLabel": {
+    "id": "workItemForm.dueDateLabel",
+    "defaultMessage": "Due date"
+  },
   "save": {
     "id": "workItemForm.save",
     "defaultMessage": "Save"
