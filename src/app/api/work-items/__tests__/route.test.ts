@@ -24,6 +24,10 @@ mock.module('next/cache', () => ({
   revalidateTag: mockRevalidateTag,
 }))
 
+mock.module('@/infrastructure/env/server', () => ({
+  getServerEnv: () => ({ WORK_ITEMS_API_URL: 'https://work-items.test' }),
+}))
+
 const { GET, POST } = await import('../route')
 
 const context = {

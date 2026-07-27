@@ -2,7 +2,7 @@
 
 import { revalidateTag, updateTag } from 'next/cache'
 import { boolean, number, object, optional, string } from 'valibot'
-import { createSupabaseWorkItemsRepository } from '@/adapters/outbound/supabase/work-items.repository'
+import { createHttpWorkItemsRepository } from '@/adapters/outbound/api/work-items.repository'
 import {
   CreateWorkItemSchema,
   WorkItemStatusSchema,
@@ -57,7 +57,7 @@ const safeGetWorkItemsAction = adminActionClient
   .inputSchema(WorkItemListParamsSchema)
   .action(async ({ ctx, parsedInput }): Promise<PaginatedWorkItemsResult> => {
     return listWorkItems(
-      { workItems: createSupabaseWorkItemsRepository(ctx.supabase, ctx.userId) },
+      { workItems: createHttpWorkItemsRepository({ userId: ctx.userId }) },
       parsedInput
     )
   })
@@ -66,7 +66,7 @@ const safeGetWorkItemAction = adminActionClient
   .inputSchema(WorkItemIdSchema)
   .action(async ({ ctx, parsedInput }): Promise<WorkItem> => {
     return getWorkItem(
-      { workItems: createSupabaseWorkItemsRepository(ctx.supabase, ctx.userId) },
+      { workItems: createHttpWorkItemsRepository({ userId: ctx.userId }) },
       parsedInput.id
     )
   })
@@ -75,7 +75,7 @@ const safeCreateWorkItemAction = adminActionClient
   .inputSchema(CreateWorkItemSchema)
   .action(async ({ ctx, parsedInput }): Promise<WorkItem> => {
     const result = await createWorkItem(
-      { workItems: createSupabaseWorkItemsRepository(ctx.supabase, ctx.userId) },
+      { workItems: createHttpWorkItemsRepository({ userId: ctx.userId }) },
       parsedInput
     )
     revalidateWorkItemsCache(ctx.userId, result.id)
@@ -86,7 +86,7 @@ const safeUpdateWorkItemAction = adminActionClient
   .inputSchema(UpdateWorkItemActionInputSchema)
   .action(async ({ ctx, parsedInput }): Promise<WorkItem> => {
     const result = await updateWorkItem(
-      { workItems: createSupabaseWorkItemsRepository(ctx.supabase, ctx.userId) },
+      { workItems: createHttpWorkItemsRepository({ userId: ctx.userId }) },
       parsedInput.id,
       parsedInput.input
     )
@@ -98,7 +98,7 @@ const safeArchiveWorkItemAction = adminActionClient
   .inputSchema(WorkItemIdSchema)
   .action(async ({ ctx, parsedInput }): Promise<WorkItem> => {
     const result = await archiveWorkItem(
-      { workItems: createSupabaseWorkItemsRepository(ctx.supabase, ctx.userId) },
+      { workItems: createHttpWorkItemsRepository({ userId: ctx.userId }) },
       parsedInput.id
     )
     revalidateWorkItemsCache(ctx.userId, parsedInput.id)
@@ -109,7 +109,7 @@ const safeRestoreWorkItemAction = adminActionClient
   .inputSchema(WorkItemIdSchema)
   .action(async ({ ctx, parsedInput }): Promise<WorkItem> => {
     const result = await restoreWorkItem(
-      { workItems: createSupabaseWorkItemsRepository(ctx.supabase, ctx.userId) },
+      { workItems: createHttpWorkItemsRepository({ userId: ctx.userId }) },
       parsedInput.id
     )
     revalidateWorkItemsCache(ctx.userId, parsedInput.id)

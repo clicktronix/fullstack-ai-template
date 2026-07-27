@@ -30,6 +30,7 @@ const ServerEnvSchema = pipe(
     SUPABASE_SERVICE_ROLE_KEY: optional(pipe(string(), minLength(1))),
     AI_SUGGESTIONS_API_URL: optional(pipe(string(), url())),
     AI_SUGGESTIONS_API_KEY: optional(string()),
+    WORK_ITEMS_API_URL: optional(pipe(string(), url())),
     EXAMPLE_WEBHOOK_SECRET: optional(pipe(string(), minLength(1))),
   }),
   check(
@@ -69,6 +70,7 @@ function readServerEnv(): ServerEnv {
     SUPABASE_SERVICE_ROLE_KEY: emptyStringToUndefined(process.env.SUPABASE_SERVICE_ROLE_KEY),
     AI_SUGGESTIONS_API_URL: emptyStringToUndefined(process.env.AI_SUGGESTIONS_API_URL),
     AI_SUGGESTIONS_API_KEY: emptyStringToUndefined(process.env.AI_SUGGESTIONS_API_KEY),
+    WORK_ITEMS_API_URL: emptyStringToUndefined(process.env.WORK_ITEMS_API_URL),
     EXAMPLE_WEBHOOK_SECRET: emptyStringToUndefined(process.env.EXAMPLE_WEBHOOK_SECRET),
   })
 }

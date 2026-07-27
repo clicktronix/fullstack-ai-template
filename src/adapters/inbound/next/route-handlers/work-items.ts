@@ -2,7 +2,7 @@ import 'server-only'
 
 import { revalidateTag } from 'next/cache'
 import { boolean, number, object, optional, parse, string } from 'valibot'
-import { createSupabaseWorkItemsRepository } from '@/adapters/outbound/supabase/work-items.repository'
+import { createHttpWorkItemsRepository } from '@/adapters/outbound/api/work-items.repository'
 import { CreateWorkItemSchema, WorkItemStatusSchema } from '@/domain/work-item/work-item'
 import { createApiHandlerContext } from '@/infrastructure/api/context'
 import { runIdempotentCommand } from '@/infrastructure/api/idempotency'
@@ -59,7 +59,7 @@ export const handleListWorkItemsRequest = withRouteErrorHandling(
   async (request: Request) => {
     const context = await createApiHandlerContext(request, { allowedRoles: ['owner', 'admin'] })
     const result = await listWorkItems(
-      { workItems: createSupabaseWorkItemsRepository(context.supabase, context.userId) },
+      { workItems: createHttpWorkItemsRepository({ userId: context.userId }) },
       parseListParams(request)
     )
 
@@ -89,7 +89,7 @@ export const handleCreateWorkItemRequest = withRouteErrorHandling(
       statusCode: 201,
       command: async () => {
         const workItem = await createWorkItem(
-          { workItems: createSupabaseWorkItemsRepository(context.supabase, context.userId) },
+          { workItems: createHttpWorkItemsRepository({ userId: context.userId }) },
           input
         )
         revalidateWorkItemsApiCache(context.userId, workItem.id)

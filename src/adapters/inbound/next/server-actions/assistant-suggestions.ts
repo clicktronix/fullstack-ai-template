@@ -2,8 +2,8 @@
 
 import { boolean, nullable, object, optional, string } from 'valibot'
 import { createAssistantSuggestionsGateway } from '@/adapters/outbound/api/assistant-suggestions'
+import { createHttpWorkItemsRepository } from '@/adapters/outbound/api/work-items.repository'
 import { createSupabaseLabelsRepository } from '@/adapters/outbound/supabase/labels.repository'
-import { createSupabaseWorkItemsRepository } from '@/adapters/outbound/supabase/work-items.repository'
 import type { AssistantSuggestionsResult } from '@/domain/assistant-suggestion/assistant-suggestion'
 import { WorkItemStatusSchema } from '@/domain/work-item/work-item'
 import { adminActionClient, unwrapSafeActionResult } from '@/infrastructure/actions/safe-action'
@@ -23,7 +23,7 @@ const safeGenerateAssistantSuggestionsAction = adminActionClient
   .action(async ({ ctx, parsedInput }): Promise<AssistantSuggestionsResult> => {
     return generateAssistantSuggestions(
       {
-        workItems: createSupabaseWorkItemsRepository(ctx.supabase, ctx.userId),
+        workItems: createHttpWorkItemsRepository({ userId: ctx.userId }),
         labels: createSupabaseLabelsRepository(ctx.supabase),
         assistantSuggestions: createAssistantSuggestionsGateway(ctx.userId),
       },
