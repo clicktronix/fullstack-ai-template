@@ -189,6 +189,7 @@ export const enMessages = {
   'workItemForm.createTitle': 'Create work item',
   'workItemForm.descriptionLabel': 'Description',
   'workItemForm.descriptionPlaceholder': 'Describe the expected outcome briefly',
+  'workItemForm.dueDateLabel': 'Due date',
   'workItemForm.editTitle': 'Edit work item',
   'workItemForm.labelsLabel': 'Labels',
   'workItemForm.labelsPlaceholder': 'Select labels',
