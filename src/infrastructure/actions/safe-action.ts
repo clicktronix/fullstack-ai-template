@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { headers } from 'next/headers'
 import { createSafeActionClient, isNavigationError } from 'next-safe-action'
 import { getStatusForCode } from '@/infrastructure/api/response'
 import { createAuthenticatedContext } from '@/infrastructure/auth/authenticated-context'
@@ -23,6 +24,11 @@ import {
   type ErrorCode,
 } from '@/infrastructure/errors/codes'
 import { serverLogger } from '@/infrastructure/logging/server-logger'
+import {
+  createReportingRequestContext,
+  getReportingRequestContext,
+  runWithReportingRequestContext,
+} from '@/infrastructure/request-context/request-context'
 import { captureError } from '@/infrastructure/sentry/capture'
 
 type SafeActionResultLike<TData> = {
@@ -63,6 +69,20 @@ function getApiActionErrorCode(error: unknown): ErrorCode | null {
   }
 }
 
+function captureActionError(error: unknown): void {
+  const request = getReportingRequestContext() ?? createReportingRequestContext()
+  captureError(error, { tags: { boundary: 'safe-action' }, request })
+}
+
+async function runAuthenticatedAction<T>(actorId: string, callback: () => Promise<T>): Promise<T> {
+  const requestHeaders = await headers()
+  const context = createReportingRequestContext({
+    requestId: requestHeaders.get('x-request-id') ?? undefined,
+    actorId,
+  })
+  return runWithReportingRequestContext(context, callback)
+}
+
 export const actionClient = createSafeActionClient({
   defaultValidationErrorsShape: 'flattened',
   handleServerError(error) {
@@ -87,7 +107,7 @@ export const actionClient = createSafeActionClient({
           getStatusForCode(precodedCode) >= 500 &&
           !isAlreadyCapturedActionErrorMessage(error.message)
         ) {
-          captureError(error, { tags: { boundary: 'safe-action' } })
+          captureActionError(error)
           return createActionError(precodedCode, withCapturedActionContext('safeAction')).message
         }
         return error.message
@@ -100,7 +120,7 @@ export const actionClient = createSafeActionClient({
       // provider codes, ...) is an incident worth capturing. Codes mapping to 4xx
       // (auth/validation/not-found/conflict/rate-limit) are expected, user-facing outcomes.
       if (getStatusForCode(apiErrorCode) >= 500) {
-        captureError(error, { tags: { boundary: 'safe-action' } })
+        captureActionError(error)
         // Mark the rethrown message so QueryCache.onError (query-client.ts) knows this
         // incident was already captured here and skips a second Sentry report.
         return createActionError(apiErrorCode, withCapturedActionContext('safeAction')).message
@@ -108,7 +128,7 @@ export const actionClient = createSafeActionClient({
       return createActionError(apiErrorCode, 'safeAction').message
     }
 
-    captureError(error, { tags: { boundary: 'safe-action' } })
+    captureActionError(error)
     // Same "already captured" marker as above — this is the other branch that reports here.
     return createActionError(INTERNAL_ERROR, withCapturedActionContext('safeAction')).message
   },
@@ -121,7 +141,7 @@ export const authActionClient = actionClient.use(async ({ next }) => {
     throw createActionError(AUTHORIZATION_ERROR, 'authActionClient: account pending approval')
   }
 
-  return next({ ctx })
+  return runAuthenticatedAction(ctx.userId, () => next({ ctx }))
 })
 
 export const adminActionClient = actionClient.use(async ({ next }) => {
@@ -135,7 +155,7 @@ export const adminActionClient = actionClient.use(async ({ next }) => {
     throw createActionError(AUTHORIZATION_ERROR, 'adminActionClient: insufficient role')
   }
 
-  return next({ ctx })
+  return runAuthenticatedAction(ctx.userId, () => next({ ctx }))
 })
 
 export function unwrapSafeActionResult<TData>(result: SafeActionResultLike<TData>): TData {

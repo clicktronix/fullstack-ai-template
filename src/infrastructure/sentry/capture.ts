@@ -27,6 +27,11 @@ export function getSentry() {
 export type CaptureErrorContext = {
   tags?: Record<string, string>
   extra?: Record<string, unknown>
+  request?: {
+    requestId: string
+    actorId?: string
+    tenantId?: string
+  }
 }
 
 /**
@@ -36,11 +41,22 @@ export type CaptureErrorContext = {
  * server-read wrapper, QueryCache) for which layer owns which errors.
  */
 export function captureError(error: unknown, context: CaptureErrorContext = {}): void {
+  const requestTags = context.request ? { requestId: context.request.requestId } : {}
+  const requestExtra =
+    context.request?.actorId || context.request?.tenantId
+      ? {
+          requestContext: {
+            actorId: context.request.actorId,
+            tenantId: context.request.tenantId,
+          },
+        }
+      : {}
+
   getSentry()
     .then((Sentry) => {
       Sentry.captureException(error, {
-        tags: context.tags,
-        extra: context.extra,
+        tags: { ...context.tags, ...requestTags },
+        extra: { ...context.extra, ...requestExtra },
       })
     })
     .catch(() => {})

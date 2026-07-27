@@ -23,6 +23,24 @@ declare module '@tanstack/react-query' {
   }
 }
 
+function requestIdFromError(error: unknown): string | undefined {
+  if (typeof error !== 'object' || error === null) return undefined
+  const details = 'details' in error ? error.details : undefined
+  if (typeof details !== 'object' || details === null || !('responseBody' in details)) {
+    return undefined
+  }
+  const responseBody = details.responseBody
+  if (
+    typeof responseBody !== 'object' ||
+    responseBody === null ||
+    !('requestId' in responseBody) ||
+    typeof responseBody.requestId !== 'string'
+  ) {
+    return undefined
+  }
+  return responseBody.requestId
+}
+
 // A query can re-enter its terminal error state more than once over its lifetime (e.g. a
 // background refetch fails again later) — each such occurrence is a distinct, real failure
 // and should be reported. What must NOT happen is reporting the *same* terminal failure
@@ -97,8 +115,10 @@ export function makeQueryClient() {
         const alreadyCaptured =
           error instanceof Error && isAlreadyCapturedActionErrorMessage(error.message)
         if (!alreadyCaptured && getStatusForCode(getApiErrorCode(error)) >= 500) {
+          const requestId = requestIdFromError(error)
           captureError(error, {
             tags: { queryHash: query.queryHash },
+            ...(requestId ? { request: { requestId } } : {}),
           })
         }
 

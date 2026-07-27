@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { getApiErrorCode, getStatusForCode } from '@/infrastructure/api/response'
+import type { ReportingRequestContext } from '@/infrastructure/request-context/request-context'
 import { captureError } from '@/infrastructure/sentry/capture'
 import { extractErrorCode, isAlreadyCapturedActionErrorMessage } from './action-error'
 
@@ -24,7 +25,8 @@ type ReadFn<TArgs extends unknown[], TResult> = (...args: TArgs) => Promise<TRes
  */
 export function withServerReadErrorHandling<TArgs extends unknown[], TResult>(
   readName: string,
-  fn: ReadFn<TArgs, TResult>
+  fn: ReadFn<TArgs, TResult>,
+  reportingContext?: ReportingRequestContext
 ): ReadFn<TArgs, TResult> {
   return async (...args: TArgs) => {
     try {
@@ -36,7 +38,10 @@ export function withServerReadErrorHandling<TArgs extends unknown[], TResult>(
       const status = getStatusForCode(precodedCode ?? getApiErrorCode(error))
 
       if (!alreadyCapturedUpstream && status >= 500) {
-        captureError(error, { tags: { read: readName } })
+        captureError(error, {
+          tags: { read: readName },
+          ...(reportingContext ? { request: reportingContext } : {}),
+        })
       }
 
       throw error

@@ -29,7 +29,9 @@ beforeEach(() => {
 describe('QueryCache onError', () => {
   test('captures a failing query once', async () => {
     const client = makeQueryClient()
-    const error = new ServerError(500, 'boom')
+    const error = new ServerError(500, 'boom', {
+      responseBody: { requestId: 'query-request' },
+    })
 
     await client
       .fetchQuery({
@@ -41,6 +43,10 @@ describe('QueryCache onError', () => {
 
     expect(mockCaptureError).toHaveBeenCalledTimes(1)
     expect(mockCaptureError.mock.calls[0]?.[0]).toBe(error)
+    expect(mockCaptureError.mock.calls[0]?.[1]).toEqual({
+      tags: { queryHash: expect.any(String) },
+      request: { requestId: 'query-request' },
+    })
   })
 
   // Regression test for finding 3: a 5xx error is re-thrown to the nearest Error Boundary by

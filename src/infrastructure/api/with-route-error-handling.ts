@@ -1,5 +1,9 @@
 import 'server-only'
 
+import {
+  createReportingRequestContext,
+  runWithReportingRequestContext,
+} from '@/infrastructure/request-context/request-context'
 import { captureError } from '@/infrastructure/sentry/capture'
 import { getRequestId } from './context'
 import { apiError, getApiErrorCode, getStatusForCode } from './response'
@@ -29,20 +33,23 @@ export function withRouteErrorHandling<Args extends unknown[]>(
 ): RouteHandler<Args> {
   return async (request, ...args) => {
     const requestId = getRequestId(request)
+    const reportingContext = createReportingRequestContext({ requestId })
 
-    try {
-      return await handler(request, ...args)
-    } catch (error) {
-      const status = getStatusForCode(getApiErrorCode(error))
+    return runWithReportingRequestContext(reportingContext, async () => {
+      try {
+        return await handler(request, ...args)
+      } catch (error) {
+        const status = getStatusForCode(getApiErrorCode(error))
 
-      if (status >= 500) {
-        captureError(error, {
-          tags: { route: routeName, method: request.method },
-          extra: { requestId },
-        })
+        if (status >= 500) {
+          captureError(error, {
+            tags: { route: routeName, method: request.method },
+            request: reportingContext,
+          })
+        }
+
+        return apiError(error, requestId)
       }
-
-      return apiError(error, requestId)
-    }
+    })
   }
 }

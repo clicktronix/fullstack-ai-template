@@ -50,13 +50,20 @@ describe('withServerReadErrorHandling', () => {
 
   test('captures an unexpected (5xx) uncoded error exactly once, then rethrows it', async () => {
     const serverError = new ServerError(500, 'db unavailable')
-    const read = withServerReadErrorHandling('example.read', async () => {
-      throw serverError
-    })
+    const read = withServerReadErrorHandling(
+      'example.read',
+      async () => {
+        throw serverError
+      },
+      { requestId: 'read-request' }
+    )
 
     await expect(read()).rejects.toBe(serverError)
     expect(mockCaptureError).toHaveBeenCalledTimes(1)
-    expect(mockCaptureError).toHaveBeenCalledWith(serverError, { tags: { read: 'example.read' } })
+    expect(mockCaptureError).toHaveBeenCalledWith(serverError, {
+      tags: { read: 'example.read' },
+      request: { requestId: 'read-request' },
+    })
   })
 
   test('captures a generic uncoded error exactly once, then rethrows it', async () => {

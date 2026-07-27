@@ -69,7 +69,7 @@ describe('withRouteErrorHandling', () => {
     expect(mockCaptureError.mock.calls[0]?.[0]).toBe(raw)
     expect(mockCaptureError.mock.calls[0]?.[1]).toEqual({
       tags: { route: 'example', method: 'POST' },
-      extra: { requestId: 'req-3' },
+      request: { requestId: 'req-3' },
     })
   })
 })

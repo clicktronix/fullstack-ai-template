@@ -89,7 +89,10 @@ describe('actionClient error mapping', () => {
 
     expect(mockCaptureError).toHaveBeenCalledTimes(1)
     expect(mockCaptureError.mock.calls[0]?.[0]).toBe(upstream)
-    expect(mockCaptureError.mock.calls[0]?.[1]).toEqual({ tags: { boundary: 'safe-action' } })
+    expect(mockCaptureError.mock.calls[0]?.[1]).toEqual({
+      tags: { boundary: 'safe-action' },
+      request: { requestId: expect.any(String) },
+    })
     expect(isAlreadyCapturedActionErrorMessage(result.serverError ?? '')).toBe(true)
   })
 
