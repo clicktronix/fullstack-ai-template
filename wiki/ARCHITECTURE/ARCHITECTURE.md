@@ -9,7 +9,7 @@ lifecycle, and reusable UI in one module without crossing a repository-wide laye
 ```mermaid
 flowchart TB
   App["app/**<br/>routes and route-private composition"]
-  Public["module root surfaces<br/>server · rsc · actions · client · ui · cache"]
+  Public["module root surfaces<br/>server · rsc · actions · client · ui · query-cache"]
   Server["server.ts<br/>trusted capability policy"]
   Application["application/**<br/>optional orchestration"]
   Adapters["server/** · client/**<br/>private runtime adapters"]
@@ -129,6 +129,7 @@ Rules:
 3. Server Actions are command transport. They are not a query RPC.
 4. Route Handlers decode HTTP and map the capability result to HTTP.
 5. Trusted `server.ts` enforces capability policy and reports nothing.
+6. Private `server/**` imports domain/application/shared code, not its own root channel surfaces.
 
 ## Identity and Effects
 
