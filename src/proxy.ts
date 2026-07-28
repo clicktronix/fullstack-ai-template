@@ -157,6 +157,20 @@ type CookieToSet = {
   options?: Record<string, unknown>
 }
 
+function applySupabaseResponseState(
+  res: NextResponse,
+  cookiesToSet: CookieToSet[],
+  cacheHeaders: Record<string, string>
+): NextResponse {
+  for (const { name, value, options } of cookiesToSet) {
+    res.cookies.set(name, value, options)
+  }
+  for (const [name, value] of Object.entries(cacheHeaders)) {
+    res.headers.set(name, value)
+  }
+  return res
+}
+
 function getSupabaseConfig(): { url: string; anonKey: string } | null {
   const publicEnv = getPublicEnv()
   const url = publicEnv.NEXT_PUBLIC_SUPABASE_URL
@@ -205,14 +219,13 @@ function rejectUnauthenticatedApiRequest(
  * Proxy for authentication redirects, session refresh, and security headers using Supabase Auth.
  *
  * Responsibilities:
- * 1. Refresh Supabase session if needed (via getUser() — triggers token refresh)
+ * 1. Verify claims and refresh the Supabase session when needed
  * 2. Redirect authenticated users away from auth pages (/login, /register)
  * 3. Redirect unauthenticated users away from protected pages
  * 4. Add security headers to all responses
  *
- * IMPORTANT: Uses getUser() (NOT getClaims()) because getUser() triggers
- * automatic token refresh via __loadSession() → _callRefreshToken().
- * getClaims() only validates JWT locally and NEVER refreshes tokens.
+ * IMPORTANT: Uses getClaims() for proxy-level identity. Capability auth uses
+ * getUser() when it needs a network-confirmed Auth user.
  *
  * Reference: https://supabase.com/docs/guides/auth/server-side/nextjs
  */
@@ -229,6 +242,8 @@ export async function proxy(req: NextRequest) {
 
   // Create response that we'll modify
   let response = createNextResponseWithRequestHeaders(req, csp, nonce)
+  let supabaseCookies: CookieToSet[] = []
+  let supabaseCacheHeaders: Record<string, string> = {}
   const supabaseConfig = getSupabaseConfig()
   if (!supabaseConfig) {
     return withSecurityHeaders(
@@ -244,14 +259,14 @@ export async function proxy(req: NextRequest) {
       getAll() {
         return req.cookies.getAll()
       },
-      setAll(cookiesToSet: CookieToSet[]) {
+      setAll(cookiesToSet: CookieToSet[], cacheHeaders: Record<string, string>) {
+        supabaseCookies = cookiesToSet
+        supabaseCacheHeaders = cacheHeaders
         for (const { name, value } of cookiesToSet) {
           req.cookies.set(name, value)
         }
         response = createNextResponseWithRequestHeaders(req, csp, nonce)
-        for (const { name, value, options } of cookiesToSet) {
-          response.cookies.set(name, value, options)
-        }
+        applySupabaseResponseState(response, supabaseCookies, supabaseCacheHeaders)
       },
     },
   })
@@ -264,17 +279,11 @@ export async function proxy(req: NextRequest) {
   const requiresApiAuth = isApiRoute
 
   // Only verify auth for routes that need auth decisions.
-  // Public routes don't redirect based on auth, so skip getUser().
+  // Public routes don't redirect based on auth, so skip claim verification.
   let isAuthenticated = false
   if (isAuth || isProtected || requiresApiAuth) {
-    // getUser() validates JWT server-side AND refreshes expired tokens.
-    // getClaims() only validates locally and NEVER refreshes tokens.
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-
-    isAuthenticated = !userError && !!user
+    const { data, error } = await supabase.auth.getClaims()
+    isAuthenticated = !error && typeof data?.claims.sub === 'string'
   }
 
   const guardResponse =
@@ -288,7 +297,13 @@ export async function proxy(req: NextRequest) {
     ) ??
     rejectUnauthenticatedApiRequest(requiresApiAuth, isAuthenticated, req, csp)
 
-  if (guardResponse) return finalizeResponse(guardResponse, req, csp)
+  if (guardResponse) {
+    return finalizeResponse(
+      applySupabaseResponseState(guardResponse, supabaseCookies, supabaseCacheHeaders),
+      req,
+      csp
+    )
+  }
 
   // Add path headers for server components to access (used by protected layout fallback)
   response.headers.set('x-pathname', pathname)

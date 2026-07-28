@@ -30,7 +30,8 @@ or external callers make duplicates possible.
 
 ## Server Action
 
-An action file begins with top-level `'use server'`. Actions are UI commands:
+An action file begins with top-level `'use server'`. Its value exports are locally declared async
+functions, not re-exports. Actions are UI commands:
 
 1. parse input;
 2. establish provider `userId`;
@@ -48,6 +49,14 @@ It does not call the application's own Route Handler.
 
 Shared auth never loads product roles. Product profile/role belongs to `identity/server.ts`; the
 target capability owns its authorization decision.
+
+## Authoritative External Backend
+
+When Next.js is a BFF for a Go, Python, NestJS, or other authoritative service, keep business
+invariants and orchestration in that service. The local capability owns transport mapping,
+presentation contracts, aggregation, cache, browser lifecycle, and genuinely frontend/BFF policy.
+Do not mirror the remote domain or create forwarding application operations to fill optional
+folders.
 
 ## Provider Store
 
@@ -70,5 +79,6 @@ before response commit they can choose status, after commit failures must be in-
 - Proxy is not authorization.
 - Capability policy is rechecked in `server.ts`.
 - Service-role clients stay under `shared/server` or a capability server adapter.
+- User-scoped and service-role clients use different factories and context types.
 - Secrets never use `NEXT_PUBLIC_`.
 - Logs and Sentry events pass through redaction.

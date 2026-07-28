@@ -12,8 +12,9 @@ export type AuthenticatedContext = {
 /**
  * Create the capability-neutral authenticated context for server-side code.
  *
- * Shared auth verifies the provider identity only. Product roles and account state belong
- * to the identity capability and are resolved through its public server surface.
+ * This is a user-scoped context: the cookie client and verified actor come from
+ * the same session. Product roles and account state belong to the identity
+ * capability. Privileged clients use a separate context and factory.
  */
 export const createAuthenticatedContext = cache(async (): Promise<AuthenticatedContext> => {
   const supabase = await createClient()

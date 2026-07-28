@@ -82,6 +82,11 @@ Private server adapters live under the capability's `server/` segment. They:
 Do not create a repository interface for a local table by default. Add an application port only
 when application behavior needs a technology-independent capability contract.
 
+Literal Supabase resources form a second dependency graph. Declare each `.from()`/`.rpc()` target
+and allowed consumer in `rules/architecture-contract.json`; undeclared, dynamic, or
+cross-capability access fails `bun run architecture:check`. This canary does not parse raw SQL or
+replace migration review, explicit grants, RLS, and local integration tests.
+
 ## Cross-Capability Reads
 
 An orchestrator defines narrow source ports in its own vocabulary. Its private source adapters call
@@ -105,6 +110,19 @@ Server channels establish provider `userId` through `shared/server/auth`, then r
 profile and role through `modules/identity/server.ts`. The target capability still checks its own
 role, tenant, or ownership rule in `server.ts`. Browser auth lifecycle belongs to
 `modules/identity/client`.
+
+The user-scoped Supabase client and verified actor are derived from the same cookie session.
+Privileged/secret-key work uses a separate server-only factory and explicit actor, scope, reason,
+and query predicates. Never substitute a service client into the user-scoped context.
+
+Use `getClaims()` for verified proxy-level claims and `getUser()` when capability auth needs a
+network-confirmed Auth user. `getSession()` reads stored tokens; its embedded user is not an
+authorization result. Supabase SSR cookie writes include cache headers that Proxy and Route
+Handlers must copy to the response.
+
+RLS and Data API grants are separate. Migrations grant each role only the required table/function
+privileges, keep `SECURITY DEFINER` functions outside exposed schemas with an empty `search_path`,
+and set secure default privileges.
 
 ## Failure Mapping
 

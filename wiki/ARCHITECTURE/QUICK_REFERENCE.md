@@ -40,6 +40,7 @@ job.ts     background boundary
 ```
 
 Import another capability only through these files.
+Named re-exports are allowed; `export *` is not. `actions.ts` declares async value exports locally.
 
 ## Decision Gates
 
@@ -73,6 +74,8 @@ Shared:
 - The target capability owns its role, tenant, and resource policy.
 - Outer boundary validates input, maps results, applies real channel cache effects, and reports once.
 - Proxy redirects are not authorization.
+- Cookie-scoped and privileged Supabase clients are different context types.
+- Literal `.from()`/`.rpc()` targets must match the database ownership map.
 
 ## Components
 

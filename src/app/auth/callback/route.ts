@@ -42,12 +42,14 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const cookieStore = await cookies()
+    let cacheHeaders: Record<string, string> = {}
     const supabase = createServerClient(getSupabaseUrl(), getSupabasePublishableKey(), {
       cookies: {
         getAll() {
           return cookieStore.getAll()
         },
-        setAll(cookiesToSet: CookieToSet[]) {
+        setAll(cookiesToSet: CookieToSet[], headers: Record<string, string>) {
+          cacheHeaders = headers
           for (const { name, value, options } of cookiesToSet) {
             cookieStore.set(name, value, options)
           }
@@ -59,11 +61,15 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       logger.error('[Auth Callback] Code exchange failed:', { error: error.message })
-      return NextResponse.redirect(`${origin}/auth/error?error=exchange_failed`)
+      const response = NextResponse.redirect(`${origin}/auth/error?error=exchange_failed`)
+      for (const [name, value] of Object.entries(cacheHeaders)) response.headers.set(name, value)
+      return response
     }
 
     logger.info('[Auth Callback] Code exchange successful, redirecting to:', { next })
-    return NextResponse.redirect(`${origin}${next}`)
+    const response = NextResponse.redirect(`${origin}${next}`)
+    for (const [name, value] of Object.entries(cacheHeaders)) response.headers.set(name, value)
+    return response
   }
 
   // No code provided, redirect to error page
