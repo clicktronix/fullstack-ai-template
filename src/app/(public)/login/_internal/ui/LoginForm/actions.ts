@@ -1,9 +1,9 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { signInAction } from '@/adapters/inbound/next/server-actions/auth'
-import { getPostLoginRedirect } from '@/infrastructure/auth/auth-routes'
-import { getUserFacingErrorMessage } from '@/infrastructure/errors/presentation'
+import { signInAction } from '@/modules/identity/actions'
+import { getPostLoginRedirect } from '@/modules/identity/server'
+import { getUserFacingErrorMessage } from '@/shared/ui/errors/presentation'
 
 export type LoginFormState = {
   error: string | null

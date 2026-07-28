@@ -2,8 +2,7 @@
 
 import { Modal } from '@mantine/core'
 import { WorkItemDetailPanel } from '@/app/(protected)/admin/work-items/[id]/_internal/ui/WorkItemDetailPanel'
-import { TranslationText } from '@/ui/components/TranslationText'
-import { composeHooks } from '@/ui/hooks/compose-hooks'
+import { TranslationText } from '@/shared/ui/components/TranslationText'
 import type { WorkItemDetailModalProps, WorkItemDetailModalViewProps } from './lib'
 import { useWorkItemDetailModalProps } from './lib'
 import messages from './messages.json'
@@ -23,7 +22,6 @@ export function WorkItemDetailModalView({ id, opened, onClose }: WorkItemDetailM
   )
 }
 
-export const WorkItemDetailModal = composeHooks<
-  WorkItemDetailModalViewProps,
-  WorkItemDetailModalProps
->(WorkItemDetailModalView)(useWorkItemDetailModalProps)
+export function WorkItemDetailModal(props: WorkItemDetailModalProps) {
+  return <WorkItemDetailModalView {...useWorkItemDetailModalProps(props)} />
+}

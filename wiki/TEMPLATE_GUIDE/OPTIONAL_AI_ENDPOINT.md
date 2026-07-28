@@ -4,7 +4,7 @@ The template ships with a small AI-flavored flow for `work-items`.
 
 By default, it does **not** require any external AI backend. The assistant panel works with a deterministic fallback implemented in:
 
-- `src/adapters/outbound/api/assistant-suggestions.ts`
+- `src/modules/assistant-suggestions/server/provider.ts`
 
 If you set `AI_SUGGESTIONS_API_URL`, the template will call your external endpoint instead.
 
@@ -87,4 +87,5 @@ Keep this endpoint small and deterministic at first:
 - return 2-5 actionable suggestions
 - avoid long-running streaming flows in the base template
 
-If your product needs richer AI behavior later, add it as a separate feature slice instead of overloading this starter example.
+If the behavior remains part of assistant suggestions, extend the owning capability. Create a new
+capability only when product ownership and lifecycle differ.

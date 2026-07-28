@@ -2,12 +2,10 @@
 
 import { Box, LoadingOverlay, Stack } from '@mantine/core'
 import type { UseFormReturnType } from '@mantine/form'
-import type { User } from '@/domain/user/user'
-import { FloatingTextInput } from '@/ui/components/FloatingInput/FloatingTextInput'
-import { FormActions } from '@/ui/components/FormActions'
-import { TranslationText } from '@/ui/components/TranslationText'
-import { composeHooks } from '@/ui/hooks/compose-hooks'
-import { useUserEditFormProps } from './lib'
+import { FloatingTextInput } from '@/shared/ui/components/FloatingInput/FloatingTextInput'
+import { FormActions } from '@/shared/ui/components/FormActions'
+import { TranslationText } from '@/shared/ui/components/TranslationText'
+import { useUserEditFormProps, type UseUserEditFormPropsInput } from './lib'
 import messages from './messages.json'
 
 type UserUpdateInput = {
@@ -15,13 +13,10 @@ type UserUpdateInput = {
 }
 
 export type UserEditFormViewProps = {
-  user: User
-  onSuccess?: () => void
   onCancel?: () => void
   form: UseFormReturnType<UserUpdateInput>
-  onSubmit: (e: React.FormEvent) => void
+  onSubmit: (event?: React.FormEvent<HTMLFormElement>) => void
   isSubmitting: boolean
-  error: Error | null
 }
 
 export function UserEditFormView({
@@ -59,4 +54,6 @@ export function UserEditFormView({
   )
 }
 
-export const UserEditForm = composeHooks(UserEditFormView)(useUserEditFormProps)
+export function UserEditForm(props: UseUserEditFormPropsInput) {
+  return <UserEditFormView {...useUserEditFormProps(props)} />
+}

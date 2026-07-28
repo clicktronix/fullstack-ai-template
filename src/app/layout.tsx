@@ -1,9 +1,9 @@
 import { ColorSchemeScript } from '@mantine/core'
 import type { Metadata } from 'next'
+import { ClientProviders } from '@/app/_internal/layout/ClientProviders'
 import { appContextModals } from '@/app/_internal/modals/context-modals'
-import { getPublicEnv } from '@/infrastructure/env/public'
-import { getRuntimeEnv } from '@/infrastructure/env/runtime'
-import { ClientProviders } from '@/ui/layout/ClientProviders'
+import { getPublicEnv } from '@/shared/client/env/public'
+import { getRuntimeEnv } from '@/shared/server/env/runtime'
 import './globals.css'
 // Use .layer.css files to ensure CSS Modules have higher specificity than Mantine styles
 // This fixes production CSS order issues where Mantine's display:block overrides our display:flex
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
  *
  * Architecture:
  * - Root layout: Providers, fonts, styles (no auth HTTP calls)
- * - (protected) layout: verifySession() for protected routes only
+ * - (protected) layout: identity RSC session validation for protected routes
  * - AuthContext: Fetches user client-side if not provided by SSR
  *
  * Benefits:

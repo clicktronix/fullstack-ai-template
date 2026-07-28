@@ -1,94 +1,66 @@
 # Customize Template
 
-## What the bootstrap script does
+## Bootstrap Product Identity
 
-`bun run bootstrap -- --name=<slug> --title="<Title>"`
+```bash
+bun run bootstrap -- --name=<slug> --title="<Title>"
+```
 
-It updates:
+The script updates package metadata, app metadata, locale identity, and template references. It
+does not choose product capabilities, authorization policy, or data ownership.
 
-- `package.json`
-- `README.md`
-- `AGENTS.md`
-- `CLAUDE.md`
-- app metadata in `src/app/layout.tsx`
-- landing page title/copy
-- locale cookie key
-- key template-guide references
+## Replace The Demo Capabilities
 
-## What you still change manually
+The starter includes:
 
-Bootstrap does not replace product domain decisions. Review these areas yourself:
-
-- `src/domain/`
-- `src/use-cases/`
-- `src/adapters/inbound/`
-- `src/adapters/outbound/`
-- `src/ui/server-state/`
-- `src/app/(protected)/admin/work-items`
-- locale strings that still mention the demo slice
-
-## Replace the starter role bootstrap early
-
-The template ships with a pragmatic default:
-
-- first signed-up user becomes `owner`
-- every later user becomes `pending`
-
-That is useful for a starter, but it should not stay implicit in a real product.
-
-Decide early:
-
-- who can create the first owner in production
-- how admins are promoted
-- whether `pending` users should see a waiting screen or be blocked completely
-- whether invitations should replace open signup
-
-## Replacing the demo slice
-
-Current demo slice:
-
+- `identity`
 - `work-items`
 - `labels`
+- `assistant-suggestions`
 
-Recommended sequence:
+Realtime is not a product capability in the starter. Generic Supabase subscription transport lives
+in `shared/client`; `app/_internal` maps provider table events to capability query keys.
 
-1. Add your new domain schemas.
-2. Add use-cases and ports.
-3. Implement outbound adapters.
-4. Add inbound Server Actions or route handlers.
-5. Add `ui/server-state/<feature>/`.
-6. Replace the admin page entrypoints.
-7. Remove `work-items` only after your own slice is green.
+Replace them capability by capability:
 
-## Optional integrations
+1. Add `src/modules/<capability>/`.
+2. Move schemas and invariants into optional `domain/`.
+3. Add private `server/` stores or providers.
+4. Add the public runtime surfaces the feature actually needs.
+5. Add client state under the same capability.
+6. Point `app/**` routes at the public surfaces.
+7. Delete the old capability only after tests and build are green.
 
-Prepared but optional:
+Do not start by copying every segment. A CRUD-only capability may need only `server.ts`,
+`server/store.ts`, and one route.
 
-- Storybook
-- Sentry
-- external AI suggestions endpoint
+## Decide Authorization Early
 
-If you do not need them:
+The first signed-up user becomes `owner`; later users become `pending`. Replace this starter policy
+before production:
 
-- remove related env vars from `.env.example`
-- remove npm scripts
-- delete setup files and docs references
+- define who creates the first owner;
+- choose invitation versus open signup;
+- decide what `pending` users may see;
+- test role and tenant checks at each trusted server entrypoint.
 
-Reference guides:
+## Shared Code
 
-- `wiki/TEMPLATE_GUIDE/OPTIONAL_STORYBOOK.md`
-- `wiki/TEMPLATE_GUIDE/OPTIONAL_SENTRY.md`
-- `wiki/TEMPLATE_GUIDE/OPTIONAL_AI_ENDPOINT.md`
+Do not move product code to `src/shared/**` during the first extraction. Promote it only after two
+real capabilities share the same meaning, runtime, and change cadence. Record an owner and move it
+back when the abstraction diverges.
 
-## Skills and MCP
+## Optional Integrations
 
-The template intentionally keeps:
+Prepared but removable:
 
-- `.agents`
-- `.claude`
-- `.mcp.json`
+- [Storybook](OPTIONAL_STORYBOOK.md)
+- [Sentry](OPTIONAL_SENTRY.md)
+- [external AI suggestions](OPTIONAL_AI_ENDPOINT.md)
 
-Adapt them in two passes:
+Remove their env variables, packages, setup files, and documentation together.
 
-1. Replace project identity and vocabulary
-2. Keep architecture/process guardrails unless your team has a deliberate alternative
+## Agent Configuration
+
+Keep `.agents`, `.claude`, `.mcp.json`, and `AGENTS.md`. Change product vocabulary first; keep the
+architecture and verification guardrails unless the team adopts a deliberate replacement.

@@ -2,8 +2,7 @@
 
 import { Badge, Button, Card, Stack, Text, Textarea } from '@mantine/core'
 import { IconSparkles } from '@tabler/icons-react'
-import { SectionCard } from '@/ui/components/SectionCard'
-import { composeHooks } from '@/ui/hooks/compose-hooks'
+import { SectionCard } from '@/shared/ui/components/SectionCard'
 import type { AssistantSuggestionsPanelProps, AssistantSuggestionsPanelViewProps } from './lib'
 import { useAssistantSuggestionsPanelProps } from './lib'
 import messages from './messages.json'
@@ -84,7 +83,6 @@ export function AssistantSuggestionsPanelView({
   )
 }
 
-export const AssistantSuggestionsPanel = composeHooks<
-  AssistantSuggestionsPanelViewProps,
-  AssistantSuggestionsPanelProps
->(AssistantSuggestionsPanelView)(useAssistantSuggestionsPanelProps)
+export function AssistantSuggestionsPanel(props: AssistantSuggestionsPanelProps) {
+  return <AssistantSuggestionsPanelView {...useAssistantSuggestionsPanelProps(props)} />
+}

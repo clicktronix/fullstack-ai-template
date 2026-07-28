@@ -2,9 +2,8 @@
 
 import { ActionIcon, Badge, Button, Group, Stack, Text, TextInput } from '@mantine/core'
 import { IconEdit } from '@tabler/icons-react'
-import { SectionCard } from '@/ui/components/SectionCard'
-import { TranslationText } from '@/ui/components/TranslationText'
-import { composeHooks } from '@/ui/hooks/compose-hooks'
+import { SectionCard } from '@/shared/ui/components/SectionCard'
+import { TranslationText } from '@/shared/ui/components/TranslationText'
 import type { LabelsPanelProps, LabelsPanelViewProps } from './lib'
 import { useLabelsPanelProps } from './lib'
 import messages from './messages.json'
@@ -86,6 +85,6 @@ export function LabelsPanelView({
   )
 }
 
-export const LabelsPanel = composeHooks<LabelsPanelViewProps, LabelsPanelProps>(LabelsPanelView)(
-  useLabelsPanelProps
-)
+export function LabelsPanel(props: LabelsPanelProps) {
+  return <LabelsPanelView {...useLabelsPanelProps(props)} />
+}

@@ -24,12 +24,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render as rtlRender, RenderOptions } from '@testing-library/react'
 import { createElement, ReactElement, ReactNode } from 'react'
 import { IntlProvider } from 'react-intl'
-import type { User } from '@/domain/user/user'
-import type { Locale, Messages } from '@/infrastructure/i18n'
-import { enMessages } from '@/infrastructure/i18n/locales/en'
-import { authKeys } from '@/ui/server-state/auth/keys'
-import { theme } from '@/ui/themes'
-import { cssVariablesResolver } from '@/ui/themes/resolver'
+import { enMessages } from '@/app/_internal/i18n/en'
+import type { User } from '@/modules/identity/client'
+import { authKeys } from '@/modules/identity/client'
+import type { Locale, Messages } from '@/shared/ui/i18n'
+import { theme } from '@/shared/ui/themes'
+import { cssVariablesResolver } from '@/shared/ui/themes/resolver'
 
 // Re-export everything from testing-library except screen (which has issues with happy-dom)
 export {

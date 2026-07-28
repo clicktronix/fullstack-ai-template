@@ -3,22 +3,22 @@
 import { useDisclosure } from '@mantine/hooks'
 import { useCallback, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
-import type { Label } from '@/domain/label/label'
+import type { Label } from '@/modules/labels/client'
+import { useLabels } from '@/modules/labels/client'
 import type {
   CreateWorkItem,
   UpdateWorkItem,
   WorkItem,
   WorkItemStatus,
-} from '@/domain/work-item/work-item'
-import { notifications } from '@/ui/mantine-notifications'
-import { useLabels } from '@/ui/server-state/labels/queries'
+} from '@/modules/work-items/client'
 import {
   useArchiveWorkItem,
   useCreateWorkItem,
   useRestoreWorkItem,
   useUpdateWorkItem,
-} from '@/ui/server-state/work-items/mutations'
-import { useWorkItems } from '@/ui/server-state/work-items/queries'
+  useWorkItems,
+} from '@/modules/work-items/client'
+import { notifications } from '@/shared/ui/mantine-notifications'
 import messages from './messages.json'
 
 export type WorkItemsDashboardProps = {

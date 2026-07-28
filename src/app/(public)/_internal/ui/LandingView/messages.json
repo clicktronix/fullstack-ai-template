@@ -21,7 +21,7 @@
   },
   "featureSliceDescription": {
     "id": "landing.features.verticalSlice.description",
-    "defaultMessage": "A ready-to-study feature that flows through domain, use-cases, adapters, server-state, and UI."
+    "defaultMessage": "A ready-to-study capability that owns its domain, server behavior, browser state, and UI."
   },
   "featureSupabaseTitle": {
     "id": "landing.features.supabase.title",

@@ -7,17 +7,18 @@ const config: KnipConfig = {
     'src/app/**/page.tsx',
     'src/app/**/layout.tsx',
     'src/app/**/route.ts',
-    'src/**/__tests__/*.test.{ts,tsx}',
+    'src/**/*.test.{ts,tsx}',
+    'src/modules/*/{actions,cache,client,rsc,server,stream,job,ui}.ts',
+    '.storybook/**/*.{ts,tsx}',
     'scripts/*.ts',
   ],
 
   project: ['src/**/*.{ts,tsx}', 'tests/**/*.ts', 'scripts/**/*.ts'],
 
-  ignore: ['src/**/*.d.ts', 'src/adapters/supabase/admin.ts'],
-
   ignoreDependencies: [
     // ESLint plugin used in config
     'eslint-plugin-import',
+    'eslint-import-resolver-typescript',
     '@eslint/eslintrc',
     // Testing utilities - used via @happy-dom/global-registrator
     'happy-dom',
@@ -46,34 +47,28 @@ const config: KnipConfig = {
 
   // Ignore exports in specific files/patterns
   ignoreIssues: {
-    // Domain layer - schemas and utilities exported for type inference
-    'src/domain/**': ['exports'],
-    // Adapters - public API layer
-    'src/adapters/**': ['exports'],
-    // Use-cases - hooks and mutations exported for components
-    'src/use-cases/**': ['exports'],
-    // UI components - View components exported for testing (composeHooks)
-    'src/ui/components/**': ['exports'],
-    'src/ui/widgets/**': ['exports'],
-    'src/ui/charts/**': ['exports'],
-    'src/ui/hooks/**': ['exports'],
-    'src/ui/layout/**': ['exports'],
-    'src/ui/layouts/**': ['exports'],
-    'src/ui/server-state/**': ['exports'],
-    'src/app/**/ui/**': ['exports'],
+    // Capability contracts, schemas, and framework entrypoints are reusable template API.
+    'src/modules/*/{actions,cache,client,rsc,server,stream,job,ui}.ts': ['exports'],
+    'src/modules/*/domain/**': ['exports'],
+    // View components are exported for isolated tests and template customization.
+    'src/modules/*/ui/**': ['exports'],
+    'src/shared/ui/components/**': ['exports'],
+    'src/shared/ui/hooks/**': ['exports'],
+    'src/app/**/_internal/ui/**': ['exports'],
+    'src/app/_internal/layout/**': ['exports'],
     // Theme exports - palette functions exported for customization
-    'src/ui/themes/**': ['exports'],
-    // UI utilities relocated from lib - helper functions
-    'src/ui/formatters/**': ['exports'],
-    'src/ui/html/**': ['exports'],
-    'src/ui/storage.ts': ['exports'],
-    'src/ui/create-mantine-validator.ts': ['exports'],
-    'src/ui/mantine-notifications.ts': ['exports'],
-    'src/ui/providers/query-client.ts': ['exports'],
-    // Infrastructure layer
-    'src/infrastructure/**': ['exports'],
+    'src/shared/ui/themes/**': ['exports'],
+    // Shared helpers are part of the template's customization surface.
+    'src/shared/ui/formatters/**': ['exports'],
+    'src/shared/ui/html/**': ['exports'],
+    'src/shared/ui/storage.ts': ['exports'],
+    'src/shared/ui/create-mantine-validator.ts': ['exports'],
+    'src/shared/ui/mantine-notifications.ts': ['exports'],
+    'src/shared/ui/providers/query-client.ts': ['exports'],
+    'src/shared/kernel/errors/**': ['exports'],
+    'src/shared/server/env/runtime.ts': ['exports'],
     // Locale cookie and localStorage keys intentionally share the same template placeholder.
-    'src/infrastructure/constants.ts': ['duplicates'],
+    'src/shared/ui/i18n/constants.ts': ['duplicates'],
   },
 
   next: {

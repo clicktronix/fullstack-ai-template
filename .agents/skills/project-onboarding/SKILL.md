@@ -16,8 +16,8 @@ Use this skill when a user asks:
 
 1. Start with `AGENTS.md`
 2. Continue with `wiki/ARCHITECTURE/QUICK_REFERENCE.md`
-3. Explain the layer flow
-4. Point to the demo vertical slice
+3. Explain capability ownership and runtime-specific public surfaces
+4. Point to `src/modules/work-items` as the reference capability
 5. Show the commands for validation
 6. Explain the safest path for adding a new feature
 7. Show the MCP setup flow:
@@ -25,6 +25,18 @@ Use this skill when a user asks:
    - `bun run bootstrap -- --name=... --title="..."`
    - `bun run setup:mcp`
    - `bun run mcp:doctor`
+
+## Architecture Summary
+
+- Product code belongs to `src/modules/<capability>/`.
+- `domain/`, `application/`, `server/`, `client/`, and `ui/` are optional implementation
+  segments inside a capability.
+- Other capabilities and `app/**` use only root public surfaces such as `server.ts`, `rsc.ts`,
+  `actions.ts`, `client.ts`, `ui.ts`, and runtime-neutral `cache.ts`.
+- Browser reads use GET or streaming endpoints. Server Actions are commands.
+- Shared auth resolves provider identity only; the `identity` capability owns product role/profile.
+- Code moves to `src/shared/**` only after two real consumers share the same meaning and runtime.
+- Application operations must pass the deletion test; direct CRUD does not need a wrapper.
 
 ## MCP References
 

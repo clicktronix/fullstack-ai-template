@@ -1,140 +1,299 @@
 # Architecture
 
-> For a one-page cheatsheet (layer table, allowed imports, demo slice), see [`QUICK_REFERENCE.md`](./QUICK_REFERENCE.md). This document covers **why** the template is structured this way and where the boundaries are enforced.
+This template organizes product code by capability and separates runtime channels explicitly. The
+goal is local reasoning: a developer should find a feature's policy, server adapters, browser
+lifecycle, and reusable UI in one module without crossing a repository-wide layer tree.
 
-## Purpose
-
-Reusable baseline for full-stack B2B and AI products built with:
-
-- Next.js App Router, React 19
-- Supabase (Postgres + Auth)
-- TanStack Query
-- Hybrid Clean Architecture
-
-The business vocabulary is intentionally minimal — the template is not a domain-specific starter.
-
-## Why a Hybrid Model
-
-Pure frontend Clean Architecture is usually too abstract for a real Next.js app. Framework-first codebases blur business logic with transport and UI wiring. This template keeps only the useful separations:
-
-- business core in `domain`
-- application orchestration in `use-cases`
-- framework entrypoints in inbound adapters
-- infrastructure and persistence in outbound adapters
-- server data concerns in `ui/server-state`
-
-## Layer Diagram
+## System Map
 
 ```mermaid
-flowchart LR
-    subgraph UI["UI Layer"]
-        App["app/ (App Router)"]
-        UIcmp["ui/ (components, hooks)"]
-        ServerState["ui/server-state/ (TanStack Query)"]
-    end
+flowchart TB
+  App["app/**<br/>routes and route-private composition"]
+  Public["module root surfaces<br/>server · rsc · actions · client · ui · cache"]
+  Server["server.ts<br/>trusted capability policy"]
+  Application["application/**<br/>optional orchestration"]
+  Adapters["server/** · client/**<br/>private runtime adapters"]
+  Domain["domain/**<br/>schemas and invariants"]
+  Shared["shared/{kernel,server,client,ui}<br/>admitted cross-capability contracts"]
 
-    Inbound["adapters/inbound/next/<br/>Server Actions, route handlers"]
-    UseCases["use-cases/<br/>application scenarios"]
-    Outbound["adapters/outbound/<br/>Supabase, external APIs"]
-    Domain["domain/<br/>Valibot schemas, pure rules"]
-    Infra["infrastructure/<br/>auth, i18n, logging"]
-    Cache["infrastructure/cache/<br/>cache tags"]
-
-    App --> ServerState
-    App --> UIcmp
-    UIcmp --> ServerState
-    ServerState --> Inbound
-    App -.->|feature-local actions.ts<br/>direct Server Action wrapper| Inbound
-    Inbound --> UseCases
-    Inbound -->|wires concrete adapter into| Outbound
-    UseCases -.->|port type only; injected by Inbound at runtime| Outbound
-    UseCases --> Domain
-    Outbound --> Domain
-    Inbound --> Infra
-    Inbound --> Cache
-    UseCases --> Infra
-
-    classDef domain fill:#2f2f3a,stroke:#6a6a7a,color:#fff
-    classDef ui fill:#1f3a4a,stroke:#4a7a9a,color:#fff
-    class Domain domain
-    class App,UIcmp,ServerState ui
+  App --> Public
+  Public --> Server
+  Public --> Adapters
+  Server --> Application
+  Server --> Adapters
+  Application --> Domain
+  Adapters --> Domain
+  Public --> Domain
+  Domain --> Shared
+  Application --> Shared
+  Adapters --> Shared
 ```
 
-Solid arrows are compile-time `import` statements. The dashed `UseCases -.-> Outbound` arrow is a **runtime-only** relationship: `use-cases` import only the port's type (e.g. `WorkItemRepository`), never the concrete outbound module — the inbound adapter (composition root) imports the concrete adapter and passes it into the use-case as a plain function argument. See [`diagrams/layers.html`](./diagrams/layers.html) for the full compile-time-vs-runtime breakdown.
+The arrows show allowed knowledge, not mandatory hops. Simple CRUD does not need an application
+operation. A Server Component does not call an HTTP route in its own process.
 
-## Layer Responsibilities
+## Physical Model
 
-| Layer              | What it does                                                                                   | What it must NOT do                                                                                                                                      |
-| ------------------ | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Domain**         | Valibot schemas, inferred types, invariants, pure helpers                                      | Import anything outside `domain`                                                                                                                         |
-| **Use-Cases**      | Application scenarios, ports (repository types), orchestration                                 | Import outbound adapters directly (depend on ports; adapters are injected at runtime); use `use server`, `NextRequest/Response`, or framework cache APIs |
-| **Outbound**       | Supabase repositories, HTTP clients, transport                                                 | Depend on inbound or UI                                                                                                                                  |
-| **Inbound**        | Safe Server Actions, route handlers, auth/session context, request mapping, cache invalidation | Contain business logic (delegate to use-cases)                                                                                                           |
-| **Server-State**   | TanStack Query keys/hooks, SSR prefetch, cache orchestration                                   | Be imported by non-UI code                                                                                                                               |
-| **UI**             | App Router pages, components, view hooks, providers, themes                                    | Import outbound adapters directly                                                                                                                        |
-| **Infrastructure** | Cross-cutting glue: auth helpers, locale wiring, config access, logging                        | Contain feature logic                                                                                                                                    |
+```text
+src/
+├── app/
+│   ├── api/
+│   ├── (public)/
+│   ├── (protected)/
+│   └── _internal/
+├── generated/
+│   └── supabase/
+├── modules/
+│   ├── identity/
+│   ├── work-items/
+│   ├── labels/
+│   └── assistant-suggestions/
+└── shared/
+    ├── kernel/
+    ├── server/
+    ├── client/
+    └── ui/
+```
 
-## Intentional Exceptions
+`app/**` is a framework-owned composition tree. Route-private UI and application-wide runtime
+composition, such as the product locale catalog or mapping provider realtime events to capability
+query keys, stay here.
+`generated/**` contains mechanical provider contracts and is visible only to private runtime
+adapters.
+`modules/**` is the product ownership tree. `shared/**` contains only contracts that pass the
+shared-admission gate.
 
-- **feature-local `actions.ts`** — thin direct Server Action wrappers are allowed in UI segments without going through `ui/server-state`. Use only for one-off operations that do not need TanStack Query semantics.
-- **`ui/server-state` depends on inbound adapters** — necessary to call Server Actions inside `queryFn`. This is the one layer permitted to cross the UI ↔ adapter boundary.
+## Capability Contract
 
-Both exceptions are enforced by ESLint boundaries (`eslint.config.mjs`).
+Segments are optional:
 
-## Next.js 16 Defaults
+| Segment        | Owns                                     | Must not own                         |
+| -------------- | ---------------------------------------- | ------------------------------------ |
+| `domain/`      | schemas, values, invariants              | framework or provider code           |
+| `application/` | real policy, projection, orchestration   | runtime adapters or reporting        |
+| `server/`      | stores, provider clients, server mapping | browser lifecycle                    |
+| `client/`      | HTTP reads, query cache, subscriptions   | server secrets or DB clients         |
+| `ui/`          | reusable capability presentation         | route composition or server adapters |
 
-- Use `src/proxy.ts` for request-time redirects, session refresh, and security headers. Do not make proxy the only authorization boundary.
-- Use DAL helpers such as `createAuthenticatedContext()` inside Server Actions, Route Handlers, and server-side data access.
-- Use `next-safe-action` for inbound Server Actions that accept user input. Keep the exported action function stable, but put `.inputSchema(...)`, auth middleware, and role checks in the safe-action client.
-- Use Route Handlers for external/service HTTP APIs. They should create an API context, return request-id JSON envelopes, and use idempotency keys for retryable commands.
-- Prefer tag-based cache invalidation: Server Actions may use `updateTag()` for read-your-writes and `revalidateTag(tag, profile)` for broader invalidation. Route Handlers use `revalidateTag(tag, profile)` / `revalidatePath(path)` only; `updateTag()` is Server Action-only.
-- Cache Components are enabled at the top level in `next.config.ts`; place `Suspense` boundaries around dynamic holes.
+Public surfaces are root files:
 
-## Locale Detection
+| Surface      | Contract                                                                  |
+| ------------ | ------------------------------------------------------------------------- |
+| `server.ts`  | trusted in-process server API; explicit identity/effects; silent failures |
+| `rsc.ts`     | Server Component reads and TanStack prefetch                              |
+| `actions.ts` | UI commands through top-level `'use server'`                              |
+| `client.ts`  | browser-safe query, mutation, and subscription API                        |
+| `ui.ts`      | reusable capability-owned UI                                              |
+| `cache.ts`   | query keys; tag identities only for reads that use the Next server cache  |
+| `stream.ts`  | stream setup and pre-commit response contract                             |
+| `job.ts`     | background job entrypoint                                                 |
 
-`src/proxy.ts` sets the locale cookie from `Accept-Language` on the first request when the cookie is missing. `LocaleProvider` then resolves the browser locale in this order:
+`app/**` and other capabilities import these root surfaces, not internal directories. Public
+surfaces use named exports and never `export *`.
 
-1. `localStorage`
-2. Locale cookie
-3. Default locale (`en`)
+## Runtime Channels
 
-The parser lives in `src/infrastructure/i18n/locale-detection.ts` so proxy and tests share the same behavior. Do not read `cookies()` or `headers()` directly in the root layout only for locale detection: with `cacheComponents: true`, runtime data must sit under a `Suspense` boundary. If the product needs first-byte localized HTML instead of client-side locale activation, use a locale route segment or migrate the i18n layer intentionally.
+```mermaid
+flowchart TB
+  UI["Client Component"]
+  RSC["Server Component"]
+  External["External caller"]
+  Query["GET Route Handler"]
+  Action["Server Action"]
+  RscSurface["rsc.ts"]
+  ServerSurface["server.ts"]
+  Store["private store/provider"]
 
-## Cache Components Gotchas
+  UI -->|"browser read"| Query
+  UI -->|"command"| Action
+  RSC --> RscSurface
+  External --> Query
+  Query --> ServerSurface
+  Action --> ServerSurface
+  RscSurface --> ServerSurface
+  ServerSurface --> Store
+```
 
-With `cacheComponents: true`, request-time data such as `cookies()`, `headers()`, `connection()`, `params`, and `searchParams` creates dynamic holes. Put `Suspense` boundaries around the smallest component that needs that data.
+Rules:
 
-Client hooks such as `usePathname()` and `useSearchParams()` can also force a client-side dynamic boundary when used under dynamic App Router segments. If a provider needs them, isolate that provider under `Suspense` without hiding the rest of the shell.
+1. RSC reads call `rsc.ts` or `server.ts` directly.
+2. Browser reads use GET or a stream so browser cache semantics remain available.
+3. Server Actions are command transport. They are not a query RPC.
+4. Route Handlers decode HTTP and map the capability result to HTTP.
+5. Trusted `server.ts` enforces capability policy and reports nothing.
 
-Do not use `fallback={null}` around a large layout or provider tree when no-JS forms must remain visible. Login/signup use `useActionState` plus `<form action={formAction}>`; their parent shell must render enough HTML for progressive submission before hydration.
+## Identity and Effects
 
-## Error Handling
+Trusted server functions make authority and runtime dependencies visible:
 
-Errors are captured to Sentry exactly once, at the boundary that first handles them —
-`infrastructure/actions/safe-action.ts` (Server Actions), `withRouteErrorHandling` (Route
-Handlers), `QueryCache.onError` (`ui/providers/query-client.ts`, covers client fetches and SSR
-`prefetchQuery`), or `withServerReadErrorHandling` (`infrastructure/errors/`, the pattern for a
-future direct DAL/RSC read outside TanStack Query — no live call site yet). Outbound adapters only
-convert failures to typed `ApiError`s (`throwIfError()` in `adapters/supabase/`); they never
-capture. See [`DATA_ACCESS.md`](./DATA_ACCESS.md#error-handling) for the full write-up,
-[`QUICK_REFERENCE.md`](./QUICK_REFERENCE.md#error-handling) for the compact table, and
-[`diagrams/security.html`](./diagrams/security.html) for the error-capture diagram.
+```ts
+type WorkItemsIdentity = {
+  actorId: string
+  role: string
+}
 
-## Reference Slice
+type WorkItemsEffects = {
+  supabase: SupabaseServerClient
+}
+```
 
-The `work-items` + `labels` vertical slice is the canonical example. Follow its layer order when adding features — see [`USE_CASES.md`](./USE_CASES.md), [`DATA_ACCESS.md`](./DATA_ACCESS.md), and [`BACKEND_SERVICE_PATTERNS.md`](./BACKEND_SERVICE_PATTERNS.md).
+Shared auth verifies the provider session and returns only `userId` plus server effects. The
+`identity` capability resolves the product profile and role. The target capability receives that
+explicit identity and rechecks its own policy even if Proxy middleware already redirected the
+request.
 
-## Diagrams
+```mermaid
+flowchart TB
+  Channel["runtime channel"]
+  ProviderAuth["shared/server/auth<br/>provider userId"]
+  Identity["identity/server.ts<br/>product profile and role"]
+  Target["target capability/server.ts<br/>role, tenant, resource policy"]
 
-Self-contained HTML visualizations (no build step, open directly in a browser):
+  Channel --> ProviderAuth
+  ProviderAuth --> Identity
+  Identity --> Target
+```
 
-- [`diagrams/layers.html`](./diagrams/layers.html) — the layer dependency graph, with compile-time vs. runtime-only relationships and the per-layer "may import" table
-- [`diagrams/flows.html`](./diagrams/flows.html) — three runtime sequences: UI command, client-interactive read, service/webhook command
-- [`diagrams/security.html`](./diagrams/security.html) — the auth boundary chain and the error-capture map (which boundary captures to Sentry for each error origin)
-- [`diagrams/state.html`](./diagrams/state.html) — the state-ownership decision tree
+`src/proxy.ts` is navigation and session-refresh support, not an authorization boundary.
 
-## Where Rules Live
+## Application Depth
 
-- **Runtime**: ESLint boundary rules in `eslint.config.mjs` catch leaks at build time
-- **Agents**: `.claude/rules/architecture.md` and `.claude/rules/core.md` are auto-loaded by Claude Code for relevant paths
-- **Humans**: This document + `QUICK_REFERENCE.md`
+Create `application/**` only when deleting the operation moves meaningful complexity into callers:
+
+- policy or branching;
+- projection across sources;
+- transaction intent;
+- behavior shared by runtime channels;
+- orchestration across capabilities or providers.
+
+Do not create an operation for validation, telemetry, row mapping, cache invalidation, or a direct
+store call alone.
+
+Simple path:
+
+```text
+channel -> server.ts -> private store
+```
+
+Behavioral path:
+
+```text
+channel -> server.ts -> application operation -> explicit ports -> private adapters
+```
+
+## Ports
+
+A port belongs to the application behavior that needs it. Add one only when:
+
+1. application behavior must name a capability independent of technology;
+2. the contract uses application language rather than CRUD/SDK vocabulary;
+3. inversion protects current volatility, ownership, or isolation;
+4. a production consumer exists.
+
+Adapter count, locality, and test doubles are evidence, not gates. A local database can remain a
+private store without a repository interface.
+
+## Cross-Capability Workflows
+
+`assistant-suggestions` is the reference orchestrator:
+
+```mermaid
+flowchart TB
+  Action["assistant-suggestions/actions.ts"]
+  Server["assistant-suggestions/server.ts"]
+  Operation["generate suggestions operation"]
+  Sources["assistant private source adapters"]
+  WorkItems["work-items/server.ts"]
+  Labels["labels/server.ts"]
+  Provider["assistant provider adapter"]
+
+  Action --> Server
+  Server --> Operation
+  Operation --> Sources
+  Operation --> Provider
+  Sources --> WorkItems
+  Sources --> Labels
+```
+
+The orchestrator owns the workflow in its vocabulary. Source capabilities expose narrow public
+surfaces and do not import the orchestrator or each other. The graph must remain acyclic.
+
+## Shared Admission
+
+Allowed roots:
+
+| Root            | Examples                                                                      |
+| --------------- | ----------------------------------------------------------------------------- |
+| `shared/kernel` | error codes, pure cross-capability contracts, pure redaction                  |
+| `shared/server` | safe actions, API envelopes, provider authentication, env, server SDK support |
+| `shared/client` | browser env, browser SDK transport, client observability                      |
+| `shared/ui`     | providers, i18n mechanics, formatters, themes, reusable primitives            |
+
+Code enters shared only when all are true:
+
+1. two real capabilities consume it;
+2. meaning and lifecycle are identical;
+3. no capability is the natural owner;
+4. the contract is narrow and maintained;
+5. copying is now more expensive than coordinating it.
+
+`shared/kernel` additionally requires identical terminology, invariants, and change cadence.
+Demote or delete shared code when consumers diverge.
+
+Generated provider schemas are not domain or shared-kernel language. Keep them under
+`src/generated` and import them only from private capability server/client adapters or shared
+server/client runtime code.
+
+Shared UI mechanisms do not own product copy. The locale catalog is app composition and is passed
+to the neutral locale provider.
+
+## Failure Ownership
+
+Expected failures are typed/coded outcomes. Unexpected failures are reported once at the outer
+runtime boundary:
+
+| Boundary                           | Responsibility                                               |
+| ---------------------------------- | ------------------------------------------------------------ |
+| `server.ts` / application / stores | throw or return meaningful failures; no telemetry            |
+| `actions.ts`                       | command result serialization and one unexpected-error report |
+| Route Handler                      | HTTP status/envelope and one unexpected-error report         |
+| RSC                                | let the nearest route error boundary own presentation        |
+| Query/Mutation client              | user feedback; avoid recapturing marked server incidents     |
+
+Framework control-flow exceptions such as redirects remain outside broad catches.
+
+## Cache Ownership
+
+- A capability's `cache.ts` owns query keys and any real server cache-tag identities.
+- A server tag exists only when a read assigns it with `cacheTag`. Do not invalidate ceremonial
+  tags that no cache entry owns.
+- The successful runtime channel owns invalidation timing: Server Actions use `updateTag`; Route
+  Handlers use `revalidateTag`.
+- RSC prefetch and browser hooks import the same capability query-key shapes.
+- Client mutations and app-level realtime composition invalidate public capability query keys;
+  generic provider subscription transport remains in `shared/client`.
+- Client cache is for browser-owned lifecycle: background refresh, optimistic updates, realtime,
+  pagination, or infinite queries.
+- Do not add TanStack Query to a static RSC read with no browser lifecycle.
+
+## Enforcement
+
+`bun run lint .` checks:
+
+- app and cross-capability imports use public surfaces;
+- domain/application purity;
+- server/client direction;
+- runtime-neutral cache surfaces cannot pull either runtime into the other;
+- valid shared roots;
+- provider-generated contracts stay out of domain/application/UI and app composition;
+- narrow public exports;
+- resolved imports and file-level cycles.
+
+`bun run architecture:check` checks capability-level cycles.
+
+These checks do not prove semantic depth, authorization correctness, cache invalidation,
+transaction scope, report-once behavior, or shared admission. Those remain review and test
+responsibilities.
+
+See [Data Access](./DATA_ACCESS.md), [Component Patterns](./COMPONENT_PATTERNS.md), and the
+[Quick Reference](./QUICK_REFERENCE.md).

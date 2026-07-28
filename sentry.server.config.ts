@@ -6,8 +6,8 @@ import { init } from '@sentry/nextjs'
 import {
   getSentrySendDefaultPii,
   getSentryTracesSampleRate,
-} from './src/infrastructure/sentry/config'
-import { redactSentryEvent } from './src/infrastructure/sentry/redact'
+} from './src/shared/server/observability/config'
+import { redactSentryEvent } from './src/shared/server/observability/redact'
 
 init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,

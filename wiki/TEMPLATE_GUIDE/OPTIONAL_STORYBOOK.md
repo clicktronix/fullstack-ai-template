@@ -18,7 +18,7 @@ The preview already includes:
 
 ## What stories exist by default
 
-- `src/ui/themes/ThemePalette.stories.tsx`
+- `src/shared/ui/themes/ThemePalette.stories.tsx`
 - `src/app/(protected)/admin/work-items/_internal/ui/WorkItemFormModal/index.stories.tsx`
 - `src/app/(protected)/admin/work-items/_internal/ui/LabelsPanel/index.stories.tsx`
 - `src/app/(protected)/admin/work-items/_internal/ui/AssistantSuggestionsPanel/index.stories.tsx`

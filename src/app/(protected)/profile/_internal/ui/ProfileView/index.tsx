@@ -2,13 +2,12 @@
 
 import { Container, Stack, Alert } from '@mantine/core'
 import { IconUser } from '@tabler/icons-react'
-import type { User } from '@/domain/user/user'
-import { ApiErrorBoundary } from '@/ui/components/ApiErrorBoundary'
-import { PageSuspense } from '@/ui/components/PageSuspense'
-import { SectionHeader } from '@/ui/components/SectionHeader'
-import { TranslationText } from '@/ui/components/TranslationText'
-import { TranslationTitle } from '@/ui/components/TranslationTitle'
-import { composeHooks } from '@/ui/hooks/compose-hooks'
+import type { User } from '@/modules/identity/client'
+import { ApiErrorBoundary } from '@/shared/ui/components/ApiErrorBoundary'
+import { PageSuspense } from '@/shared/ui/components/PageSuspense'
+import { SectionHeader } from '@/shared/ui/components/SectionHeader'
+import { TranslationText } from '@/shared/ui/components/TranslationText'
+import { TranslationTitle } from '@/shared/ui/components/TranslationTitle'
 import { UserInfoCard } from '../UserInfoCard'
 import { useProfileViewProps } from './lib'
 import messages from './messages.json'
@@ -46,4 +45,6 @@ export function ProfileViewComponent({ user, error }: ProfileViewProps) {
   )
 }
 
-export const ProfileView = composeHooks(ProfileViewComponent)(useProfileViewProps)
+export function ProfileView() {
+  return <ProfileViewComponent {...useProfileViewProps()} />
+}

@@ -1,189 +1,135 @@
 # Testing Strategy
 
-Comprehensive guide for testing in this template. For a minimal cheatsheet loaded automatically when editing test files, see [`.claude/rules/quality.md`](../../.claude/rules/quality.md).
+Test behavior at the boundary that owns it. Prefer fast tests around pure code and capability
+contracts; keep a small E2E set for user-visible workflows.
 
 ## Stack
 
-| Layer         | Tool                                                                                             | Config                          |
-| ------------- | ------------------------------------------------------------------------------------------------ | ------------------------------- |
-| Unit runner   | [Bun test](https://bun.sh/docs/cli/test) + [happy-dom](https://github.com/capricorn86/happy-dom) | `tests/setup.ts`, `bunfig.toml` |
-| React testing | `@testing-library/react` + `jest-dom`                                                            | `tests/jest-dom.d.ts`           |
-| E2E           | [Playwright](https://playwright.dev)                                                             | `e2e/playwright.config.ts`      |
-| Coverage      | Bun built-in (lcov + text)                                                                       | `bun test --coverage`           |
+| Scope                | Tool                       |
+| -------------------- | -------------------------- |
+| Unit and integration | Bun test + happy-dom       |
+| React                | Testing Library + jest-dom |
+| E2E                  | Playwright                 |
+| Coverage             | Bun lcov/text reporters    |
 
-## Testing Pyramid
+## Test Shape
 
 ```mermaid
 flowchart TB
-    E2E["🌐 E2E (Playwright)<br/>happy paths, auth, CRUD"]
-    Integ["🔗 Integration<br/>Smart components + mocked server-state"]
-    Unit["⚙️ Unit<br/>Views, hooks, domain helpers, use-cases"]
+  E2E["E2E<br/>critical user workflow"]
+  Channel["Channel contract<br/>Route · Action · RSC"]
+  Capability["Capability contract<br/>server.ts · application"]
+  Pure["Pure units<br/>domain · mapping · formatting"]
 
-    E2E --> Integ
-    Integ --> Unit
-
-    classDef top fill:#3a2a2a,stroke:#8a5a5a,color:#fff
-    classDef mid fill:#2a3a2a,stroke:#5a8a5a,color:#fff
-    classDef base fill:#2a2a3a,stroke:#5a5a8a,color:#fff
-    class E2E top
-    class Integ mid
-    class Unit base
+  E2E --> Channel
+  Channel --> Capability
+  Capability --> Pure
 ```
 
-- **Unit** — bulk of tests; fast, zero network.
-- **Integration** — one per feature, covers Smart component + its `lib.ts` with `ui/server-state` mocked.
-- **E2E** — minimal happy-path coverage for auth, protected routes, baseline CRUD. Use the `e2e-testing` skill for new scenarios.
+Most tests belong in the lower two levels.
 
 ## Commands
 
-| Command                         | Purpose                       |
-| ------------------------------- | ----------------------------- |
-| `bun test`                      | Run all unit tests            |
-| `bun test path/to/file.test.ts` | Run a single file             |
-| `bun run test:watch`            | Watch mode                    |
-| `bun run test:coverage`         | Coverage report (text + lcov) |
-| `bun run test:ci`               | Single-concurrency; use in CI |
-| `bun run test:e2e`              | Playwright suite              |
+| Command                         | Purpose                                 |
+| ------------------------------- | --------------------------------------- |
+| `bun test`                      | all unit and integration tests          |
+| `bun test path/to/file.test.ts` | one file                                |
+| `bun run test:watch`            | watch mode                              |
+| `bun run test:coverage`         | text and lcov coverage                  |
+| `bun run test:ci`               | deterministic single-concurrency CI run |
+| `bun run test:e2e`              | Playwright suite                        |
 
-## Patterns by Layer
+## What To Test
 
-### Domain (pure functions)
+### Domain
 
-Test schemas and helpers directly. No setup, no mocks.
+Parse schemas and call pure policy directly. No mocks.
 
 ```ts
 import { expect, test } from 'bun:test'
 import { parse } from 'valibot'
-import { WorkItemSchema } from '@/domain/work-item'
+import { WorkItemSchema } from '@/modules/work-items/domain/work-item'
 
-test('WorkItemSchema trims title', () => {
-  const result = parse(WorkItemSchema, {
-    id: 'x',
-    title: '  hello  ',
-    description: null,
-    archived: false,
-  })
-  expect(result.title).toBe('hello')
+test('normalizes a work item title', () => {
+  const item = parse(WorkItemSchema, validWorkItem({ title: '  Ship  ' }))
+  expect(item.title).toBe('Ship')
 })
 ```
 
-### Use-Cases (orchestration)
+### Application
 
-Inject fake repositories (pure ports). No Supabase, no Next.js.
+Inject typed ports. Test policy, branching, orchestration, and failures. Do not construct Next.js
+or Supabase objects.
 
-```ts
-import { expect, test } from 'bun:test'
-import { listWorkItems } from '@/use-cases/work-items'
+`src/modules/assistant-suggestions/application/generate-assistant-suggestions.test.ts` is the
+reference.
 
-test('listWorkItems filters by archived', async () => {
-  const fakeRepo = {
-    list: async (filters) => (filters.archived ? [] : [{ id: '1', title: 'A' }]),
-  }
-  const result = await listWorkItems({ workItems: fakeRepo }, { archived: false })
-  expect(result).toHaveLength(1)
-})
-```
+### Private Server Adapter
 
-### Dumb Components (View)
+Test provider mapping and error normalization at the adapter. Use the shared Supabase fake when it
+models the required behavior; use a real integration database for query semantics the fake cannot
+represent.
 
-Render with explicit props; assert rendering, not behavior.
+### Capability Server Surface
 
-```tsx
-import { render, screen } from '@testing-library/react'
-import { expect, test } from 'bun:test'
-import { WorkItemCardView } from './index'
+Test identity, authorization, validation, cache effects, and typed failures through `server.ts`.
+Do not assert private call order unless order is part of the contract.
 
-test('WorkItemCardView renders title and description', () => {
-  render(
-    <WorkItemCardView
-      title="T"
-      description="D"
-      status="open"
-      isPriority={false}
-      isLoading={false}
-      onEdit={() => {}}
-      onArchive={() => {}}
-    />
-  )
-  expect(screen.getByText('T')).toBeInTheDocument()
-  expect(screen.getByText('D')).toBeInTheDocument()
-})
-```
+### Route Handler
 
-### Hooks (lib.ts / useProps)
+Test query/body decoding and HTTP mapping through exported handlers. Cover invalid input, expected
+failure, unexpected failure, and success. Route tests must not duplicate application tests.
 
-Mock `ui/server-state` hooks — **never** mock outbound adapters or Supabase directly.
+### Server Action
 
-```tsx
-import { renderHook } from '@testing-library/react'
-import { expect, mock, test } from 'bun:test'
-import { useWorkItemCardProps } from './lib'
+Test mutation commands through `actions.ts`. Verify input schema, provider authentication, product
+identity resolution, result shape, and any assigned server-cache invalidation. Test TanStack Query
+invalidation in the client mutation. Browser reads belong in Route Handler tests, not Action tests.
 
-mock.module('@/ui/server-state/work-items/queries', () => ({
-  useWorkItem: () => ({ data: { title: 'mocked' }, isLoading: false }),
-}))
+### Client Query
 
-test('useWorkItemCardProps maps server data to view props', () => {
-  const { result } = renderHook(() => useWorkItemCardProps({ workItemId: '1' }))
-  expect(result.current.title).toBe('mocked')
-})
-```
+Mock the capability transport exposed from `client.ts`, not private stores or Supabase. Wrap hooks
+with `tests/utils/render.tsx`.
 
-### Smart Components (integration)
+### Components
 
-Wrap in `QueryClientProvider` + `IntlProvider` via `tests/utils/render.tsx`. Mock `ui/server-state` hooks.
+Call named hooks directly in controller components. Test pure views with explicit props when a view
+has a separate contract; otherwise test the component behavior through visible output and user
+events. Do not test implementation-only prop mapping.
 
-### E2E (Playwright)
+### E2E
 
-```ts
-import { expect, test } from '@playwright/test'
+Cover one critical path per product workflow: authentication, protected navigation, and baseline
+CRUD. Use `.agents/skills/e2e-testing/SKILL.md` when authoring a new scenario.
 
-test('user can sign up and reach protected route', async ({ page }) => {
-  await page.goto('/signup')
-  await page.getByLabel('Email').fill('test@example.com')
-  await page.getByLabel('Password').fill('correct-horse-battery-staple')
-  await page.getByRole('button', { name: 'Create account' }).click()
-  await expect(page).toHaveURL('/admin/work-items')
-})
-```
+## Mocking Boundary
 
-Run `bun run test:e2e` — the config auto-loads `.env.test` then `.env.local`.
+| Test target               | Mock                                                   |
+| ------------------------- | ------------------------------------------------------ |
+| application operation     | its typed ports                                        |
+| capability server surface | private store/provider                                 |
+| Route Handler             | capability server surface when HTTP only is under test |
+| client query hook         | fetch/action transport                                 |
+| component                 | capability client hook or browser API                  |
 
-## Mocking Rules
+Do not mock through several ownership boundaries at once. Such a test can stay green while the
+actual contract breaks.
 
-| Mock                                     | When                                          |
-| ---------------------------------------- | --------------------------------------------- |
-| ✅ `@/ui/server-state/**` hooks          | Testing Smart components or feature lib.ts    |
-| ✅ `next/navigation` (`useRouter`, etc.) | Any UI that navigates                         |
-| ✅ `@/infrastructure/auth/**`            | Testing protected UI                          |
-| ❌ Outbound adapters (Supabase, fetch)   | Never — test behind use-case ports instead    |
-| ❌ Use-cases in UI tests                 | Never — mock one layer up (`ui/server-state`) |
+## Coverage
 
-Shared Supabase fake: `tests/mocks/supabase.ts`.
+Coverage percentages are diagnostic, not architecture. Require:
 
-## Coverage Targets
+- every domain branch and failure code;
+- application happy/failure paths;
+- every trust-transition rejection;
+- one regression test per fixed bug;
+- one E2E smoke per critical user workflow.
 
-No hard thresholds enforced in CI (yet). Soft guidelines:
+## Location
 
-- Domain: 100% — pure code, no excuse
-- Use-cases: 90%+ happy + error paths
-- Hooks (lib.ts): 80%+ prop mapping
-- Views: spot-check, don't chase pixel coverage
-- E2E: one happy path per critical flow (auth, CRUD, admin gate)
+- co-locate unit tests with owned code as `*.test.ts` or `*.test.tsx`;
+- keep Route Handler tests under the route;
+- keep E2E tests under `e2e/`;
+- keep shared builders in `tests/fixtures/`.
 
-## Naming & Location
-
-- Unit: co-located `Component/__tests__/index.test.tsx` or `feature/__tests__/feature.test.ts`
-- E2E: `e2e/<flow>.spec.ts`
-- Fixtures: `tests/fixtures/` for shared builders
-
-## When Tests Fail in Hooks
-
-The Stop hook runs `bun run check`, not `bun test`. Run tests manually before finishing a task: `bun test` (or `bun test:coverage` for a quick reality check).
-
-## References
-
-- [`.claude/rules/quality.md`](../../.claude/rules/quality.md) — auto-loaded for `*.test.{ts,tsx}` files
-- [`.agents/skills/e2e-testing/SKILL.md`](../../.agents/skills/e2e-testing/SKILL.md) — structured flow for authoring E2E scenarios
-- [Bun test docs](https://bun.sh/docs/cli/test)
-- [Testing Library queries cheatsheet](https://testing-library.com/docs/queries/about)
+The Stop hook runs static checks, not tests. Run the relevant tests before handing off a change.

@@ -2,10 +2,9 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { isAuthRoute } from '@/infrastructure/auth/auth-routes'
-import { DEFAULT_AUTHENTICATED_ROUTE } from '@/infrastructure/constants'
-import { getSupabasePublishableKey, getSupabaseUrl } from '@/infrastructure/env/server'
-import { logger } from '@/infrastructure/logging/logger'
+import { DEFAULT_AUTHENTICATED_ROUTE, isAuthRoute } from '@/modules/identity/server'
+import { logger } from '@/shared/client/logging/logger'
+import { getSupabasePublishableKey, getSupabaseUrl } from '@/shared/server/env/server'
 
 type CookieToSet = {
   name: string

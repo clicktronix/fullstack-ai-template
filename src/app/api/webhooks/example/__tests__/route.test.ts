@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, mock, test } from 'bun:test'
 
 const mockCaptureError = mock()
 
-mock.module('@/infrastructure/sentry/capture', () => ({
+mock.module('@/shared/server/observability/capture', () => ({
   captureError: mockCaptureError,
   getSentry: () =>
     Promise.resolve({

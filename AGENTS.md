@@ -1,210 +1,179 @@
 # Fullstack AI Template
 
-Next.js 16 template for AI products and full-stack B2B apps, powered by Supabase and designed for rapid bootstrapping with coding agents.
+Next.js 16 template for full-stack B2B and AI products. The shipped example uses React 19,
+TypeScript, Mantine, Valibot, TanStack Query, Supabase, Sentry, and Bun.
 
-**Tech Stack**: Next.js 16 (App Router), React 19, TypeScript, Mantine UI + CSS Modules, Valibot (domain schemas), TanStack Query (server state), React Context (global state), Supabase (Postgres + Auth SSR), React Intl (i18n), Bun (package manager). Optional: Storybook, Sentry, OpenTelemetry via `@vercel/otel`.
+`CLAUDE.md` imports this file. Keep cross-agent rules here; use `.claude/rules/*.md` only for
+Claude Code path-scoped detail.
 
-## First-Time Setup
+## Setup
 
-Run in order: `bun install`, `cp .env.example .env.local` (fill in Supabase keys), `bun run setup:mcp`, `bun run setup:skills`, `bun run bootstrap` (optional, renames the template).
+```bash
+bun install
+cp .env.example .env.local
+bun run setup:mcp
+bun run setup:skills
+bun run bootstrap # optional template rename
+```
 
 ## Commands
 
-| Command             | Purpose                                       |
-| ------------------- | --------------------------------------------- |
-| `bun run dev`       | Development server (port 3000)                |
-| `bun run build`     | Production build                              |
-| `bun run lint`      | ESLint                                        |
-| `bun run format`    | Prettier + ESLint `--fix`                     |
-| `bun run typecheck` | TypeScript validation                         |
-| `bun run check`     | `lint + typecheck + format:check + i18n:sync` |
-| `bun test`          | Unit tests                                    |
-| `bun run test:e2e`  | Playwright e2e                                |
+| Command                      | Purpose                                                |
+| ---------------------------- | ------------------------------------------------------ |
+| `bun run dev`                | Next.js dev server                                     |
+| `bun run typecheck`          | Next route types plus strict TypeScript                |
+| `bun run lint .`             | ESLint, import resolution, and architecture boundaries |
+| `bun run architecture:check` | Cross-capability cycle check                           |
+| `bun test`                   | Unit and component tests                               |
+| `bun run build`              | Production build and server/client poisoning check     |
+| `bun run check`              | Required static quality gate                           |
+| `bun run test:e2e`           | Playwright end-to-end tests                            |
+| `bun run knip`               | Dead-code and unused-export audit                      |
+
+Run the narrowest relevant tests while editing, then run the full gates appropriate to the
+change. Do not describe a check as passed unless you ran it in the current worktree.
 
 ## Architecture
 
-Hybrid Clean Architecture with clear layering:
+The repository is capability-first:
 
-| Layer              | Path                         | Purpose                                                    |
-| ------------------ | ---------------------------- | ---------------------------------------------------------- |
-| **Domain**         | `src/domain/`                | Valibot schemas, pure business rules, invariants           |
-| **Use-Cases**      | `src/use-cases/`             | Application scenarios, ports, feature-local types          |
-| **Server-State**   | `src/ui/server-state/`       | TanStack Query hooks, keys, cache orchestration            |
-| **UI Actions**     | feature-local `actions.ts`   | Thin direct Server Action wrappers without query semantics |
-| **Inbound**        | `src/adapters/inbound/next/` | Server Actions, route handlers, request mapping            |
-| **Outbound**       | `src/adapters/outbound/`     | Supabase, external APIs, transport                         |
-| **UI**             | `src/app/`, `src/ui/`        | Pages, layouts, components, presentation hooks             |
-| **Infrastructure** | `src/infrastructure/`        | Auth, i18n, logging, config, common support                |
+```text
+src/
+├── app/                  # Next.js routes and route-private composition
+├── generated/            # Mechanical provider contracts; never domain language
+├── modules/<capability>/ # Product ownership
+└── shared/               # Admitted cross-capability contracts by runtime
+```
 
-**Runtime Call Flow**:
-`app/ui → ui/server-state | actions.ts → inbound adapters → use-cases → outbound adapters → domain`
+Current product capabilities are `identity`, `work-items`, `labels`, and
+`assistant-suggestions`. Provider realtime transport is shared client infrastructure; the
+table-to-capability invalidation map is app-level composition under `app/_internal`.
 
-Compile-time imports differ: `use-cases` import only `domain` and their own ports — outbound implementations are injected by the composition root (inbound adapters/DAL), never imported directly by `use-cases`.
+A capability creates only the segments it needs:
 
-(Full tree: `@wiki/ARCHITECTURE/FOLDER_STRUCTURE.md`.)
+| Segment        | Responsibility                                                |
+| -------------- | ------------------------------------------------------------- |
+| `domain/`      | Pure schemas, values, and invariants                          |
+| `application/` | Real policy or orchestration that passes the deletion test    |
+| `server/`      | Private server adapters, stores, and provider implementations |
+| `client/`      | Browser fetch, cache, subscriptions, and client orchestration |
+| `ui/`          | Reusable capability-owned presentation                        |
 
-## Core Rules
+Other capabilities and `app/**` import root surfaces, never another capability's internals:
 
-- `domain` depends on nothing except domain
-- `use-cases` must not import `app`, `ui`, or inbound adapters
-- `use-cases` must not import outbound adapters — depend on ports; adapters are injected
-- `ui/server-state` is the only UI layer allowed to depend on inbound adapters
-- presentation UI must not import outbound adapters directly
-- `app/` files stay thin and delegate
-- if UI needs a one-off Server Action call without TanStack Query, create local `actions.ts`
+| Surface                | Consumer                                                      |
+| ---------------------- | ------------------------------------------------------------- |
+| `server.ts`            | Trusted server composition with explicit identity and effects |
+| `rsc.ts`               | Server Components and server-rendered prefetch                |
+| `actions.ts`           | UI commands only                                              |
+| `client.ts`            | Browser-safe reads, mutations, and subscriptions              |
+| `ui.ts`                | Reusable capability UI                                        |
+| `cache.ts`             | Query keys; tag identities only when server data is cached    |
+| `stream.ts` / `job.ts` | Streaming or background channels when present                 |
 
-## Key Patterns
+Runtime flow is channel-specific:
 
-**Domain Validation**: Valibot schemas for runtime validation + inferred TypeScript types.
+```text
+RSC read       -> module/rsc.ts     -> module/server.ts -> private store/provider
+Browser read   -> GET route         -> module/server.ts -> private store/provider
+UI command     -> module/actions.ts -> module/server.ts -> private store/provider
+External HTTP  -> route handler     -> module/server.ts -> private store/provider
+```
 
-**Component Pattern**: View + useProps separation via `composeHooks(View)(useProps)`.
+Do not use Server Actions as browser query transport. Server Components call `rsc.ts` or a trusted
+server surface directly. Browser-owned query lifecycles use GET or a stream.
 
-**State Management**: UI state (`useState` / `useReducer`), Server state (TanStack Query), Global (Context).
+`shared/**` is split by runtime:
 
-**Server State**: TanStack Query lives in `src/ui/server-state/<feature>/`.
+- `shared/kernel`: pure cross-capability contracts only.
+- `shared/server`: server-only framework and provider support.
+- `shared/client`: browser-only environment, transport, and observability support.
+- `shared/ui`: reusable presentation, providers, formatting, and neutral i18n mechanics.
 
-**Server Actions**: inbound mutations use `next-safe-action` clients from `src/infrastructure/actions/safe-action.ts`. Keep exported action functions as stable app-level APIs, but put validation, auth context, and role checks in the safe-action layer.
+Generated provider schemas live under `src/generated/**`. Only private capability `server`/`client`
+adapters and `shared/server`/`shared/client` runtime code may import them.
+The product locale catalog lives in `app/_internal/i18n`; shared providers receive it as input.
+Runtime-neutral `cache.ts` imports only its capability domain or `shared/kernel`.
 
-**Direct Server Actions**: Use feature-local `actions.ts`, not direct adapter imports from component hooks.
+Admission to shared code requires at least two real consumers, identical meaning and lifecycle, no
+natural capability owner, and a narrower coordination cost than duplication. Delete or demote
+speculative helpers.
 
-**Cache Invalidation**: use centralized tags from `src/infrastructure/cache/tags.ts` with `updateTag()` for read-your-writes after Server Actions and `revalidateTag(tag, profile)` for broader invalidation. Avoid ad-hoc `revalidatePath()` unless the route tree itself is the unit of invalidation.
+The executable floor lives in `rules/architecture-contract.json` and
+`rules/eslint-boundaries*.mjs`. It enforces ownership, public surfaces, runtime direction, and
+cycles. It does not prove authorization, reporting, cache policy, transaction scope, or semantic
+depth; cover those with tests and review.
 
-**Proxy/CSP**: the active Next.js Proxy file is `src/proxy.ts` because the app router is under `src/app`. Do not move it to the repository root unless the app router is moved too. Keep CSP changes compatible with Cache Components/PPR; request-time nonces require fully dynamic rendering.
+## Application Rules
 
-**Authorization Boundary**: `src/proxy.ts` is not the authorization boundary. It may refresh sessions, redirect, set request headers, and apply CSP/security headers. Data access must verify auth/authz again inside server-only DAL, inbound adapters, or use-case paths. Modules that read cookies, headers, DB clients, service role keys, or secrets must use `import 'server-only'` and must not be imported by Client Components.
+- Create an application operation only if deleting it moves meaningful policy, branching,
+  projection, transaction intent, or orchestration into callers.
+- Simple store-backed CRUD goes from a channel boundary to `server.ts` to a private store.
+- A port belongs to the application behavior that names it. Do not mirror every table with a
+  repository interface.
+- Cross-capability behavior belongs to an orchestrating capability. Its private adapters call
+  source capabilities through root public surfaces.
+- Trusted `server.ts` functions accept explicit identity and effects, enforce capability policy,
+  and remain silent. The outer runtime channel reports an unexpected failure once.
+- Shared auth verifies provider identity only. The `identity` capability resolves product profile
+  and role; each target capability enforces its own authorization policy.
+- Validate untrusted input at the runtime boundary. Validate provider rows before returning domain
+  values. Keep framework redirects/navigation outside broad catches.
+- Cache ownership follows data ownership. A capability names browser keys and any real server tags
+  in `cache.ts`; invalidate only caches that the read path actually populates.
 
-**Environment**: read env through `src/infrastructure/env/public.ts`, `client.ts`, `server.ts`, or `runtime.ts`. Do not read `process.env` directly in runtime code; ESLint enforces this outside env helpers and tests.
+## Frontend Rules
 
-**i18n**: `messages.json` + `<TranslationText {...messages.key} />`; locale files live in `src/infrastructure/i18n/`. `src/proxy.ts` seeds the locale cookie from `Accept-Language`; `LocaleProvider` then prefers localStorage, cookie, and finally `en`.
+- Route-private UI stays under the owning `app/**/_internal` segment.
+- Reusable product UI belongs to `modules/<capability>/ui` and is exported through `ui.ts`.
+- Cross-capability primitives belong to admitted `shared/ui`.
+- Call named hooks directly inside components. Do not pass hooks as values or recreate a generic
+  hook-composition helper.
+- Separate a View only when it improves testing or readability; it is not a mandatory extra file.
+- Use Mantine props and CSS Modules. Do not add inline style objects or hardcoded palette values.
+- Use `TranslationText`/`TranslationTitle` and `messages.json` for user-facing strings.
+- Keep TanStack Query in the owning capability's `client/` segment. Query keys come from the
+  capability's runtime-neutral `cache.ts`, not app-local literals.
 
-**Forms**: Mantine Forms + `createMantineValidator(schema)`. The helper accepts Standard Schema v1 compatible schemas; Valibot v1 schemas implement that contract.
+## Code Style
 
-**Feature co-location**: page-local UI, hooks, and logic live in `_internal/` inside the App Router segment (e.g. `src/app/(public)/signup/_internal/ui/SignupForm/`). Nothing under `_internal/` is imported from outside its owning segment.
+- Use `type`, not `interface`.
+- Prefer functions and plain objects; classes are allowed only for idiomatic `Error` hierarchies.
+- Import Valibot functions directly; do not use `import * as v`.
+- Do not add `any`, unsafe casts, barrel `export *`, or direct runtime `process.env` reads.
+- Mark secret, cookie, header, database, and provider modules with `server-only`.
+- Keep edits scoped. Do not refactor unrelated code or remove user changes.
 
-## Critical Constraints
+## Tests
 
-- ❌ Do not rely on hooks or editor integrations for quality gates — run `bun run lint`, `bun run typecheck`, `bun test`, `bun run build`, and `bun run knip` explicitly when the change warrants it
-- ❌ No `interface` — use `type`
-- ❌ No classes — functional only
-- ❌ No inline `style={{}}` — use Mantine props or CSS Modules
-- ❌ No `import * as v from 'valibot'` — import functions directly
-- ❌ No `any` types
-- ❌ No barrel exports (`index.ts` for re-exporting) — import directly from files
-- ❌ No direct `process.env` in runtime code — use `src/infrastructure/env/*`
-- ❌ No hardcoded hex colors — use Mantine CSS vars or `ui/themes/palette-*.ts`
-- ✅ Import domain types from `@/domain/entity`
-- ✅ Use `composeHooks` for View + useProps separation
-- ✅ Use `TranslationText` for i18n, never hardcoded strings
-- ✅ Dark theme is default (`defaultColorScheme="dark"`)
-- ✅ Many types in component? Create `interfaces.ts` file
-- ✅ Run `bun run lint`, `bun run typecheck`, `bun test`, `bun run test:e2e` explicitly when needed
-- ✅ Keep architecture boundaries enforced by ESLint
-- ✅ Use `data-testid` for critical interactive UI used in e2e
+- Domain: schema and invariant tests.
+- Application: pure tests with explicit fake ports.
+- Server adapters: mapping, provider failure, auth policy, and integration tests.
+- Route/Action boundaries: decoding, status/result mapping, idempotency, invalidation of any
+  server cache they actually populate, and report-once behavior.
+- Client: query transport, cache updates, auth lifecycle, and user-visible failure states.
+- Architecture: at least one failing mutation per claimed invariant.
 
-## Reference
+## Documentation
 
-- **Adding Features**: follow layer order **Domain → Use-Case ports/types → Outbound Adapter → Inbound Adapter (safe Server Action / route handler) → Server-State or feature-local action → UI**; full walkthrough in `@.claude/rules/architecture.md` and `@wiki/ARCHITECTURE/ARCHITECTURE.md` + `COMPONENT_PATTERNS.md`
-- **Project Structure**: full annotated tree in `@wiki/ARCHITECTURE/FOLDER_STRUCTURE.md`
-- **Naming Conventions**: see `.claude/rules/core.md` (File Naming Reference)
-- **Demo Slice**: `work-items` + `labels` (+ optional `assistant-suggestions`) — reference vertical slice for new product features; replace or extend with your own domain
-- **All commands**: `package.json` scripts or `wiki/TEMPLATE_GUIDE/GETTING_STARTED.md`
+- `wiki/ARCHITECTURE/ARCHITECTURE.md`: complete project contract.
+- `wiki/ARCHITECTURE/QUICK_REFERENCE.md`: daily decision table.
+- `wiki/ARCHITECTURE/FOLDER_STRUCTURE.md`: annotated physical tree.
+- `wiki/ARCHITECTURE/DATA_ACCESS.md`: channels, auth, failures, and cache.
+- `wiki/ARCHITECTURE/COMPONENT_PATTERNS.md`: RSC/client composition and direct-hook pattern.
+- `rules/README.md`: executable enforcement and its limits.
 
-## Modular Documentation
+Update code, agent instructions, human documentation, and diagrams together when the architecture
+changes.
 
-Rules files loaded conditionally by file path:
+## Pull Requests
 
-| Document                         | Paths                                                                                                                | Purpose                                       |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| `@.claude/rules/core.md`         | `src/**/*`, `next.config.ts`, `eslint.config.mjs`, `scripts/**/*`, `tests/**/*`                                      | Critical constraints, naming, common pitfalls |
-| `@.claude/rules/architecture.md` | `src/domain/**/*`, `src/adapters/**/*`, `src/use-cases/**/*`, `src/app/**/*`, `src/ui/**/*`                          | Clean Architecture layers                     |
-| `@.claude/rules/components.md`   | `src/ui/**/*`, `src/app/**/*`                                                                                        | composeHooks, i18n, Server/Client components  |
-| `@.claude/rules/styling.md`      | `**/*.module.css`, `**/*Form*/**/*`, `**/*form*`, `src/ui/**/*`                                                      | CSS Modules, Form validation                  |
-| `@.claude/rules/data-state.md`   | `src/use-cases/**/*`, `src/ui/server-state/**/*`, `src/ui/hooks/**/*`, `src/ui/stores/**/*`, `src/ui/providers/**/*` | State management decision tree                |
-| `@.claude/rules/quality.md`      | `**/*.test.{ts,tsx}`, `**/*.spec.{ts,tsx}`                                                                           | Testing, Performance                          |
-
-Detailed documentation:
-
-| Document                                     | Purpose                                                                           |
-| -------------------------------------------- | --------------------------------------------------------------------------------- |
-| `nextjs-clean-skills@nextjs-clean-skills`    | Next.js 16 Hybrid Clean Architecture + Server/Client component skills marketplace |
-| `@wiki/ARCHITECTURE/QUICK_REFERENCE.md`      | One-page cheatsheet                                                               |
-| `@wiki/ARCHITECTURE/ARCHITECTURE.md`         | Complete architecture guide                                                       |
-| `@wiki/ARCHITECTURE/COMPONENT_PATTERNS.md`   | composeHooks + Custom Hooks Library                                               |
-| `@wiki/ARCHITECTURE/DATA_ACCESS.md`          | API adapters, Supabase                                                            |
-| `@wiki/ARCHITECTURE/FOLDER_STRUCTURE.md`     | Project structure                                                                 |
-| `@wiki/TEMPLATE_GUIDE/GETTING_STARTED.md`    | First-time setup                                                                  |
-| `@wiki/TEMPLATE_GUIDE/CUSTOMIZE_TEMPLATE.md` | Adapting the template to a new product                                            |
-| `@wiki/TEMPLATE_GUIDE/SKILLS_AND_PLUGINS.md` | Skill/plugin install & authoring                                                  |
-| `@wiki/TESTING/TESTING_STRATEGY.md`          | Testing pyramid, patterns by layer, mocking rules                                 |
-| `.agents/skills/project-onboarding/SKILL.md` | Project onboarding entry point                                                    |
-
-## Environment Variables
-
-Copy `.env.example` → `.env.local` and fill in Supabase + optional Sentry/AI-gateway values before first real project use. Env values are validated in `src/infrastructure/env/*`; never create `NEXT_PUBLIC_*` variants for secret/service-role keys. Full variable list and descriptions: `wiki/TEMPLATE_GUIDE/GETTING_STARTED.md` (optional integrations: `wiki/TEMPLATE_GUIDE/OPTIONAL_*`).
+Use short imperative commit subjects. PRs must state scope, architecture decisions, verification
+commands, and any gates not run. Include screenshots only for visual changes.
 
 <!-- cc-tuner:karpathy-guidelines -->
 
 ## Coding Guidelines
 
-Behavioral guidelines to reduce common LLM coding mistakes (derived from Andrej Karpathy's observations). Bias toward caution over speed; for trivial tasks, use judgment.
-
-### 1. Think Before Coding
-
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
-
-Before implementing:
-
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them — don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
-
-### 2. Simplicity First
-
-**Minimum code that solves the problem. Nothing speculative.**
-
-- No features beyond what was asked.
-- No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
-
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
-
-### 3. Surgical Changes
-
-**Touch only what you must. Clean up only your own mess.**
-
-When editing existing code:
-
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken.
-- Match existing style, even if you'd do it differently.
-- If you notice unrelated dead code, mention it — don't delete it.
-
-When your changes create orphans:
-
-- Remove imports/variables/functions that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
-
-The test: every changed line should trace directly to the user's request.
-
-### 4. Goal-Driven Execution
-
-**Define success criteria. Loop until verified.**
-
-Transform tasks into verifiable goals:
-
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
-
-For multi-step tasks, state a brief plan:
-
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-```
-
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+Think before coding, prefer the smallest sufficient change, touch only task-relevant lines, and
+define verifiable success criteria. Surface uncertainty instead of silently inventing behavior.

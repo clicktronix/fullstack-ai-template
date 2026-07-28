@@ -9,6 +9,35 @@ Note: this template is meant to be forked. The "version" applies to the template
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced the repository-wide layer tree with capability-owned modules and narrow runtime
+  surfaces.
+- Moved shared code into explicit `kernel`, `server`, `client`, and `ui` runtime roots.
+- Moved generated Supabase contracts out of the shared kernel and restricted them to private
+  server/client adapters.
+- Replaced browser-read Server Actions with GET Route Handlers while keeping Server Actions for
+  commands.
+- Replaced generic hook composition with direct named hook calls and removed unmeasured automatic
+  memoization.
+- Kept provider authentication capability-neutral while moving product profile and role resolution
+  into the `identity` capability.
+- Moved the product locale catalog into app composition; the shared locale provider now receives
+  messages instead of owning product copy.
+- Moved query keys to their owning capabilities, removed unassigned cache-tag invalidation, and
+  kept tags only for reads that actually use the Next server cache. App composition now maps
+  realtime provider events to public capability keys.
+- Updated agent instructions, architecture guides, testing guidance, and visual diagrams to the
+  capability-first contract.
+- Upgraded the `nextjs-clean-skills` Codex pin to `v2.0.0`.
+
+### Added
+
+- Capability ownership, runtime-direction, unresolved-import, file-cycle, and capability-cycle
+  checks.
+- Runtime-neutral `cache.ts` surfaces for browser keys and optional real server-cache tags.
+- Reproducible migration evidence and focused policy/Route Handler regression tests.
+
 ## [1.0.0] - 2026-05-03
 
 First public release of the template.

@@ -5,9 +5,9 @@ import { useIntl } from 'react-intl'
 import type {
   AssistantSuggestion,
   AssistantSuggestionPriority,
-} from '@/domain/assistant-suggestion/assistant-suggestion'
-import type { WorkItemStatus } from '@/domain/work-item/work-item'
-import { useGenerateAssistantSuggestions } from '@/ui/server-state/assistant-suggestions/mutations'
+} from '@/modules/assistant-suggestions/client'
+import { useGenerateAssistantSuggestions } from '@/modules/assistant-suggestions/client'
+import type { WorkItemStatus } from '@/modules/work-items/client'
 import messages from './messages.json'
 
 export type AssistantSuggestionsPanelProps = {

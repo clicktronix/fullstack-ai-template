@@ -3,8 +3,7 @@
 import { Badge, Button, Card, Group, Skeleton, Stack, Text, Title } from '@mantine/core'
 import { IconArrowLeft, IconX } from '@tabler/icons-react'
 import Link from 'next/link'
-import { TranslationText } from '@/ui/components/TranslationText'
-import { composeHooks } from '@/ui/hooks/compose-hooks'
+import { TranslationText } from '@/shared/ui/components/TranslationText'
 import type { WorkItemDetailPanelProps, WorkItemDetailPanelViewProps } from './lib'
 import { useWorkItemDetailPanelProps } from './lib'
 import messages from './messages.json'
@@ -107,7 +106,6 @@ export function WorkItemDetailPanelView({
   )
 }
 
-export const WorkItemDetailPanel = composeHooks<
-  WorkItemDetailPanelViewProps,
-  WorkItemDetailPanelProps
->(WorkItemDetailPanelView)(useWorkItemDetailPanelProps)
+export function WorkItemDetailPanel(props: WorkItemDetailPanelProps) {
+  return <WorkItemDetailPanelView {...useWorkItemDetailPanelProps(props)} />
+}

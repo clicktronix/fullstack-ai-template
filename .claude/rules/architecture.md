@@ -1,192 +1,66 @@
 ---
-paths: ['src/domain/**/*', 'src/adapters/**/*', 'src/use-cases/**/*', 'src/app/**/*', 'src/ui/**/*']
+paths: ['src/app/**/*', 'src/modules/**/*', 'src/shared/**/*', 'rules/**/*']
 ---
 
-# Hybrid Clean Architecture
+# Capability Architecture
 
-## Dependency Flow
-
-```text
-app/ui -> ui/server-state|feature-local actions.ts -> inbound adapters -> use-cases -> outbound adapters -> domain
-```
-
-The project is a full-stack Next.js app, so `app/` is part of the architecture as a framework layer, not just a frontend shell.
-
-## 1. Domain Layer (`src/domain/`)
-
-**Purpose**: Pure business entities and rules.
-
-**Rules**:
-
-- ❌ No React or Next.js
-- ❌ No Supabase or API calls
-- ❌ No app/ui/use-cases/adapters imports
-- ❌ Do NOT use `import * as v from 'valibot'`
-- ❌ No config constants (`DEFAULT_*`)
-- ✅ Pure Valibot schemas and utility functions
-- ✅ File naming in kebab-case where needed
-
-## 2. Use-Cases Layer (`src/use-cases/`)
-
-**Purpose**: Application scenarios.
-
-Recommended feature structure:
+## Physical Model
 
 ```text
-use-cases/work-items/
-├── work-items.ts
-├── ports.ts
-└── types.ts
+app/**                  Next.js routes and route-private composition
+generated/**            mechanical provider contracts for adapters only
+modules/<capability>/** product ownership
+shared/{kernel,server,client,ui}/** admitted cross-capability code
 ```
+
+Within a capability, create only needed `domain`, `application`, `server`, `client`, or `ui`
+segments. Import another capability through its root `server.ts`, `rsc.ts`, `actions.ts`,
+`client.ts`, `ui.ts`, `cache.ts`, `stream.ts`, or `job.ts` surface.
+
+## Direction
+
+- `domain`: own domain plus `shared/kernel`.
+- `application`: own domain/application plus `shared/kernel`; effects are explicit ports.
+- `server`: private stores/providers; may implement application ports.
+- `client`: browser reads/cache/subscriptions; never imports server code.
+- `ui`: own client/domain and exact actions; never imports server code.
+- `shared`: never imports a product capability.
+- `generated`: may be imported only by private capability server/client adapters and shared
+  server/client runtime code.
+
+## Runtime Channels
 
 ```text
-ui/server-state/work-items/
-├── queries.ts
-├── mutations.ts
-└── keys.ts
+RSC read      -> rsc.ts     -> server.ts -> private adapter
+Browser read  -> GET/stream -> server.ts -> private adapter
+UI command    -> actions.ts -> server.ts -> private adapter
+External HTTP -> route      -> server.ts -> private adapter
 ```
 
-**Rules**:
+Server Actions are commands, not browser query transport. The trusted `server.ts` surface accepts
+explicit identity and effects, enforces capability policy, and does not report failures. The outer
+channel owns validation, result/status mapping, relevant cache effects, and one unexpected-error
+report.
+Shared auth establishes provider `userId` only; product profile/role belongs to the `identity`
+capability, and target capabilities enforce their own policy.
 
-- ✅ Use-case files implement application scenarios
-- ✅ May depend on `domain` and `infrastructure`
-- ❌ Must not import outbound adapters directly — outbound implementations are injected via ports (compile-time import is of the port type only; the concrete adapter is wired in by inbound adapters at runtime)
-- ❌ No `'use server'`
-- ❌ No `NextRequest`, `NextResponse`
-- ❌ No `revalidatePath`, `revalidateTag`
-- ❌ No direct UI imports
-- ❌ No inbound adapter imports
+## Depth
 
-## 2a. Server-State Integration (`src/ui/server-state/`)
+Create an application operation only when deleting it moves policy, branching, orchestration,
+projection, or transaction intent into callers. Simple store CRUD needs no operation or repository
+port. Ports use application language and protect real volatility or ownership.
 
-**Purpose**: React Query keys, hooks, auth-gated query wrappers, realtime invalidation.
+Cross-capability policy belongs to an orchestrating capability. Source capabilities expose narrow
+server surfaces and do not import the orchestrator.
 
-**Rules**:
+## Shared Admission
 
-- ✅ May depend on inbound adapters
-- ✅ May depend on domain, use-cases, and client-safe outbound helpers (auth/realtime)
-- ❌ No `app/` imports
-- ❌ No presentation imports from `ui/components`, `ui/providers`, `ui/contexts`, `ui/stores`
-- ❌ No business orchestration that belongs in use-cases
+Require two real consumers, identical meaning/lifecycle, no natural capability owner, a narrow
+contract, and a lower coordination cost than duplication. `shared/kernel` also requires identical
+invariants and change cadence.
 
-## 2b. Feature-Local UI Actions (`actions.ts`)
+## Verification
 
-**Purpose**: Thin wrappers around Server Actions when UI needs a direct action call without TanStack Query semantics.
-
-**Rules**:
-
-- ✅ May depend on inbound adapters
-- ✅ May be called from component hooks and shared UI hooks
-- ❌ No query keys, cache invalidation, or optimistic updates
-- ❌ No `app/` imports
-- ❌ No presentation imports from `ui/components`, `ui/providers`, `ui/contexts`, `ui/stores`
-- ✅ Keep them next to the component or hook that uses them
-
-## 3. Inbound Adapters (`src/adapters/inbound/next/`)
-
-**Purpose**: Framework-facing entry adapters.
-
-Examples:
-
-- Server Actions
-- route-handler logic
-- request / form-data mapping
-- auth context acquisition
-- cache invalidation
-
-**Rules**:
-
-- ✅ Can depend on use-cases
-- ✅ Can wire outbound dependencies into use-cases
-- ✅ May use `'use server'`, `NextRequest`, `NextResponse`, `revalidatePath`, `revalidateTag`
-- ❌ Should not hold business rules
-
-## 4. Outbound Adapters (`src/adapters/outbound/`)
-
-**Purpose**: Infrastructure implementations.
-
-Examples:
-
-- Supabase repositories
-- external API clients
-- transport/SSE helpers
-
-**Rules**:
-
-- ✅ Can depend on domain
-- ❌ Must not depend on UI
-- ❌ Must not depend on `app/`
-- ❌ Must not depend on inbound adapters
-- ❌ Must not embed page-specific logic
-
-## 5. `app/` and `ui/`
-
-### `src/app/`
-
-**Purpose**: Next.js filesystem entrypoints only.
-
-Contains:
-
-- `page.tsx`
-- `layout.tsx`
-- `loading.tsx`
-- `error.tsx`
-- `route.ts`
-
-Rules:
-
-- keep files thin
-- delegate route logic to inbound adapters
-- do not call outbound adapters directly
-
-### `src/ui/`
-
-**Purpose**: Presentation.
-
-Rules:
-
-- may depend on domain and use-cases
-- must not import outbound adapters directly
-
-## 6. Infrastructure (`src/infrastructure/`)
-
-**Purpose**: Shared technical support.
-
-Contains:
-
-- auth plumbing
-- i18n
-- logging
-- config helpers
-- common error mapping
-
-Infrastructure supports the use-case layer but is not the business core.
-
-## Practical Guidance
-
-### Correct
-
-```typescript
-// UI -> use-case integration
-import { useWorkItems } from '@/ui/server-state/work-items/queries'
-
-// Server Action -> use-case
-import { createWorkItem } from '@/use-cases/work-items/work-items'
-
-// Inbound adapter (composition root) wires the concrete outbound adapter into the use-case
-// as a dependency argument — the use-case itself only imports the port type, never this module
-import { createSupabaseWorkItemRepository } from '@/adapters/outbound/supabase/work-items.repository'
-```
-
-### Incorrect
-
-```typescript
-// ❌ UI -> outbound adapter
-import { listWorkItems } from '@/adapters/outbound/supabase/work-items.operations'
-
-// ❌ use-case -> inbound adapter
-import { createWorkItemAction } from '@/adapters/inbound/next/server-actions/work-items'
-
-// ❌ domain -> app/ui
-import { getHeaderTabs } from '@/ui/components/Header/HeaderNavigation'
-```
+`bun run lint .` enforces ownership and runtime direction.
+`bun run architecture:check` rejects capability cycles.
+Review and tests must still prove auth, reporting, cache, transaction, and semantic depth.

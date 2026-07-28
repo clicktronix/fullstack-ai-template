@@ -33,7 +33,7 @@ const INLINE_ID_FILE_EXCLUDES = [
   '.test.tsx',
   '.stories.ts',
   '.stories.tsx',
-  '/infrastructure/i18n/locales/',
+  '/app/_internal/i18n/',
 ] as const
 const INLINE_ID_REGEX = /\bid\s*:\s*['"]([a-z][a-zA-Z0-9-]*(?:\.[a-zA-Z0-9-]+)+)['"]/g
 const DYNAMIC_MESSAGE_IDS = [] as const
@@ -151,7 +151,7 @@ async function loadInlineDescriptorIds(): Promise<MessageEntry[]> {
 function loadDynamicMessageIds(): MessageEntry[] {
   return DYNAMIC_MESSAGE_IDS.map((id) => ({
     id,
-    file: 'src/infrastructure/i18n/locales/en.ts',
+    file: 'src/app/_internal/i18n/en.ts',
   }))
 }
 
@@ -171,7 +171,7 @@ function findDuplicateMessageIds(messages: MessageEntry[]): DuplicateEntry[] {
 }
 
 async function loadLocaleEntries(): Promise<Map<string, string>> {
-  const localePath = join(SRC, 'infrastructure/i18n/locales/en.ts')
+  const localePath = join(SRC, 'app/_internal/i18n/en.ts')
   const moduleUrl = pathToFileURL(localePath).href
   const localeModule = await import(moduleUrl)
   const messages = localeModule.enMessages as Record<string, string>
