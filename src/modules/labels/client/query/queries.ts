@@ -5,8 +5,8 @@ import { array, object, parse } from 'valibot'
 import { useAuthenticatedQuery } from '@/modules/identity/client'
 import { createHttpError } from '@/shared/kernel/errors/api-error'
 import { GC_TIME, STALE_TIME } from '@/shared/ui/query/constants'
-import { labelKeys } from '../../cache'
 import { LabelSchema, type Label } from '../../domain/label'
+import { labelKeys } from '../../query-cache'
 
 const LabelsEnvelopeSchema = object({
   data: array(LabelSchema),

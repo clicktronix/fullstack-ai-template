@@ -5,8 +5,8 @@ import { array, number, object, parse } from 'valibot'
 import { useAuthenticatedQuery } from '@/modules/identity/client'
 import { createHttpError } from '@/shared/kernel/errors/api-error'
 import { GC_TIME, STALE_TIME } from '@/shared/ui/query/constants'
-import { workItemKeys } from '../../cache'
 import { WorkItemSchema } from '../../domain/work-item'
+import { workItemKeys } from '../../query-cache'
 import type { PaginatedWorkItemsResult, WorkItem, WorkItemListParams } from './types'
 
 const WorkItemsEnvelopeSchema = object({

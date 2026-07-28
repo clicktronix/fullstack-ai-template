@@ -34,7 +34,7 @@ rsc.ts     Server Component reads/prefetch
 actions.ts UI commands
 client.ts  browser-safe lifecycle
 ui.ts      reusable capability UI
-cache.ts   query keys; optional assigned server tags
+query-cache.ts shared serializable query-key identity
 stream.ts  streaming boundary
 job.ts     background boundary
 ```

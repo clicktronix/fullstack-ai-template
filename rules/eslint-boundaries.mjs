@@ -41,7 +41,7 @@ const PUBLIC_SURFACES = new Set(contract.publicSurfaces)
 const SERVER_SURFACES = new Set(contract.serverSurfaces)
 const SERVER_EXECUTION_SURFACES = new Set(contract.serverExecutionSurfaces)
 const CLIENT_SURFACES = new Set(contract.clientSurfaces)
-const NEUTRAL_SURFACES = new Set(contract.neutralSurfaces)
+const NEUTRAL_SURFACES = new Set(contract.neutralSurfaces ?? [])
 const SHARED_ROOTS = new Set(contract.sharedRoots)
 const RUNTIME_PACKAGES = new Set(contract.runtimePackages)
 const NODE_BUILTINS = new Set(builtinModules.map((name) => name.replace(/^node:/, '')))
@@ -160,13 +160,17 @@ const capabilityRule = {
         'application/** owns framework-neutral policy. Supply runtime adapters instead of importing {{target}}.',
       browserServer: 'Browser-safe code must not import the server surface {{target}}.',
       serverClient: 'Server capability code must not import the browser surface {{target}}.',
+      privateServerBackedge:
+        'Private server implementation must not import its own public surface {{target}}. Move shared contracts inward.',
       sharedImportsModule:
         'shared/** must remain capability-neutral and cannot import {{capability}}.',
       invalidSharedRoot:
         'src/shared/{{root}} is not admitted. Use shared/kernel, shared/server, shared/client, or shared/ui.',
       sharedKernelDirection: 'shared/kernel must remain pure and capability-neutral.',
       unknownSurface:
-        '{{surface}} is not a public capability surface. Use server, rsc, actions, client, ui, cache, stream, or job.',
+        '{{surface}} is not a public capability surface. Admitted surfaces: {{admitted}}.',
+      shadowedSegmentIndex:
+        '{{path}} is shadowed by the {{surface}} root surface. Import the explicit root surface or a named private file.',
       broadSurface:
         'A public capability surface must be narrow. export * exposes module internals.',
       hiddenDynamicImport:
@@ -205,11 +209,7 @@ const capabilityRule = {
             messageId: 'applicationDirection',
             data: { target: specifier },
           })
-        } else if (
-          sourceModule?.surface &&
-          NEUTRAL_SURFACES.has(sourceModule.surface) &&
-          isRuntimePackage(specifier)
-        ) {
+        } else if (sourceModule?.surface && NEUTRAL_SURFACES.has(sourceModule.surface)) {
           context.report({ node, messageId: 'neutralSurfaceDirection' })
         }
         return
@@ -329,6 +329,20 @@ const capabilityRule = {
           messageId: 'serverClient',
           data: { target: targetLabel },
         })
+        return
+      }
+
+      if (
+        sourceModule?.segment === 'server' &&
+        targetModule?.capability === sourceModule.capability &&
+        targetModule.surface &&
+        PUBLIC_SURFACES.has(targetModule.surface)
+      ) {
+        context.report({
+          node,
+          messageId: 'privateServerBackedge',
+          data: { target: targetLabel },
+        })
       }
     }
 
@@ -345,7 +359,26 @@ const capabilityRule = {
           context.report({
             node,
             messageId: 'unknownSurface',
-            data: { surface: path.basename(filename) },
+            data: {
+              surface: path.basename(filename),
+              admitted: [...PUBLIC_SURFACES].sort().join(', '),
+            },
+          })
+        }
+
+        if (
+          sourceModule?.segment &&
+          sourceModule.tail.length === 2 &&
+          /^index\.[cm]?[jt]sx?$/.test(path.basename(filename)) &&
+          PUBLIC_SURFACES.has(sourceModule.segment)
+        ) {
+          context.report({
+            node,
+            messageId: 'shadowedSegmentIndex',
+            data: {
+              path: posix(path.relative(PROJECT_ROOT, filename)),
+              surface: `${sourceModule.segment}.ts`,
+            },
           })
         }
 

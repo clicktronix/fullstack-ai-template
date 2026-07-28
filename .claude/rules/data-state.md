@@ -16,10 +16,10 @@ paths: ['src/modules/**/client/**/*', 'src/modules/**/rsc.ts', 'src/shared/ui/pr
 Browser query functions use GET or streaming endpoints and validate response envelopes. Server
 Actions are mutation transport only.
 
-Keep query keys in the owning capability's runtime-neutral `cache.ts`; RSC prefetch and browser
-hooks use the same key shape. Define server tags there only when a read actually calls `cacheTag`.
-Invalidate each populated cache after successful commands and update query caches when an immediate
-local result is available.
+Keep query keys in the owning capability's runtime-neutral `query-cache.ts` only when RSC prefetch
+and browser hooks share the same key shape. Keep Next cache tags and invalidation private under
+`server/**`. Invalidate each populated cache after successful commands and update query caches when
+an immediate local result is available.
 
 Do not add a global store for server data or a page-local interaction. Promote state only after two
 real consumers share the same lifecycle.

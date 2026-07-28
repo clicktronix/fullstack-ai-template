@@ -7,7 +7,7 @@ export {
   useUpdateWorkItem,
 } from './client/query/mutations'
 export { useWorkItem, useWorkItems } from './client/query/queries'
-export { workItemKeys } from './cache'
+export { workItemKeys } from './query-cache'
 export type {
   CreateWorkItem,
   UpdateWorkItem,

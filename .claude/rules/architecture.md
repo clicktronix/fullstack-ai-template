@@ -15,7 +15,7 @@ shared/{kernel,server,client,ui}/** admitted cross-capability code
 
 Within a capability, create only needed `domain`, `application`, `server`, `client`, or `ui`
 segments. Import another capability through its root `server.ts`, `rsc.ts`, `actions.ts`,
-`client.ts`, `ui.ts`, `cache.ts`, `stream.ts`, or `job.ts` surface.
+`client.ts`, `ui.ts`, `query-cache.ts`, `stream.ts`, or `job.ts` surface.
 
 ## Direction
 

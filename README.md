@@ -51,7 +51,7 @@ runtime-specific entrypoints expose narrow public surfaces at the module root.
 ```mermaid
 flowchart TB
     App["app/**<br/>framework composition"]
-    Public["modules/&lt;capability&gt;/{rsc,actions,server,client,ui,cache}.ts<br/>public surfaces"]
+    Public["modules/&lt;capability&gt;/{rsc,actions,server,client,ui,query-cache}.ts<br/>public surfaces"]
     Private["domain · application · server · client · ui<br/>private implementation"]
     Shared["shared/{kernel,server,client,ui}<br/>admitted cross-capability code"]
     Providers["Supabase · external APIs · telemetry"]
@@ -76,8 +76,8 @@ Next.js 16 defaults in this template:
 - `src/proxy.ts` handles session refresh, auth redirects, and security headers
 - Server Actions use `next-safe-action` with Valibot input schemas
 - Route Handlers expose service APIs with request-id envelopes and idempotent POST commands
-- each capability owns its query keys; a server cache adds tag identities only when its read path
-  actually calls `cacheTag()`
+- a capability exposes runtime-neutral `query-cache.ts` only when RSC prefetch and browser queries
+  share key identity; Next cache tags remain private under `server/**`
 - `bun run build` uses the default Turbopack production build
 
 `src/proxy.ts` is not the authorization boundary. Shared server auth verifies the provider user;

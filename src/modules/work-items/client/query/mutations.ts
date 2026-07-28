@@ -7,7 +7,7 @@ import {
   restoreWorkItemAction,
   updateWorkItemAction,
 } from '../../actions'
-import { workItemKeys } from '../../cache'
+import { workItemKeys } from '../../query-cache'
 import type { CreateWorkItem, UpdateWorkItem, WorkItem } from './types'
 
 export function useCreateWorkItem() {

@@ -9,7 +9,7 @@ lifecycle, and reusable UI in one module without crossing a repository-wide laye
 ```mermaid
 flowchart TB
   App["app/**<br/>routes and route-private composition"]
-  Public["module root surfaces<br/>server · rsc · actions · client · ui · cache"]
+  Public["module root surfaces<br/>server · rsc · actions · client · ui · query-cache"]
   Server["server.ts<br/>trusted capability policy"]
   Application["application/**<br/>optional orchestration"]
   Adapters["server/** · client/**<br/>private runtime adapters"]
@@ -63,6 +63,14 @@ adapters.
 `modules/**` is the product ownership tree. `shared/**` contains only contracts that pass the
 shared-admission gate.
 
+### Capability Granularity
+
+A module represents one coherent product goal, vocabulary, policy, and lifecycle. Do not map tables,
+CRUD screens, routes, providers, or repeated role checks directly to modules. Keep related reference
+entities in the taxonomy or workflow capability they support. Split only for a distinct actor
+outcome, independent policy or lifecycle, independent change authority, or a narrower stable public
+contract.
+
 ## Capability Contract
 
 Segments are optional:
@@ -77,16 +85,16 @@ Segments are optional:
 
 Public surfaces are root files:
 
-| Surface      | Contract                                                                  |
-| ------------ | ------------------------------------------------------------------------- |
-| `server.ts`  | trusted in-process server API; explicit identity/effects; silent failures |
-| `rsc.ts`     | Server Component reads and TanStack prefetch                              |
-| `actions.ts` | UI commands through top-level `'use server'`                              |
-| `client.ts`  | browser-safe query, mutation, and subscription API                        |
-| `ui.ts`      | reusable capability-owned UI                                              |
-| `cache.ts`   | query keys; tag identities only for reads that use the Next server cache  |
-| `stream.ts`  | stream setup and pre-commit response contract                             |
-| `job.ts`     | background job entrypoint                                                 |
+| Surface          | Contract                                                                  |
+| ---------------- | ------------------------------------------------------------------------- |
+| `server.ts`      | trusted in-process server API; explicit identity/effects; silent failures |
+| `rsc.ts`         | Server Component reads and TanStack prefetch                              |
+| `actions.ts`     | UI commands through top-level `'use server'`                              |
+| `client.ts`      | browser-safe query, mutation, and subscription API                        |
+| `ui.ts`          | reusable capability-owned UI                                              |
+| `query-cache.ts` | query-key identity shared by RSC prefetch and browser queries             |
+| `stream.ts`      | stream setup and pre-commit response contract                             |
+| `job.ts`         | background job entrypoint                                                 |
 
 `app/**` and other capabilities import these root surfaces, not internal directories. Public
 surfaces use named exports and never `export *`.
@@ -121,6 +129,7 @@ Rules:
 3. Server Actions are command transport. They are not a query RPC.
 4. Route Handlers decode HTTP and map the capability result to HTTP.
 5. Trusted `server.ts` enforces capability policy and reports nothing.
+6. Private `server/**` imports domain/application/shared code, not its own root channel surfaces.
 
 ## Identity and Effects
 
@@ -264,9 +273,12 @@ Framework control-flow exceptions such as redirects remain outside broad catches
 
 ## Cache Ownership
 
-- A capability's `cache.ts` owns query keys and any real server cache-tag identities.
+- A capability exposes `query-cache.ts` only when RSC prefetch and browser queries consume the
+  same serializable TanStack Query key identity.
+- `query-cache.ts` imports only the capability's domain and `shared/kernel`; it contains no
+  fetchers, provider code, Next cache tags, or invalidation.
 - A server tag exists only when a read assigns it with `cacheTag`. Do not invalidate ceremonial
-  tags that no cache entry owns.
+  tags that no cache entry owns. Keep tag identities private under the capability's `server/**`.
 - The successful runtime channel owns invalidation timing: Server Actions use `updateTag`; Route
   Handlers use `revalidateTag`.
 - RSC prefetch and browser hooks import the same capability query-key shapes.

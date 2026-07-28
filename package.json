@@ -10,7 +10,7 @@
     "build-storybook": "storybook build",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "architecture:check": "node rules/check-module-cycles.mjs",
+    "architecture:check": "node rules/check-module-cycles.mjs && node rules/check-neutral-surfaces.mjs",
     "typecheck": "rm -rf .next tsconfig.tsbuildinfo && next typegen && bun -e \"import { existsSync, mkdirSync, writeFileSync } from 'node:fs'; mkdirSync('.next/types', { recursive: true }); if (!existsSync('.next/types/cache-life.d.ts')) writeFileSync('.next/types/cache-life.d.ts', 'export {}\\\\n')\" && tsc --noEmit --incremental false",
     "check": "bun run lint . && bun run architecture:check && bun run typecheck && bun run format:check && bun run i18n:sync",
     "test": "bun test --isolate src/ tests/__tests__/",

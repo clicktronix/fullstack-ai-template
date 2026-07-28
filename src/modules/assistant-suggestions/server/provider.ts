@@ -3,11 +3,11 @@ import { parse } from 'valibot'
 import { createHttpError } from '@/shared/kernel/errors/api-error'
 import { getServerEnv } from '@/shared/server/env/server'
 import type { SuggestionGenerator } from '../application/ports'
-import { assistantSuggestionCacheTags } from '../cache'
 import {
   AssistantSuggestionsResultSchema,
   type AssistantSuggestionsResult,
 } from '../domain/assistant-suggestion'
+import { assistantSuggestionCacheTags } from './cache-tags'
 
 function buildFallbackSuggestions(
   input: Parameters<SuggestionGenerator['generate']>[0]

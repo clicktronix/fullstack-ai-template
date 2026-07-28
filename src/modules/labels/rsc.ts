@@ -3,7 +3,7 @@ import 'server-only'
 import type { QueryClient } from '@tanstack/react-query'
 import { readIdentityContext } from '@/modules/identity/server'
 import { createAuthenticatedContext } from '@/shared/server/auth/authenticated-context'
-import { labelKeys } from './cache'
+import { labelKeys } from './query-cache'
 import { listLabels } from './server'
 
 export async function readLabels() {

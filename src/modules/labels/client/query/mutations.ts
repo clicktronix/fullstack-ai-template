@@ -2,8 +2,8 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createLabelAction, updateLabelAction } from '../../actions'
-import { labelKeys } from '../../cache'
 import type { CreateLabel, Label, UpdateLabel } from '../../domain/label'
+import { labelKeys } from '../../query-cache'
 
 export function useCreateLabel() {
   const queryClient = useQueryClient()
