@@ -88,7 +88,7 @@ not evidence for authorization, semantic depth, or cache correctness.
 ## Qualitative Findings
 
 - Query keys initially duplicated between RSC prefetch and browser query code. The migration added
-  runtime-neutral `cache.ts` surfaces so both runtimes use the same key factory.
+  narrow runtime-neutral `query-cache.ts` surfaces so both runtimes use the same key factory.
 - Authentication wiring did not become smaller. `safe-action` and API context remain shared
   channel wrappers; `work-items/rsc.ts` and `labels/rsc.ts` resolve cached context explicitly.
 - Shared auth proves only provider identity. The identity capability resolves product profile and

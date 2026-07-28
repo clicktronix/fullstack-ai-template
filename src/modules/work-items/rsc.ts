@@ -3,7 +3,7 @@ import 'server-only'
 import type { QueryClient } from '@tanstack/react-query'
 import { readIdentityContext } from '@/modules/identity/server'
 import { createAuthenticatedContext } from '@/shared/server/auth/authenticated-context'
-import { workItemKeys } from './cache'
+import { workItemKeys } from './query-cache'
 import { getWorkItem, listWorkItems, type WorkItemListParams } from './server'
 
 async function toCapabilityContext(

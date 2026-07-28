@@ -35,7 +35,7 @@ Create root files only when a consumer exists:
 | `actions.ts`           | browser mutation commands                           |
 | `client.ts`            | browser queries/subscriptions                       |
 | `ui.ts`                | reusable capability UI                              |
-| `cache.ts`             | query keys shared by RSC prefetch and browser cache |
+| `query-cache.ts`       | query keys shared by RSC prefetch and browser cache |
 | `stream.ts` / `job.ts` | long-lived or background channels                   |
 
 Other capabilities may import these files, never private segments.

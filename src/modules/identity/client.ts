@@ -2,7 +2,7 @@
 
 export { useOAuthSignIn, useSignIn, useSignOut, useSignUp } from './client/query/mutations'
 export { useAuthenticatedQuery } from './client/query/authenticated-query'
-export { authKeys } from './cache'
+export { authKeys } from './query-cache'
 export { useCurrentUser, useSession } from './client/query/queries'
 export { onAuthStateChange, type AuthStateChangeCallback } from './client/auth-events'
 export {

@@ -24,8 +24,8 @@ Note: this template is meant to be forked. The "version" applies to the template
   into the `identity` capability.
 - Moved the product locale catalog into app composition; the shared locale provider now receives
   messages instead of owning product copy.
-- Moved query keys to their owning capabilities, removed unassigned cache-tag invalidation, and
-  kept tags only for reads that actually use the Next server cache. App composition now maps
+- Moved shared query-key identity to narrow `query-cache.ts` surfaces, removed unassigned cache-tag
+  invalidation, and kept real Next cache tags private under `server/**`. App composition now maps
   realtime provider events to public capability keys.
 - Updated agent instructions, architecture guides, testing guidance, and visual diagrams to the
   capability-first contract.
@@ -35,7 +35,8 @@ Note: this template is meant to be forked. The "version" applies to the template
 
 - Capability ownership, runtime-direction, unresolved-import, file-cycle, and capability-cycle
   checks.
-- Runtime-neutral `cache.ts` surfaces for browser keys and optional real server-cache tags.
+- Runtime-neutral `query-cache.ts` surfaces for key identity shared by RSC prefetch and browser
+  queries, with a two-runtime liveness check.
 - Reproducible migration evidence and focused policy/Route Handler regression tests.
 
 ## [1.0.0] - 2026-05-03

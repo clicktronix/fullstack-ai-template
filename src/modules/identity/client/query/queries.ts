@@ -7,8 +7,8 @@ import { object, nullable, parse } from 'valibot'
 import { supabase } from '@/shared/client/supabase/client'
 import { createHttpError } from '@/shared/kernel/errors/api-error'
 import { STALE_TIME } from '@/shared/ui/query/constants'
-import { authKeys } from '../../cache'
 import { UserSchema, type User } from '../../domain/user'
+import { authKeys } from '../../query-cache'
 import { onAuthStateChange } from '../auth-events'
 
 const CurrentUserEnvelopeSchema = object({

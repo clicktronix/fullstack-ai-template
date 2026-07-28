@@ -29,7 +29,9 @@
         <div class="arrow">imports</div>
         <div class="step">
           <strong>Capability public surface</strong>
-          <span><code>rsc.ts · actions.ts · server.ts · client.ts · ui.ts · cache.ts</code></span>
+          <span
+            ><code>rsc.ts · actions.ts · server.ts · client.ts · ui.ts · query-cache.ts</code></span
+          >
         </div>
         <div class="arrow">delegates</div>
         <div class="step green">
@@ -57,8 +59,8 @@
         </article>
       </div>
       <p class="lede">
-        <code>cache.ts</code> is runtime-neutral: RSC and browser queries share keys. Server tag
-        identities appear only when a read actually uses the Next cache.
+        <code>query-cache.ts</code> is runtime-neutral: RSC and browser queries share serializable
+        keys. Next cache tags remain private under <code>server/**</code>.
       </p>
 
       <h2>Ownership rules</h2>

@@ -68,8 +68,13 @@ Other capabilities and `app/**` import root surfaces, never another capability's
 | `actions.ts`           | UI commands only                                              |
 | `client.ts`            | Browser-safe reads, mutations, and subscriptions              |
 | `ui.ts`                | Reusable capability UI                                        |
-| `cache.ts`             | Query keys; tag identities only when server data is cached    |
+| `query-cache.ts`       | Query-key identity shared by RSC prefetch and browser queries |
 | `stream.ts` / `job.ts` | Streaming or background channels when present                 |
+
+A module follows a coherent product goal, vocabulary, policy, and lifecycle. Do not create one
+module per table, CRUD screen, route, provider, or role check. Keep related reference entities in
+their owning taxonomy/workflow capability; split only when actor goals, policy, lifecycle, change
+authority, or a stable public contract diverge.
 
 Runtime flow is channel-specific:
 
@@ -93,7 +98,8 @@ server surface directly. Browser-owned query lifecycles use GET or a stream.
 Generated provider schemas live under `src/generated/**`. Only private capability `server`/`client`
 adapters and `shared/server`/`shared/client` runtime code may import them.
 The product locale catalog lives in `app/_internal/i18n`; shared providers receive it as input.
-Runtime-neutral `cache.ts` imports only its capability domain or `shared/kernel`.
+Runtime-neutral `query-cache.ts` exists only when both RSC prefetch and browser queries consume the
+same serializable TanStack Query keys. It imports only its capability domain or `shared/kernel`.
 
 Admission to shared code requires at least two real consumers, identical meaning and lifecycle, no
 natural capability owner, and a narrower coordination cost than duplication. Delete or demote
@@ -119,8 +125,9 @@ depth; cover those with tests and review.
   and role; each target capability enforces its own authorization policy.
 - Validate untrusted input at the runtime boundary. Validate provider rows before returning domain
   values. Keep framework redirects/navigation outside broad catches.
-- Cache ownership follows data ownership. A capability names browser keys and any real server tags
-  in `cache.ts`; invalidate only caches that the read path actually populates.
+- Cache ownership follows data ownership. Shared query-key identity lives in `query-cache.ts`;
+  Next cache tags and invalidation stay private under `server/**`. Invalidate only caches that the
+  read path actually populates.
 
 ## Frontend Rules
 
@@ -133,7 +140,7 @@ depth; cover those with tests and review.
 - Use Mantine props and CSS Modules. Do not add inline style objects or hardcoded palette values.
 - Use `TranslationText`/`TranslationTitle` and `messages.json` for user-facing strings.
 - Keep TanStack Query in the owning capability's `client/` segment. Query keys come from the
-  capability's runtime-neutral `cache.ts`, not app-local literals.
+  capability's runtime-neutral `query-cache.ts`, not app-local literals.
 
 ## Code Style
 

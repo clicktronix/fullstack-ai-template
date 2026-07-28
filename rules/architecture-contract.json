@@ -3,11 +3,11 @@
   "generatedRoot": "src/generated",
   "moduleRoot": "src/modules",
   "segments": ["domain", "application", "server", "client", "ui"],
-  "publicSurfaces": ["server", "rsc", "actions", "client", "ui", "cache", "stream", "job"],
+  "publicSurfaces": ["server", "rsc", "actions", "client", "ui", "query-cache", "stream", "job"],
   "serverSurfaces": ["server", "rsc", "stream", "job"],
   "serverExecutionSurfaces": ["server", "rsc", "actions", "stream", "job"],
   "clientSurfaces": ["client", "ui"],
-  "neutralSurfaces": ["cache"],
+  "neutralSurfaces": ["query-cache"],
   "sharedRoots": ["kernel", "server", "client", "ui"],
   "runtimePackages": [
     "next",

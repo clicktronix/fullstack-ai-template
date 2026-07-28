@@ -9,6 +9,7 @@ infer business meaning from path names.
 | `eslint-boundaries.mjs`          | capability ownership, purity, and server/client direction   |
 | `eslint-boundaries-resolved.mjs` | unresolved-import and file-cycle canaries                   |
 | `check-module-cycles.mjs`        | capability-level cycle detection                            |
+| `check-neutral-surfaces.mjs`     | query-key surface direction and two-runtime liveness        |
 
 ## Enforced Invariants
 
@@ -18,13 +19,16 @@ infer business meaning from path names.
 4. browser code cannot import server surfaces; server capability code cannot import browser
    surfaces. `actions.ts` is the explicit browser-to-server command boundary.
 5. module-root files use the admitted runtime vocabulary:
-   `server`, `rsc`, `actions`, `client`, `ui`, `cache`, `stream`, or `job`.
+   `server`, `rsc`, `actions`, `client`, `ui`, `query-cache`, `stream`, or `job`.
 6. shared code uses `shared/kernel`, `shared/server`, `shared/client`, or `shared/ui` and cannot
    depend on product capabilities.
 7. unresolved imports, computed dynamic loads, file cycles, and capability cycles fail validation.
 8. generated provider contracts are limited to private server/client adapters and shared
    server/client runtime code.
-9. runtime-neutral `cache.ts` surfaces import only their own domain or `shared/kernel`.
+9. runtime-neutral `query-cache.ts` surfaces import only their own domain or `shared/kernel`.
+10. each `query-cache.ts` has both a server prefetch consumer and a browser consumer. Next cache
+    tags, invalidation, fetchers, providers, and one-runtime-only keys stay in runtime-specific
+    implementation.
 
 ## Review-Only Invariants
 

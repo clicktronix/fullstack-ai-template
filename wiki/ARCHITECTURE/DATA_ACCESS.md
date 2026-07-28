@@ -133,11 +133,11 @@ the first byte, failures travel in-band.
 
 ## Cache
 
-Query keys live in the owning capability's `cache.ts`; RSC prefetch and browser hooks use the same
-key shape. Add server tag identities only for reads that assign those tags with `cacheTag`.
-Successful Server Actions may call `updateTag` for read-your-own-writes; Route Handlers use
-`revalidateTag`. Work-item and label reads in this template are dynamic, so their cache files
-contain browser query keys but no inert server tags.
+Query keys live in the owning capability's `query-cache.ts` only when RSC prefetch and browser
+hooks consume the same serializable key shape. That surface imports only the capability's domain or
+`shared/kernel`; it contains no fetchers, providers, Next cache tags, or invalidation. Successful
+Server Actions may call `updateTag` for read-your-own-writes; Route Handlers use `revalidateTag`.
+Keep those tag identities and operations private under `server/**`.
 
 Generic realtime subscription transport lives in `shared/client`; the app-level composition maps
 provider table events to public capability query keys. No technical `live-updates` product

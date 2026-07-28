@@ -3,8 +3,8 @@
 import type { Session } from '@supabase/supabase-js'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { signInAction, signInWithOAuthAction, signOutAction, signUpAction } from '../../actions'
-import { authKeys } from '../../cache'
 import type { OAuthProvider } from '../../domain/auth'
+import { authKeys } from '../../query-cache'
 
 /**
  * Input type for sign in mutation.
