@@ -160,6 +160,8 @@ const capabilityRule = {
         'application/** owns framework-neutral policy. Supply runtime adapters instead of importing {{target}}.',
       browserServer: 'Browser-safe code must not import the server surface {{target}}.',
       serverClient: 'Server capability code must not import the browser surface {{target}}.',
+      privateServerBackedge:
+        'Private server implementation must not import its own public surface {{target}}. Move shared contracts inward.',
       sharedImportsModule:
         'shared/** must remain capability-neutral and cannot import {{capability}}.',
       invalidSharedRoot:
@@ -325,6 +327,20 @@ const capabilityRule = {
         context.report({
           node,
           messageId: 'serverClient',
+          data: { target: targetLabel },
+        })
+        return
+      }
+
+      if (
+        sourceModule?.segment === 'server' &&
+        targetModule?.capability === sourceModule.capability &&
+        targetModule.surface &&
+        PUBLIC_SURFACES.has(targetModule.surface)
+      ) {
+        context.report({
+          node,
+          messageId: 'privateServerBackedge',
           data: { target: targetLabel },
         })
       }

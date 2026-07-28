@@ -85,6 +85,9 @@ UI command     -> module/actions.ts -> module/server.ts -> private store/provide
 External HTTP  -> route handler     -> module/server.ts -> private store/provider
 ```
 
+Private `server/**` never imports its own root public surfaces. Channel files depend inward on
+private implementation; shared failure and policy contracts live in domain/application code.
+
 Do not use Server Actions as browser query transport. Server Components call `rsc.ts` or a trusted
 server surface directly. Browser-owned query lifecycles use GET or a stream.
 

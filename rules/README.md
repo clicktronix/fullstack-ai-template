@@ -29,6 +29,7 @@ infer business meaning from path names.
 10. each `query-cache.ts` has both a server prefetch consumer and a browser consumer. Next cache
     tags, invalidation, fetchers, providers, and one-runtime-only keys stay in runtime-specific
     implementation.
+11. private `server/**` cannot import its own root public surfaces; runtime channels depend inward.
 
 ## Review-Only Invariants
 

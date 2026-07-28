@@ -45,6 +45,8 @@ Create only needed segments:
 - Source capabilities remain unaware of orchestrators.
 - `server.ts` receives explicit identity/effects and reports nothing.
 - `actions.ts` is for commands, never browser reads.
+- Private `server/**` never imports its own `server.ts`, `rsc.ts`, `actions.ts`, or other root
+  surface. Keep shared failure types in domain/application code.
 - `rsc.ts` handles server-rendered reads and prefetch.
 - `client.ts` exposes browser-safe query/subscription behavior.
 - `query-cache.ts` exists only when RSC prefetch and browser queries consume the same serializable
