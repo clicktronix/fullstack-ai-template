@@ -1,6 +1,6 @@
 import { connection } from 'next/server'
 import { Suspense } from 'react'
-import { logger } from '@/infrastructure/logging/logger'
+import { logger } from '@/shared/client/logging/logger'
 import { OAuthErrorView } from './_internal/ui/OAuthErrorView'
 
 type SearchParams = Promise<{

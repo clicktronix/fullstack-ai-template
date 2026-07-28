@@ -1,81 +1,69 @@
-# Use-Cases
+# Application Operations
 
-## What Belongs Here
+`application/**` is optional. It exists for behavior that is deeper than a runtime boundary or
+store call.
 
-`src/use-cases/` contains:
+## Deletion Test
 
-- application scenarios
-- ports
-- feature-local types
-- lightweight orchestration
+Delete the proposed operation mentally. Keep it only if meaningful complexity moves into callers:
 
-It does **not** contain:
+- policy or branching;
+- projection across sources;
+- transaction intent;
+- behavior shared by channels;
+- orchestration across capabilities/providers.
 
-- `use server`
-- `NextRequest` / `NextResponse`
-- React hooks
-- TanStack Query logic
+Validation, row mapping, cache invalidation, telemetry, and direct CRUD do not independently pass
+the test.
 
-## Reference Example
+## Simple CRUD
 
 ```text
-src/use-cases/work-items/
-├── work-items.ts
-├── ports.ts
-└── types.ts
+Action / Route / RSC
+  -> capability server.ts
+    -> private store
 ```
 
-Example:
+`work-items` and `labels` use this shape.
 
-```ts
-import type { WorkItemRepository } from './ports'
-import type { WorkItemFilters } from './types'
+## Real Application Behavior
 
-export async function listWorkItems(
-  deps: { workItems: WorkItemRepository },
-  filters: WorkItemFilters
-) {
-  return deps.workItems.list(filters)
-}
+```text
+outer channel
+  -> capability server.ts
+    -> application operation
+      -> capability-language ports
+        -> private adapters
 ```
+
+`assistant-suggestions` combines work-item and label summaries, applies suggestion workflow policy,
+and calls a provider. Deleting the operation would move orchestration into the action or adapter,
+so it earns `application/**`.
+
+## Operation Contract
+
+- framework-neutral;
+- explicit input and narrow dependencies;
+- no Sentry reporting;
+- no direct provider/database import;
+- no dependency on another capability's internals;
+- typed result or meaningful typed/coded failure.
 
 ## Ports
 
-Ports define what a use-case needs from the outside world.
+A port belongs beside the operation that needs it. Name the needed capability, not the provider:
 
 ```ts
-export type WorkItemRepository = {
-  list: (filters: WorkItemFilters) => Promise<WorkItem[]>
-  create: (input: CreateWorkItemInput) => Promise<WorkItem>
+type SuggestionSources = {
+  listWorkItems: () => Promise<WorkItemSummary[]>
+  listLabels: () => Promise<LabelSummary[]>
 }
 ```
 
-The use-case depends on the contract. Outbound adapters implement it.
+Do not create `WorkItemsRepository` merely to mirror table CRUD. The orchestrator's private server
+adapter calls `work-items/server.ts` and maps the public result into its own summary type.
 
-```mermaid
-flowchart LR
-    UC["listWorkItems (use-case)"] -->|depends on| Port["WorkItemRepository (port type)"]
-    Supabase["supabaseWorkItemRepository"] -->|implements| Port
-    Fake["fakeWorkItemRepository (tests)"] -->|implements| Port
-    Supabase -->|used by| UC
-    Fake -->|used by| UC
+## Testing
 
-    classDef port fill:#2a3a2a,stroke:#5a8a5a,color:#fff
-    class Port port
-```
-
-## Relationship to Server-State
-
-React Query integration does not live in `use-cases`.
-
-Instead:
-
-```text
-src/ui/server-state/work-items/
-├── keys.ts
-├── queries.ts
-├── mutations.ts
-└── prefetch.ts
-```
-
-This keeps the application layer clean while still colocating server-data logic by feature.
+Application tests pass explicit fake ports and assert policy/orchestration. They do not load Next,
+React, Supabase, Sentry, or network clients.

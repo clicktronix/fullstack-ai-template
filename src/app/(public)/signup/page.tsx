@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
-import { verifySession } from '@/infrastructure/auth/verify-session'
-import { DEFAULT_AUTHENTICATED_ROUTE } from '@/infrastructure/constants'
-import { AuthLayout } from '@/ui/layout/AuthLayout'
+import { readCurrentUser } from '@/modules/identity/rsc'
+import { DEFAULT_AUTHENTICATED_ROUTE } from '@/modules/identity/server'
+import { AuthLayout } from '@/modules/identity/ui'
 import { SignupView } from './_internal/ui/SignupView'
 
 export const metadata: Metadata = {
@@ -35,10 +35,10 @@ async function SignupContent({ searchParams }: SignupPageProps) {
   const redirectTo = getRedirectParam(await searchParams)
 
   // Check if user is already authenticated on the server
-  const session = await verifySession()
+  const user = await readCurrentUser()
 
   // Redirect to dashboard if already logged in
-  if (session) {
+  if (user) {
     redirect(DEFAULT_AUTHENTICATED_ROUTE)
   }
 

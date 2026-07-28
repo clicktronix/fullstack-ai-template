@@ -2,10 +2,9 @@
 
 import { Alert, Anchor, Button, Stack, Text } from '@mantine/core'
 import Link from 'next/link'
-import { FloatingPasswordInput } from '@/ui/components/FloatingInput/FloatingPasswordInput'
-import { FloatingTextInput } from '@/ui/components/FloatingInput/FloatingTextInput'
-import { FormErrorAlert } from '@/ui/components/FormErrorAlert'
-import { composeHooks } from '@/ui/hooks/compose-hooks'
+import { FloatingPasswordInput } from '@/shared/ui/components/FloatingInput/FloatingPasswordInput'
+import { FloatingTextInput } from '@/shared/ui/components/FloatingInput/FloatingTextInput'
+import { FormErrorAlert } from '@/shared/ui/components/FormErrorAlert'
 import { useSignupFormProps, type SignupFormProps, type SignupFormViewProps } from './lib'
 
 export function SignupFormView({
@@ -87,6 +86,6 @@ export function SignupFormView({
   )
 }
 
-export const SignupForm = composeHooks<SignupFormViewProps, SignupFormProps>(SignupFormView)(
-  useSignupFormProps
-)
+export function SignupForm(props: SignupFormProps) {
+  return <SignupFormView {...useSignupFormProps(props)} />
+}

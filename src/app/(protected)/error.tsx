@@ -1,8 +1,8 @@
 'use client'
 
 import { Button, Container, Stack } from '@mantine/core'
-import { TranslationText } from '@/ui/components/TranslationText'
-import { TranslationTitle } from '@/ui/components/TranslationTitle'
+import { TranslationText } from '@/shared/ui/components/TranslationText'
+import { TranslationTitle } from '@/shared/ui/components/TranslationTitle'
 import messages from '../messages.json'
 
 type ErrorPageProps = {

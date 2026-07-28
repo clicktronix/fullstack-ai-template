@@ -3,7 +3,7 @@
 import { Container, Alert, Stack, Button } from '@mantine/core'
 import { IconAlertCircle } from '@tabler/icons-react'
 import Link from 'next/link'
-import { TranslationText } from '@/ui/components/TranslationText'
+import { TranslationText } from '@/shared/ui/components/TranslationText'
 import messages from './messages.json'
 
 export type OAuthErrorViewProps = {

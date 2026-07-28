@@ -1,11 +1,15 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { isAuthRoute, isProtectedRoute } from '@/infrastructure/auth/auth-routes'
-import { DEFAULT_AUTHENTICATED_ROUTE, LOCALE_COOKIE_NAME } from '@/infrastructure/constants'
-import { getPublicEnv, getPublicSupabaseKey } from '@/infrastructure/env/public'
-import { isDevelopmentEnvironment } from '@/infrastructure/env/runtime'
-import { resolveInitialLocale } from '@/infrastructure/i18n/locale-detection'
+import {
+  DEFAULT_AUTHENTICATED_ROUTE,
+  isAuthRoute,
+  isProtectedRoute,
+} from '@/modules/identity/server'
+import { getPublicEnv, getPublicSupabaseKey } from '@/shared/client/env/public'
+import { isDevelopmentEnvironment } from '@/shared/server/env/runtime'
+import { LOCALE_COOKIE_NAME } from '@/shared/ui/i18n/constants'
+import { resolveInitialLocale } from '@/shared/ui/i18n/locale-detection'
 
 const isDevelopment = isDevelopmentEnvironment()
 

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { getPublicEnv } from '@/infrastructure/env/public'
+import { getPublicEnv } from '@/shared/client/env/public'
 
 const BASE_URL = getPublicEnv().NEXT_PUBLIC_SITE_URL ?? 'https://example.com'
 

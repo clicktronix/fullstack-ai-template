@@ -1,4 +1,4 @@
-import { useAuth } from '@/ui/providers/AuthContext'
+import { useAuth } from '@/modules/identity/ui'
 
 /**
  * Hook for ProfileView

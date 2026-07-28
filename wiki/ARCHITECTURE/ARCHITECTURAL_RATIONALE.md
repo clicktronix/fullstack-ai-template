@@ -1,39 +1,58 @@
 # Architectural Rationale
 
-## Why This Template Exists
+## Why Capability-First
 
-The goal is to start new products on a disciplined baseline without dragging over domain-specific code from an existing app.
+Layer-first placement made every product change touch parallel top-level trees and did not prevent
+same-layer coupling between capabilities. Capability-first makes ownership physical: work-items,
+labels, identity, and assistant behavior each have a visible boundary.
 
-This template keeps:
+The trade-off is explicit. Optional segments reduce scaffolding, but placement requires judgement.
+Reserved segment names and executable import rules preserve a minimum dependency direction when a
+segment exists.
 
-- the stack
-- the layer boundaries
-- the tooling
-- the testing baseline
+## Why Runtime Root Surfaces
 
-and replaces project-specific business logic with one neutral vertical slice.
+Next.js has materially different channels: RSC, actions, HTTP, streams, and jobs. A universal
+boundary hides their cache, serialization, and failure semantics. Narrow root surfaces keep a
+stable capability API while allowing each channel to adapt honestly.
 
-## Why `ui/server-state` Exists
+## Why `server.ts` Is Silent
 
-React Query logic is not application logic, but it also should not live inside random components. A dedicated server-state layer keeps:
+Cross-capability workflows need trusted in-process composition. If every inner capability reports,
+one incident is captured repeatedly. `server.ts` enforces capability policy but propagates
+failures; the outer channel reports once.
 
-- query keys
-- query hooks
-- mutation hooks
-- SSR prefetch helpers
+## Why Simple CRUD Skips Application
 
-out of `use-cases` and out of presentation code.
+The previous model produced forwarding operations and mirrored repository ports. The deletion test
+keeps only application behavior that concentrates policy, branching, projection, transaction
+intent, or orchestration.
 
-## Why feature-local `actions.ts` Exist
+## Why Local Stores Need No Port
 
-Sometimes UI needs a direct Server Action call with no query semantics. That does not belong in `ui/server-state`, but it also should not make components import inbound adapters directly. A local `actions.ts` is the narrowest safe escape hatch.
+A port is an application-language contract, not a test seam for every table. A capability-private
+Supabase store can change internally without changing callers. Add a port when application behavior
+must name a volatile capability independent of the provider.
 
-## Why the Demo Slice Uses `work-items`
+## Why Browser Reads Use GET
 
-The example domain needs to be:
+Server Actions are serialized command transport. Browser reads need cacheable, observable GET or
+stream semantics. Server-rendered reads bypass HTTP and call `rsc.ts` directly.
 
-- easy to understand
-- relevant to B2B apps
-- neutral enough to customize
+## Why Shared Is Gated
 
-`work-items` and `labels` are enough to demonstrate a full vertical slice without pushing a specific business domain into every new project.
+Capability-first systems often fail by growing a new `shared` monolith. Admission requires real
+consumers, identical semantics, no natural owner, and a positive coordination trade-off. Demotion
+is part of the lifecycle.
+
+## Why Hooks Are Direct
+
+Passing hooks through a generic composer violates React's current guidance, hides the hook call
+from static analysis, and added unused generic complexity. Direct named calls preserve local
+reasoning and keep View separation optional.
+
+## What Tooling Proves
+
+ESLint and the cycle checker prove import shape, runtime direction, and acyclicity. They do not
+prove semantic depth, correct authorization, cache behavior, transaction boundaries, shared
+admission, or report-once behavior. Those require tests and review.

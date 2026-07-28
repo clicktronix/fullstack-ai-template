@@ -5,6 +5,6 @@
   },
   "description": {
     "id": "workItemsPage.description",
-    "defaultMessage": "This page will become the main example of how domain, use-cases, inbound/outbound adapters, and ui/server-state connect in the template."
+    "defaultMessage": "Reference capability showing RSC reads, browser GET queries, Server Action commands, and UI."
   }
 }

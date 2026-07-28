@@ -1,10 +1,9 @@
 'use client'
 
 import { Button, Stack } from '@mantine/core'
-import { FloatingPasswordInput } from '@/ui/components/FloatingInput/FloatingPasswordInput'
-import { FloatingTextInput } from '@/ui/components/FloatingInput/FloatingTextInput'
-import { FormErrorAlert } from '@/ui/components/FormErrorAlert'
-import { composeHooks } from '@/ui/hooks/compose-hooks'
+import { FloatingPasswordInput } from '@/shared/ui/components/FloatingInput/FloatingPasswordInput'
+import { FloatingTextInput } from '@/shared/ui/components/FloatingInput/FloatingTextInput'
+import { FormErrorAlert } from '@/shared/ui/components/FormErrorAlert'
 import { useLoginFormProps, type LoginFormProps, type LoginFormViewProps } from './lib'
 
 export function LoginFormView({
@@ -52,6 +51,6 @@ export function LoginFormView({
   )
 }
 
-export const LoginForm = composeHooks<LoginFormViewProps, LoginFormProps>(LoginFormView)(
-  useLoginFormProps
-)
+export function LoginForm(props: LoginFormProps) {
+  return <LoginFormView {...useLoginFormProps(props)} />
+}

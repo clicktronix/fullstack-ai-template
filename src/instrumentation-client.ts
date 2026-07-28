@@ -3,9 +3,12 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import { init } from '@sentry/nextjs'
-import { getPublicEnv } from '@/infrastructure/env/public'
-import { getSentrySendDefaultPii, getSentryTracesSampleRate } from '@/infrastructure/sentry/config'
-import { redactSentryEvent } from '@/infrastructure/sentry/redact'
+import { getPublicEnv } from '@/shared/client/env/public'
+import {
+  getSentrySendDefaultPii,
+  getSentryTracesSampleRate,
+} from '@/shared/client/observability/config'
+import { redactSentryEvent } from '@/shared/client/observability/redact'
 
 const env = getPublicEnv()
 

@@ -1,0 +1,59 @@
+'use client'
+
+import { useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
+import { useIntl } from 'react-intl'
+import { getSentry } from '@/shared/client/observability/capture'
+import { extractErrorCode } from '@/shared/kernel/errors/action-error'
+import { presentError } from '@/shared/ui/errors/presentation'
+import { notifications } from '@/shared/ui/mantine-notifications'
+
+/**
+ * Global mutation error handler.
+ *
+ * Subscribes to TanStack Query MutationCache and shows
+ * localized error notifications for any failed mutation.
+ * This keeps notification logic in the UI layer,
+ * while use-cases stay clean (data + rollback only).
+ *
+ * This is the mutations channel: it only adds a breadcrumb (for context on whatever error
+ * report follows), not a full Sentry capture — mutations reach here via safe-action.ts
+ * (actionClient/authActionClient), which already captures unexpected
+ * errors once at that boundary. Do not add Sentry.captureException here, or the same
+ * error would be reported twice. Query errors are a separate channel — see the
+ * QueryCache `onError` in `ui/providers/query-client.ts`.
+ */
+export function MutationErrorNotifier() {
+  const queryClient = useQueryClient()
+  const intl = useIntl()
+
+  useEffect(() => {
+    const unsubscribe = queryClient.getMutationCache().subscribe((event) => {
+      if (event.type === 'updated' && event.action.type === 'error') {
+        const error = event.action.error
+        const presentation = presentError(error)
+
+        notifications.show({
+          title: intl.formatMessage(presentation.titleDescriptor),
+          message: intl.formatMessage(presentation.messageDescriptor, presentation.messageValues),
+          color: 'red',
+        })
+
+        getSentry().then((Sentry) => {
+          Sentry.addBreadcrumb({
+            category: 'mutation.error',
+            message: error instanceof Error ? error.message : String(error),
+            data: {
+              errorCode: error instanceof Error ? extractErrorCode(error.message) : null,
+            },
+            level: 'error',
+          })
+        })
+      }
+    })
+
+    return unsubscribe
+  }, [queryClient, intl])
+
+  return null
+}

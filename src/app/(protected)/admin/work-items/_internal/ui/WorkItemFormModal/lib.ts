@@ -4,9 +4,9 @@ import { useForm, type UseFormReturnType } from '@mantine/form'
 import { useEffect, useMemo } from 'react'
 import { useIntl } from 'react-intl'
 import { array, boolean, minLength, nullable, object, optional, pipe, string, trim } from 'valibot'
-import type { Label } from '@/domain/label/label'
-import type { CreateWorkItem, UpdateWorkItem, WorkItem } from '@/domain/work-item/work-item'
-import { createMantineValidator } from '@/ui/create-mantine-validator'
+import type { Label } from '@/modules/labels/client'
+import type { CreateWorkItem, UpdateWorkItem, WorkItem } from '@/modules/work-items/client'
+import { createMantineValidator } from '@/shared/ui/create-mantine-validator'
 import messages from './messages.json'
 
 export type WorkItemFormValues = {

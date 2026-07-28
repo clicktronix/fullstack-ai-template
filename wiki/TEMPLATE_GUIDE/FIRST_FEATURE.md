@@ -1,89 +1,83 @@
-# First Feature
+# First Capability
 
-Use the demo `work-items` slice as the reference implementation.
+Use `src/modules/work-items` as the CRUD reference and
+`src/modules/assistant-suggestions` as the cross-capability orchestration reference.
 
-For a small AI-oriented example on top of the same slice, also inspect:
+## 1. Name The Owner
 
-- `src/domain/assistant-suggestion`
-- `src/use-cases/assistant-suggestions`
-- `src/adapters/outbound/api/assistant-suggestions.ts`
-- `src/adapters/inbound/next/server-actions/assistant-suggestions.ts`
-- `src/ui/server-state/assistant-suggestions`
-- `src/app/(protected)/admin/work-items/_internal/ui/AssistantSuggestionsPanel`
+Choose a product capability, not a technical noun. Prefer `billing`, `work-items`, or `identity`
+over `api`, `services`, or `database`.
 
-## Recommended order
+```text
+src/modules/<capability>/
+```
 
-1. Domain
-2. Use-cases
-3. Outbound adapters
-4. Inbound adapters
-5. UI server-state
-6. UI
-7. Tests
+## 2. Add Only Needed Segments
 
-## Example checklist
+| Need                                   | Add            |
+| -------------------------------------- | -------------- |
+| Schemas and pure policy                | `domain/`      |
+| Behavior that passes the deletion test | `application/` |
+| Stores and provider adapters           | `server/`      |
+| TanStack Query and browser transports  | `client/`      |
+| Reusable capability-owned components   | `ui/`          |
 
-### 1. Domain
+Segments are optional. Direct CRUD can live behind `server.ts` without an application wrapper.
 
-Create:
+## 3. Publish Runtime Surfaces
 
-- `src/domain/<feature>/<entity>.ts`
+Create root files only when a consumer exists:
 
-Add:
+| Surface                | Consumer                                            |
+| ---------------------- | --------------------------------------------------- |
+| `server.ts`            | trusted in-process server code                      |
+| `rsc.ts`               | Server Components and prefetch                      |
+| `actions.ts`           | browser mutation commands                           |
+| `client.ts`            | browser queries/subscriptions                       |
+| `ui.ts`                | reusable capability UI                              |
+| `cache.ts`             | query keys shared by RSC prefetch and browser cache |
+| `stream.ts` / `job.ts` | long-lived or background channels                   |
 
-- Valibot schema
-- inferred types
-- pure helpers and invariants
+Other capabilities may import these files, never private segments.
 
-### 2. Use-cases
+## 4. Choose The Channel
 
-Create:
+```mermaid
+flowchart TB
+  Need["What does the caller need?"]
+  RSC["Initial server render"]
+  Browser["Browser read"]
+  Command["Browser command"]
+  Async["Stream or background work"]
+  RscSurface["rsc.ts"]
+  Get["GET / stream Route Handler"]
+  Action["actions.ts"]
+  Channel["stream.ts / job.ts"]
 
-- `src/use-cases/<feature>/ports.ts`
-- `src/use-cases/<feature>/<feature>.ts`
-- `src/use-cases/<feature>/types.ts` only if needed
+  Need --> RSC --> RscSurface
+  Need --> Browser --> Get
+  Need --> Command --> Action
+  Need --> Async --> Channel
+```
 
-Keep this layer free from:
+Server Actions are commands, not browser query transports.
 
-- React
-- Next.js
-- TanStack Query
-- Server Actions
+## 5. Test At Owned Boundaries
 
-### 3. Outbound adapters
+- pure domain policy without mocks;
+- application behavior with typed fakes;
+- private stores against provider behavior;
+- public server surfaces for authorization and failures;
+- Route Handlers for decoding and HTTP mapping;
+- client hooks with fetch/action adapters mocked;
+- one E2E path for critical behavior.
 
-Create concrete implementations in:
+## 6. Verify
 
-- `src/adapters/outbound/supabase/`
-- `src/adapters/outbound/api/`
-
-### 4. Inbound adapters
-
-Create:
-
-- `src/adapters/inbound/next/server-actions/<feature>.ts`
-- route handlers only when HTTP entrypoints are actually needed
-
-### 5. Server-state
-
-Expose data to UI through:
-
-- `src/ui/server-state/<feature>/keys.ts`
-- `queries.ts`
-- `mutations.ts`
-- `prefetch.ts` when SSR hydration is needed
-
-### 6. UI
-
-Consume only:
-
-- `ui/server-state`
-- feature-local `actions.ts` for one-off direct Server Actions
-
-### 7. Testing
-
-Add:
-
-- unit tests for domain and use-cases
-- server-state hook tests where useful
-- one e2e smoke path for the new feature
+```bash
+bun run lint .
+bun run architecture:check
+bun run typecheck
+bun test
+bun run build
+```

@@ -2,8 +2,8 @@
 
 import { Button, Center, Stack } from '@mantine/core'
 import Link from 'next/link'
-import { TranslationText } from '@/ui/components/TranslationText'
-import { TranslationTitle } from '@/ui/components/TranslationTitle'
+import { TranslationText } from '@/shared/ui/components/TranslationText'
+import { TranslationTitle } from '@/shared/ui/components/TranslationTitle'
 import messages from './messages.json'
 
 export default function NotFoundPage() {

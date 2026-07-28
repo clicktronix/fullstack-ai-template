@@ -35,7 +35,7 @@ bun run dev                         # http://localhost:3000
 | Layer           | Technology                                    |
 | --------------- | --------------------------------------------- |
 | Framework       | Next.js 16 (App Router), React 19, TypeScript |
-| UI              | Mantine 8, CSS Modules                        |
+| UI              | Mantine 9, CSS Modules                        |
 | Validation      | Valibot (domain schemas + inferred types)     |
 | Server State    | TanStack Query                                |
 | Page UI State   | React state / reducer in feature-local hooks  |
@@ -45,50 +45,47 @@ bun run dev                         # http://localhost:3000
 
 ## Architecture
 
-Hybrid Clean Architecture with strict layer boundaries:
-
-```
-app/ui → ui/server-state | actions.ts → inbound adapters → use-cases → outbound adapters → domain
-```
+Capability-first architecture: product behavior is colocated under `src/modules/<capability>/`;
+runtime-specific entrypoints expose narrow public surfaces at the module root.
 
 ```mermaid
-flowchart LR
-    subgraph UI["UI Layer"]
-        App["app/"]
-        Cmp["ui/"]
-        SS["server-state/"]
-    end
-    IN["adapters/inbound/next/"]
-    UC["use-cases/"]
-    OUT["adapters/outbound/"]
-    D["domain/"]
+flowchart TB
+    App["app/**<br/>framework composition"]
+    Public["modules/&lt;capability&gt;/{rsc,actions,server,client,ui,cache}.ts<br/>public surfaces"]
+    Private["domain · application · server · client · ui<br/>private implementation"]
+    Shared["shared/{kernel,server,client,ui}<br/>admitted cross-capability code"]
+    Providers["Supabase · external APIs · telemetry"]
 
-    App --> SS --> IN --> UC --> OUT --> D
-    App -.->|actions.ts| IN
-    UC --> D
+    App --> Public
+    Public --> Private
+    Private --> Shared
+    Private --> Providers
 ```
 
-| Layer          | Path                         | Purpose                              |
-| -------------- | ---------------------------- | ------------------------------------ |
-| Domain         | `src/domain/`                | Valibot schemas, pure business rules |
-| Use-Cases      | `src/use-cases/`             | Application scenarios, ports         |
-| Outbound       | `src/adapters/outbound/`     | Supabase, external APIs              |
-| Inbound        | `src/adapters/inbound/next/` | Safe Server Actions, route handlers  |
-| Server-State   | `src/ui/server-state/`       | TanStack Query hooks, cache          |
-| UI             | `src/app/`, `src/ui/`        | Pages, components, hooks             |
-| Infrastructure | `src/infrastructure/`        | Auth, i18n, logging                  |
+| Area                  | Path                             | Purpose                                            |
+| --------------------- | -------------------------------- | -------------------------------------------------- |
+| Product capabilities  | `src/modules/<capability>/`      | Domain, application behavior, runtime adapters, UI |
+| Public surfaces       | `src/modules/<capability>/*.ts`  | Narrow runtime-specific contracts                  |
+| Framework composition | `src/app/`                       | Routes, layouts, HTTP decoding, channel wiring     |
+| Generated contracts   | `src/generated/`                 | Mechanical provider types; adapters only           |
+| Shared kernel         | `src/shared/kernel/`             | Pure cross-capability types and functions          |
+| Shared runtime code   | `src/shared/{server,client,ui}/` | Admitted runtime-specific utilities                |
 
 Next.js 16 defaults in this template:
 
 - `src/proxy.ts` handles session refresh, auth redirects, and security headers
 - Server Actions use `next-safe-action` with Valibot input schemas
 - Route Handlers expose service APIs with request-id envelopes and idempotent POST commands
-- cache invalidation uses centralized tags: Server Actions may call `updateTag()`, Route Handlers use `revalidateTag(tag, profile)`
+- each capability owns its query keys; a server cache adds tag identities only when its read path
+  actually calls `cacheTag()`
 - `bun run build` uses the default Turbopack production build
 
-`src/proxy.ts` is not the authorization boundary. Server-side data access re-checks auth/authz through server-only DAL helpers and safe Server Action middleware.
+`src/proxy.ts` is not the authorization boundary. Shared server auth verifies the provider user;
+the `identity` capability resolves product role/profile, and every target capability re-checks its
+own authorization policy.
 
-Full architecture guide: [`wiki/ARCHITECTURE/ARCHITECTURE.md`](wiki/ARCHITECTURE/ARCHITECTURE.md)
+Full architecture guide: [`wiki/ARCHITECTURE/ARCHITECTURE.md`](wiki/ARCHITECTURE/ARCHITECTURE.md).
+Migration measurements: [`wiki/ARCHITECTURE/MIGRATION_EVIDENCE.md`](wiki/ARCHITECTURE/MIGRATION_EVIDENCE.md).
 
 ## Agent Tooling
 
@@ -105,12 +102,12 @@ This template ships with complete AI agent configuration:
 
 ### Marketplace Plugins (auto-install on repo trust)
 
-| Marketplace                       | Plugin                    | Provides                                                              |
-| --------------------------------- | ------------------------- | --------------------------------------------------------------------- |
-| `clicktronix/nextjs-clean-skills` | `nextjs-clean-skills`     | Next.js 16 Hybrid Clean Architecture + Server/Client component skills |
-| `supabase/agent-skills`           | `postgres-best-practices` | Supabase Postgres guidance                                            |
-| `tanstack-skills/tanstack-skills` | `tanstack-query`          | TanStack Query patterns                                               |
-| `obra/superpowers-marketplace`    | `superpowers`             | TDD, debugging, collaboration workflows                               |
+| Marketplace                       | Plugin                    | Provides                                                    |
+| --------------------------------- | ------------------------- | ----------------------------------------------------------- |
+| `clicktronix/nextjs-clean-skills` | `nextjs-clean-skills`     | Next.js 16 capability-first architecture + component skills |
+| `supabase/agent-skills`           | `postgres-best-practices` | Supabase Postgres guidance                                  |
+| `tanstack-skills/tanstack-skills` | `tanstack-query`          | TanStack Query patterns                                     |
+| `obra/superpowers-marketplace`    | `superpowers`             | TDD, debugging, collaboration workflows                     |
 
 Vercel agent-skills (installed via `bun run setup:skills`): `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`.
 
@@ -138,9 +135,9 @@ Full list: see `CLAUDE.md` → Commands section.
 - Demo vertical slice (`work-items` + `labels` + optional AI suggestions)
 - Service API example (`GET/POST /api/work-items`) with idempotency and JSON error envelopes
 - Webhook example with HMAC signature verification
-- View + useProps component pattern via `composeHooks(View)(useProps)`
+- Direct named hook calls in client controllers; pure views split only when reuse or server rendering justifies it
 - i18n via React Intl with `en` baseline + auto-sync script (extensible to additional locales)
-- ESLint boundary rules enforcing architecture layers
+- ESLint boundary rules enforcing capability ownership and server/client direction
 - Unit tests (Bun + Testing Library), E2E (Playwright)
 - Storybook with theme palette stories
 - CI workflow (lint, typecheck, test, e2e)
@@ -151,7 +148,8 @@ Full list: see `CLAUDE.md` → Commands section.
 
 Copy `.env.example` to `.env.local` and fill in Supabase credentials. All other env vars are optional — see `.env.example` for documentation.
 
-Runtime code reads env only through `src/infrastructure/env/*`; direct `process.env` access is intentionally blocked by ESLint outside env helpers and tests.
+Runtime code reads env only through `src/shared/{server,client}/env/*`; direct `process.env`
+access is intentionally blocked by ESLint outside env helpers and tests.
 
 The first signed-up user becomes `owner` automatically; subsequent users start as `pending`.
 
@@ -161,7 +159,7 @@ The first signed-up user becomes `owner` automatically; subsequent users start a
 | ---------------------------------------------- | ------------------------------------------------------------------- |
 | [`CLAUDE.md`](CLAUDE.md)                       | Agent project context                                               |
 | [`wiki/ARCHITECTURE/`](wiki/ARCHITECTURE/)     | Architecture guide, quick reference, component patterns, theming    |
-| [`wiki/TESTING/`](wiki/TESTING/)               | Testing strategy, patterns by layer, mocking rules                  |
+| [`wiki/TESTING/`](wiki/TESTING/)               | Testing strategy, boundary patterns, and mocking rules              |
 | [`wiki/TEMPLATE_GUIDE/`](wiki/TEMPLATE_GUIDE/) | Getting started, customization, skills setup, optional integrations |
 | [`CHANGELOG.md`](CHANGELOG.md)                 | Template baseline release notes                                     |
 

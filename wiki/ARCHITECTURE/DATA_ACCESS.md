@@ -1,143 +1,155 @@
 # Data Access
 
-## Outbound Adapters
+Data access is owned by capabilities and exposed through channel-specific root surfaces.
 
-All persistence and external I/O belongs in `src/adapters/outbound/`.
+## Read Paths
 
-Typical structure:
+```mermaid
+flowchart TB
+  RSC["Server Component"]
+  Browser["Client Component"]
+  RscSurface["capability/rsc.ts"]
+  Get["GET Route Handler"]
+  Server["capability/server.ts"]
+  Store["capability/server/store.ts"]
+  DB["Supabase"]
+
+  RSC --> RscSurface
+  Browser --> Get
+  RscSurface --> Server
+  Get --> Server
+  Server --> Store
+  Store --> DB
+```
+
+RSC calls in-process code. Browser queries use GET for explicit HTTP semantics and independent
+browser query lifecycle. Route Handlers are not cached by default; this template keeps private
+reads dynamic and lets TanStack Query own browser freshness. Both paths use the same trusted
+capability policy and private store.
+
+## Command Path
+
+```mermaid
+flowchart TB
+  Form["Client form"]
+  Mutation["capability client mutation"]
+  Action["capability/actions.ts"]
+  Safe["shared/server/actions/safe-action"]
+  Server["capability/server.ts"]
+  Store["private store"]
+
+  Form --> Mutation
+  Mutation --> Action
+  Action --> Safe
+  Safe --> Server
+  Server --> Store
+```
+
+`actions.ts` starts with top-level `'use server'`. It parses untrusted input, verifies provider
+identity, resolves product identity through `identity/server.ts`, invokes the target `server.ts`,
+and returns a serializable result. The client mutation invalidates its TanStack Query keys after
+success. If a capability has a real Next server cache, the owning server channel also invalidates
+the tags assigned by that cached read. `actions.ts` contains no browser read functions.
+
+## Trusted Server Surface
+
+```ts
+export function listWorkItems(
+  identity: WorkItemsIdentity,
+  effects: WorkItemsEffects,
+  params: WorkItemListParams
+): Promise<PaginatedWorkItemsResult>
+```
+
+Identity and effects are explicit. The surface:
+
+- enforces capability authorization;
+- accepts already decoded typed input;
+- calls private adapters or application behavior;
+- propagates meaningful failures;
+- performs no Sentry reporting.
+
+## Stores and Provider Adapters
+
+Private server adapters live under the capability's `server/` segment. They:
+
+- use provider SDKs and generated row types;
+- select explicit columns;
+- map and validate provider data before returning domain values;
+- normalize provider failures;
+- remain invisible to app routes and other capabilities.
+
+Do not create a repository interface for a local table by default. Add an application port only
+when application behavior needs a technology-independent capability contract.
+
+## Cross-Capability Reads
+
+An orchestrator defines narrow source ports in its own vocabulary. Its private source adapters call
+the source capabilities' `server.ts` surfaces:
 
 ```text
-src/adapters/outbound/
-├── supabase/
-│   ├── work-items.operations.ts
-│   ├── work-items.repository.ts
-│   ├── labels.operations.ts
-│   └── labels.repository.ts
-├── api/
-└── transport/
+assistant application port
+  -> assistant server source adapter
+    -> work-items/server.ts
 ```
 
-## Pattern
+The source capability does not import the orchestrator. Authorization-sensitive joins resolve
+visible, missing, and forbidden references deliberately; silent omission is not a substitute for a
+required rejection.
 
-- `*.operations.ts` -> low-level queries, RPC calls, row mapping
-- `*.repository.ts` -> factories that satisfy use-case ports
+## Auth
 
-Example:
+`src/proxy.ts` may refresh sessions and redirect. It is not an authorization boundary.
 
-```ts
-export function createSupabaseWorkItemRepository(
-  supabase: SupabaseServerClient
-): WorkItemRepository {
-  return {
-    list: (filters) => listWorkItemsOperation(supabase, filters),
-    create: (input) => createWorkItemOperation(supabase, input),
-  }
-}
+Server channels establish provider `userId` through `shared/server/auth`, then resolve product
+profile and role through `modules/identity/server.ts`. The target capability still checks its own
+role, tenant, or ownership rule in `server.ts`. Browser auth lifecycle belongs to
+`modules/identity/client`.
+
+## Failure Mapping
+
+```mermaid
+flowchart TB
+  Provider["provider failure"]
+  Capability["capability code"]
+  Boundary["Action or Route boundary"]
+  Contract["coded result / HTTP envelope"]
+  User["client presentation"]
+  Sentry["one incident report"]
+
+  Provider --> Capability
+  Capability --> Boundary
+  Boundary --> Contract
+  Boundary --> Sentry
+  Contract --> User
 ```
 
-## Boundary Validation
+Expected failures map to stable codes/statuses. Unexpected failures are captured once by the outer
+boundary. A `:captured` marker prevents browser cache/error boundaries from reporting the same
+server incident again.
 
-Validate data at the domain boundary where it matters:
+Streaming has a temporal boundary: status/result mapping is possible before response commit; after
+the first byte, failures travel in-band.
 
-- parse DB rows or RPC payloads into domain types
-- do not leak raw database shapes into UI
+## Cache
 
-## DAL and Authorization
+Query keys live in the owning capability's `cache.ts`; RSC prefetch and browser hooks use the same
+key shape. Add server tag identities only for reads that assign those tags with `cacheTag`.
+Successful Server Actions may call `updateTag` for read-your-own-writes; Route Handlers use
+`revalidateTag`. Work-item and label reads in this template are dynamic, so their cache files
+contain browser query keys but no inert server tags.
 
-Every server-side path that reads user-scoped data must verify auth/authz in server-only code. `src/proxy.ts` can refresh sessions and redirect obvious anonymous requests, but it is not the authorization boundary.
+Generic realtime subscription transport lives in `shared/client`; the app-level composition maps
+provider table events to public capability query keys. No technical `live-updates` product
+capability is required.
 
-Use these rules:
+Use TanStack Query when the browser owns refresh, optimistic state, realtime invalidation,
+pagination, or infinite loading. Do not add it to a static RSC-only read.
 
-- modules that read cookies, headers, Supabase server clients, service-role keys, or secrets start with `import 'server-only'`
-- layouts and Server Components use `verifySession()` from `src/infrastructure/auth/verify-session.ts`
-- Server Actions and Route Handlers use `createAuthenticatedContext()` or `authActionClient` / `adminActionClient`
-- DTOs returned to UI are parsed through domain schemas; raw DB rows stay inside outbound adapters
+## Tests
 
-`verifySession()` is wrapped in React `cache()`, so repeated checks during the same server render are deduplicated.
-
-## Inbound Wiring
-
-Server Actions compose dependencies through safe-action clients:
-
-```ts
-const safeListWorkItemsAction = adminActionClient
-  .inputSchema(WorkItemFiltersSchema)
-  .action(async ({ ctx, parsedInput }) => {
-    const workItems = createSupabaseWorkItemRepository(ctx.supabase)
-    return listWorkItems({ workItems }, parsedInput)
-  })
-
-export async function listWorkItemsAction(filters: WorkItemFilters) {
-  return unwrapSafeActionResult(await safeListWorkItemsAction(filters))
-}
-```
-
-Use `createAuthenticatedContext()` or the `authActionClient` / `adminActionClient` middleware inside every server-side data path that depends on the current user. `src/proxy.ts` is only a request-time redirect/session-refresh layer, not the final authorization boundary.
-
-Route Handlers are the service API boundary for external HTTP clients. Use
-`createApiHandlerContext()` to attach the authenticated context and request id, then return
-stable JSON envelopes from `src/infrastructure/api/response.ts`. POST/PUT/PATCH commands that
-can be retried by clients should require `Idempotency-Key` and use
-`runIdempotentCommand()`.
-
-Webhook Route Handlers do not use browser session auth. Verify the provider signature over
-the raw request body before parsing or executing side effects.
-
-For Supabase SSR auth, use `auth.getUser()` or DAL helpers built on it for server-side authorization. Do not trust `auth.getSession()` by itself on the server; it can read unverified cookie state and is only acceptable after a `getUser()` verification or in browser-only refresh flows.
-
-Read env through `src/infrastructure/env/public.ts`, `client.ts`, `server.ts`, or `runtime.ts`. Runtime modules must not read `process.env` directly; this keeps service-role and backend-only values out of accidental public paths.
-
-`src/proxy.ts` is the active Next.js Proxy file because this project uses `src/app`. It sets security headers for every matched request. CSP intentionally keeps `script-src 'unsafe-inline'` and `style-src 'unsafe-inline'` while Cache Components/PPR are enabled: Next.js nonces require fully dynamic rendering, but PPR shells contain build-time scripts/styles that cannot receive a request-time nonce. If a route is moved out of PPR and made fully dynamic, nonce CSP can be enabled for that route and verified in HTML.
-
-## Error Handling
-
-`src/adapters/supabase/throw-supabase-error.ts` (`throwIfError()`) is the single conversion point
-for every Supabase/PostgREST failure in the outbound layer: it throws a typed `ApiError` subclass
-(`NotFoundError` for `PGRST116`, `ClientError`/409 for a unique-violation, `ServerError`/500
-otherwise) instead of a generic `Error`. `src/adapters/outbound/api/assistant-suggestions.ts` does
-the same for non-ok `fetch` responses. Outbound adapters never call Sentry themselves — they only
-convert the failure to a typed error; the boundary that first catches it (below) captures once.
-
-Each error origin is captured at exactly one boundary — see
-[`QUICK_REFERENCE.md`](./QUICK_REFERENCE.md#error-handling) for the compact map and
-[`diagrams/security.html`](./diagrams/security.html) for the full error-capture diagram. In short:
-
-- Server Action business logic is captured in `infrastructure/actions/safe-action.ts`'s
-  `handleServerError` (unexpected/`HTTP_ERROR`-mapped failures only).
-- Route Handlers are captured once by `withRouteErrorHandling`
-  (`src/infrastructure/api/with-route-error-handling.ts`).
-- TanStack Query/Mutation failures (client fetch or SSR `prefetchQuery`) are captured once by the
-  `QueryCache.onError` hook in `src/ui/providers/query-client.ts`.
-- `withServerReadErrorHandling` (`src/infrastructure/errors/with-server-read-error-handling.ts`) is
-  the pattern to use when a Server Component reads a use-case/repository directly without going
-  through TanStack Query. It has no live call site today — every current RSC read goes through
-  `prefetchQuery`, which is already covered by `QueryCache.onError`.
-
-All three Sentry entry points (`sentry.server.config.ts`, `sentry.edge.config.ts`,
-`src/instrumentation-client.ts`) set `beforeSend: redactSentryEvent`, so captured events are
-redacted before they leave the process/browser regardless of which boundary captured them.
-
-## Cache Invalidation
-
-Server and client invalidation target different caches:
-
-- Server Actions update the RSC/Data Cache with `updateTag()` for same-request read-your-writes and `revalidateTag(tag, profile)` for stale-while-revalidate refresh.
-- Route Handlers can invalidate tag/path caches after service API or webhook mutations with `revalidateTag(tag, profile)` / `revalidatePath(path)`.
-- `updateTag()` and `refresh()` are Server Action-only. Do not call them from Route Handlers.
-- Client TanStack mutations update the browser query cache with `queryClient.invalidateQueries()` or optimistic writes.
-
-Do not add ad-hoc `revalidatePath()` beside tag invalidation in this template unless the route tree itself is the intentional invalidation unit. Prefer tags from `src/infrastructure/cache/tags.ts`.
-
-In Server Actions, invalidate by tag:
-
-```ts
-updateTag(cacheTags.workItems.lists(ctx.userId))
-revalidateTag(cacheTags.workItems.all, 'minutes')
-```
-
-In Route Handlers, use `revalidateTag()` only:
-
-```ts
-revalidateTag(cacheTags.workItems.lists(ctx.userId), 'minutes')
-revalidateTag(cacheTags.workItems.all, 'minutes')
-```
+- `server.ts`: role and ownership policy.
+- store/provider: explicit columns, mapping, malformed rows, provider errors.
+- route/action: input, envelope, idempotency, cache, report-once.
+- client query: GET transport, envelope validation, keys, retries, user feedback.
+- RSC: direct server behavior and hydration keys.

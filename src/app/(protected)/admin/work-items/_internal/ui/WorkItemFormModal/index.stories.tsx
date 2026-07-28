@@ -1,6 +1,6 @@
 import { useForm } from '@mantine/form'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import type { Label } from '@/domain/label/label'
+import type { Label } from '@/modules/labels/client'
 import { WorkItemFormModalView } from './index'
 
 const sampleLabels: Label[] = [

@@ -1,36 +1,16 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test'
+import { createWorkItemsRouteHandlers, type WorkItemsRouteDependencies } from '../route'
 
-const mockCreateApiHandlerContext = mock()
-const mockRunIdempotentCommand = mock()
-const mockListWorkItems = mock()
-const mockCreateWorkItem = mock()
-const mockRevalidateTag = mock()
-
-mock.module('@/infrastructure/api/context', () => ({
-  createApiHandlerContext: mockCreateApiHandlerContext,
-  getRequestId: () => 'request-123',
-}))
-
-mock.module('@/infrastructure/api/idempotency', () => ({
-  runIdempotentCommand: mockRunIdempotentCommand,
-}))
-
-mock.module('@/use-cases/work-items/work-items', () => ({
-  listWorkItems: mockListWorkItems,
-  createWorkItem: mockCreateWorkItem,
-}))
-
-mock.module('next/cache', () => ({
-  revalidateTag: mockRevalidateTag,
-}))
-
-const { GET, POST } = await import('../route')
+const mockCreateApiHandlerContext = mock<WorkItemsRouteDependencies['createContext']>()
+const mockRunIdempotentCommand = mock<WorkItemsRouteDependencies['runIdempotentCommand']>()
+const mockListWorkItems = mock<WorkItemsRouteDependencies['listWorkItems']>()
+const mockCreateWorkItem = mock<WorkItemsRouteDependencies['createWorkItem']>()
+const mockReadIdentityContext = mock<WorkItemsRouteDependencies['readIdentityContext']>()
 
 const context = {
   requestId: 'request-123',
   userId: 'user-123',
-  role: 'admin',
-  supabase: {},
+  supabase: {} as never,
 }
 
 describe('/api/work-items route handler', () => {
@@ -39,8 +19,17 @@ describe('/api/work-items route handler', () => {
     mockRunIdempotentCommand.mockReset()
     mockListWorkItems.mockReset()
     mockCreateWorkItem.mockReset()
-    mockRevalidateTag.mockReset()
+    mockReadIdentityContext.mockReset()
     mockCreateApiHandlerContext.mockResolvedValue(context)
+    mockReadIdentityContext.mockResolvedValue({ actorId: 'user-123', role: 'admin' })
+  })
+
+  const { GET, POST } = createWorkItemsRouteHandlers({
+    createContext: mockCreateApiHandlerContext,
+    createWorkItem: mockCreateWorkItem,
+    listWorkItems: mockListWorkItems,
+    readIdentityContext: mockReadIdentityContext,
+    runIdempotentCommand: mockRunIdempotentCommand,
   })
 
   test('GET maps query params through the use-case and returns a request-id envelope', async () => {
@@ -53,7 +42,8 @@ describe('/api/work-items route handler', () => {
 
     const response = await GET(
       new Request(
-        'https://template.test/api/work-items?search=cache&status=active&page=2&pageSize=10&priorityOnly=true'
+        'https://template.test/api/work-items?search=cache&status=active&page=2&pageSize=10&priorityOnly=true',
+        { headers: { 'x-request-id': 'request-123' } }
       )
     )
     const body = await response.json()
@@ -69,19 +59,41 @@ describe('/api/work-items route handler', () => {
       },
       requestId: 'request-123',
     })
-    expect(mockListWorkItems).toHaveBeenCalledWith(expect.any(Object), {
-      search: 'cache',
-      status: 'active',
-      page: 2,
-      pageSize: 10,
-      priorityOnly: true,
-    })
+    expect(mockListWorkItems).toHaveBeenCalledWith(
+      { actorId: 'user-123', role: 'admin' },
+      { supabase: context.supabase },
+      {
+        search: 'cache',
+        status: 'active',
+        page: 2,
+        pageSize: 10,
+        priorityOnly: true,
+      }
+    )
+  })
+
+  test.each([
+    ['page', 'not-a-number'],
+    ['pageSize', '0'],
+    ['priorityOnly', 'yes'],
+  ])('GET rejects an invalid %s query value', async (field, value) => {
+    const response = await GET(
+      new Request(`https://template.test/api/work-items?${field}=${value}`, {
+        headers: { 'x-request-id': 'request-123' },
+      })
+    )
+    const body = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(body.error.code).toBe('VALIDATION_ERROR')
+    expect(mockListWorkItems).not.toHaveBeenCalled()
   })
 
   test('POST requires an Idempotency-Key header for service commands', async () => {
     const response = await POST(
       new Request('https://template.test/api/work-items', {
         method: 'POST',
+        headers: { 'x-request-id': 'request-123' },
         body: JSON.stringify({ title: 'Backend task' }),
       })
     )
@@ -97,25 +109,26 @@ describe('/api/work-items route handler', () => {
       id: 'work-item-1',
       title: 'Backend task',
       description: null,
-      status: 'active',
+      status: 'active' as const,
       is_priority: false,
-      label_ids: [],
+      label_ids: [] as string[],
       created_at: '2026-01-01T00:00:00.000Z',
       updated_at: '2026-01-01T00:00:00.000Z',
     }
 
     mockCreateWorkItem.mockResolvedValue(workItem)
-    mockRunIdempotentCommand.mockImplementation(
-      async ({ command }: { command: () => Promise<typeof workItem> }) => ({
-        data: await command(),
-        replayed: false,
-      })
-    )
+    mockRunIdempotentCommand.mockImplementation(async ({ command }) => ({
+      data: await command(),
+      replayed: false,
+    }))
 
     const response = await POST(
       new Request('https://template.test/api/work-items', {
         method: 'POST',
-        headers: { 'Idempotency-Key': 'create-work-item-1' },
+        headers: {
+          'Idempotency-Key': 'create-work-item-1',
+          'x-request-id': 'request-123',
+        },
         body: JSON.stringify({ title: 'Backend task' }),
       })
     )
@@ -132,15 +145,10 @@ describe('/api/work-items route handler', () => {
         context,
       })
     )
-    expect(mockCreateWorkItem).toHaveBeenCalledWith(expect.any(Object), {
-      title: 'Backend task',
-    })
-    expect(mockRevalidateTag).toHaveBeenCalledWith('work-items:user:user-123', 'minutes')
-    expect(mockRevalidateTag).toHaveBeenCalledWith('work-items:user:user-123:lists', 'minutes')
-    expect(mockRevalidateTag).toHaveBeenCalledWith('work-items', 'minutes')
-    expect(mockRevalidateTag).toHaveBeenCalledWith(
-      'work-items:user:user-123:detail:work-item-1',
-      'minutes'
+    expect(mockCreateWorkItem).toHaveBeenCalledWith(
+      { actorId: 'user-123', role: 'admin' },
+      { supabase: context.supabase },
+      { title: 'Backend task' }
     )
   })
 })

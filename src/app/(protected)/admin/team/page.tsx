@@ -1,7 +1,7 @@
 import { Container, Stack, Text } from '@mantine/core'
 import type { Metadata } from 'next'
-import { TranslationText } from '@/ui/components/TranslationText'
-import { TranslationTitle } from '@/ui/components/TranslationTitle'
+import { TranslationText } from '@/shared/ui/components/TranslationText'
+import { TranslationTitle } from '@/shared/ui/components/TranslationTitle'
 import messages from './messages.json'
 
 export const metadata: Metadata = {

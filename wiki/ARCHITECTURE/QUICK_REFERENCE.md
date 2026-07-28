@@ -1,72 +1,97 @@
-# Quick Reference
+# Architecture Quick Reference
 
-One-page cheatsheet. For rationale and exceptions, see [`ARCHITECTURE.md`](./ARCHITECTURE.md).
+## Place the Code
 
-## Dependency Flow
+| Question                                        | Location                    |
+| ----------------------------------------------- | --------------------------- |
+| One route only?                                 | `app/<route>/_internal`     |
+| Product concept or behavior?                    | `modules/<capability>`      |
+| Pure invariant?                                 | capability `domain/`        |
+| Real orchestration/policy?                      | capability `application/`   |
+| DB/provider implementation?                     | capability `server/`        |
+| Generated provider type?                        | `generated/<provider>`      |
+| Browser query/cache/subscription?               | capability `client/`        |
+| Reusable capability UI?                         | capability `ui/`            |
+| Two capabilities, identical contract, no owner? | admitted `shared/<runtime>` |
 
-```mermaid
-flowchart LR
-    UI["app/ • ui/"] --> SS["ui/server-state/"]
-    UI -.->|actions.ts| IN["adapters/inbound/next/"]
-    SS --> IN
-    IN --> UC["use-cases/"]
-    UC --> OUT["adapters/outbound/"]
-    UC --> D["domain/"]
-    OUT --> D
-```
+## Pick the Channel
+
+| Need                         | Channel                        |
+| ---------------------------- | ------------------------------ |
+| Initial/server-rendered read | `rsc.ts`                       |
+| Browser-owned read lifecycle | GET/stream through `client.ts` |
+| UI command                   | `actions.ts`                   |
+| External API/webhook         | Route Handler                  |
+| Background work              | `job.ts`                       |
+
+Never use Server Actions for browser queries.
+
+## Public Surfaces
 
 ```text
-app/ui -> ui/server-state | actions.ts -> inbound adapters -> use-cases -> outbound adapters -> domain
+server.ts  trusted server composition
+rsc.ts     Server Component reads/prefetch
+actions.ts UI commands
+client.ts  browser-safe lifecycle
+ui.ts      reusable capability UI
+cache.ts   query keys; optional assigned server tags
+stream.ts  streaming boundary
+job.ts     background boundary
 ```
 
-## Layer Map
+Import another capability only through these files.
 
-| Layer          | Path                         | Purpose                                           |
-| -------------- | ---------------------------- | ------------------------------------------------- |
-| Domain         | `src/domain/`                | Schemas, invariants, pure helpers                 |
-| Use-Cases      | `src/use-cases/`             | Application scenarios, ports, feature-local types |
-| Server-State   | `src/ui/server-state/`       | TanStack Query hooks, keys, SSR prefetch          |
-| Inbound        | `src/adapters/inbound/next/` | Safe Server Actions, route handlers               |
-| Outbound       | `src/adapters/outbound/`     | Supabase, external APIs, transport                |
-| UI             | `src/app/`, `src/ui/`        | Next entrypoints and presentation                 |
-| Infrastructure | `src/infrastructure/`        | Auth, i18n, config, logging, errors, sentry       |
+## Decision Gates
 
-## Rules
+Application operation:
 
-- `src/use-cases/**` must not import `app`, `ui`, or inbound adapters
-- `src/ui/server-state/**` is the only UI-facing layer allowed to call inbound adapters
-- feature-local `actions.ts` allowed only for thin direct Server Action wrappers
-- UI must not import outbound adapters directly
-- `app/` entrypoints stay thin
-- inbound Server Actions validate input through `next-safe-action`
-- service APIs use Route Handlers with request-id envelopes and idempotent POST commands
-- webhooks verify signatures and do not use browser session auth
-- cache invalidation uses `cacheTags`: Server Actions may call `updateTag()`, Route Handlers use `revalidateTag(tag, profile)`
-- `src/proxy.ts` refreshes sessions and redirects; DAL helpers re-check authorization in server code
+- Would deletion move policy, branching, projection, transaction intent, or orchestration into
+  callers?
+- If no, keep the direct store path.
 
-## Error Handling
+Port:
 
-Once-only Sentry capture: each error origin is owned by exactly one boundary.
+- Is there a technology-independent capability contract in application language?
+- Does inversion protect a real current boundary?
+- Is there a production consumer?
 
-| Error origin                                                 | Captures at                                                                           |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
-| Server Action business logic                                 | `safe-action.ts` `handleServerError` (unexpected/`HTTP_ERROR` only)                   |
-| `.use()` middleware role/auth checks (`with-auth.ts`)        | Not captured — expected, typed, business-rule outcomes                                |
-| Route Handler (`work-items`, `webhooks/example`)             | `withRouteErrorHandling` (once, 5xx only)                                             |
-| Supabase/PostgREST failure (`throwIfError`)                  | Converts to typed `ApiError` only — capture happens downstream                        |
-| TanStack Query failure (client fetch or SSR `prefetchQuery`) | `QueryCache.onError` (`ui/providers/query-client.ts`), deduped via `errorUpdateCount` |
-| TanStack Mutation failure                                    | `MutationErrorNotifier` — notification only, no Sentry capture                        |
-| Direct RSC/DAL read bypassing TanStack Query                 | `withServerReadErrorHandling` — no live call site today                               |
-| `auth/callback/route.ts` uncaught exception                  | Next's own `onRequestError` → Sentry (unwrapped, by design)                           |
+Shared:
 
-All three Sentry entry points redact via `beforeSend: redactSentryEvent` before sending. Full
-write-up: [`DATA_ACCESS.md`](./DATA_ACCESS.md#error-handling); full diagram:
-[`diagrams/security.html`](./diagrams/security.html).
+- Two real consumers?
+- Same meaning and lifecycle?
+- No natural owner?
+- Narrow maintained contract?
+- Coordination cheaper than copying?
 
-## Demo Slice
+## Runtime Safety
 
-`work-items` + `labels` — the canonical reference. Exercises every layer: domain schemas, use-case ports, Supabase outbound, Server Actions, Route Handlers, TanStack Query, SSR prefetch, `composeHooks` UI.
+- `server-only` on DB, secrets, cookies, headers, and provider modules.
+- Client/UI never imports `server.ts`, `rsc.ts`, or `server/**`.
+- Trusted `server.ts` gets explicit identity and effects.
+- Generated provider types stay inside private server/client adapters.
+- Shared auth establishes provider `userId`; `identity/server.ts` resolves product profile/role.
+- The target capability owns its role, tenant, and resource policy.
+- Outer boundary validates input, maps results, applies real channel cache effects, and reports once.
+- Proxy redirects are not authorization.
 
-Backend service boundaries: [`BACKEND_SERVICE_PATTERNS.md`](./BACKEND_SERVICE_PATTERNS.md).
+## Components
 
-Self-contained visual diagrams (layers, flows, security/errors, state): [`diagrams/`](./diagrams/layers.html).
+```tsx
+export function Component(props: ComponentProps) {
+  const viewProps = useComponentProps(props)
+  return <ComponentView {...viewProps} />
+}
+```
+
+Call hooks directly. A View split is optional. Do not pass hooks as values or restore
+`composeHooks`.
+
+## Gates
+
+```bash
+bun run lint .
+bun run architecture:check
+bun run typecheck
+bun test
+bun run build
+```

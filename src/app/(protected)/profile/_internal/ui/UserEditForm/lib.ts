@@ -1,9 +1,9 @@
 import type { IntlShape } from 'react-intl'
 import { useIntl } from 'react-intl'
 import { maxLength, minLength, object, pipe, string } from 'valibot'
-import type { User } from '@/domain/user/user'
-import { createMantineValidator } from '@/ui/create-mantine-validator'
-import { useServerActionForm } from '@/ui/hooks/server-action-form/use-server-action-form'
+import type { User } from '@/modules/identity/client'
+import { createMantineValidator } from '@/shared/ui/create-mantine-validator'
+import { useServerActionForm } from '@/shared/ui/hooks/server-action-form/use-server-action-form'
 import { updateCurrentUserProfile } from './actions'
 import messages from './messages.json'
 

@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react'
 import { useIntl } from 'react-intl'
-import { useWorkItem } from '@/ui/server-state/work-items/queries'
+import { useWorkItem } from '@/modules/work-items/client'
 import messages from './messages.json'
 
 export type WorkItemDetailPanelProps = {

@@ -1,11 +1,11 @@
-import { getRequestId } from '@/infrastructure/api/context'
-import { apiErrorWithCode, apiJson } from '@/infrastructure/api/response'
-import { verifyWebhookSignature } from '@/infrastructure/api/webhooks'
-import { withRouteErrorHandling } from '@/infrastructure/api/with-route-error-handling'
-import { getServerEnv } from '@/infrastructure/env/server'
-import { createHttpError } from '@/infrastructure/errors/api-error'
-import { AUTHENTICATION_ERROR } from '@/infrastructure/errors/codes'
-import { serverLogger } from '@/infrastructure/logging/server-logger'
+import { createHttpError } from '@/shared/kernel/errors/api-error'
+import { AUTHENTICATION_ERROR } from '@/shared/kernel/errors/codes'
+import { getRequestId } from '@/shared/server/api/context'
+import { apiErrorWithCode, apiJson } from '@/shared/server/api/response'
+import { verifyWebhookSignature } from '@/shared/server/api/webhooks'
+import { withRouteErrorHandling } from '@/shared/server/api/with-route-error-handling'
+import { getServerEnv } from '@/shared/server/env/server'
+import { serverLogger } from '@/shared/server/logging/server-logger'
 
 export const POST = withRouteErrorHandling('webhooks/example', async (request: Request) => {
   const requestId = getRequestId(request)

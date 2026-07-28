@@ -1,5 +1,5 @@
 import { registerOTel } from '@vercel/otel'
-import { getRuntimeEnv } from '@/infrastructure/env/runtime'
+import { getRuntimeEnv } from '@/shared/server/env/runtime'
 
 export async function register() {
   const runtime = getRuntimeEnv().NEXT_RUNTIME

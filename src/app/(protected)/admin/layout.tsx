@@ -1,8 +1,7 @@
 import { redirect } from 'next/navigation'
 import { connection } from 'next/server'
 import { Suspense, type ReactNode } from 'react'
-import { hasAccess } from '@/domain/user/user'
-import { verifySession } from '@/infrastructure/auth/verify-session'
+import { hasAccess, readCurrentUser } from '@/modules/identity/rsc'
 import ProtectedLoading from '../loading'
 
 /**
@@ -11,7 +10,7 @@ import ProtectedLoading from '../loading'
  * Admin pages are only accessible to users with 'owner' or 'admin' role.
  * Pending users are redirected to the home page.
  *
- * Note: verifySession() is called here and in the parent (protected) layout,
+ * Note: readCurrentUser() is called here and in the parent protected layout,
  * but React cache() deduplicates the calls within the same request.
  */
 export default function AdminLayout({
@@ -33,10 +32,9 @@ export default function AdminLayout({
 
 async function AdminGate({ children }: { children: ReactNode }) {
   await connection()
-  const session = await verifySession()
+  const user = await readCurrentUser()
 
-  // Parent layout handles null session redirect, but check anyway for type safety
-  if (!session || !hasAccess(session.user)) {
+  if (!user || !hasAccess(user)) {
     redirect('/')
   }
 

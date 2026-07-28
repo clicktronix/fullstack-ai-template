@@ -1,9 +1,8 @@
 'use client'
 
 import { MultiSelect, Stack, Switch, Textarea, TextInput } from '@mantine/core'
-import { FormModalShell } from '@/ui/components/FormModalShell'
-import { TranslationText } from '@/ui/components/TranslationText'
-import { composeHooks } from '@/ui/hooks/compose-hooks'
+import { FormModalShell } from '@/shared/ui/components/FormModalShell'
+import { TranslationText } from '@/shared/ui/components/TranslationText'
 import type { WorkItemFormModalProps, WorkItemFormModalViewProps } from './lib'
 import { useWorkItemFormModalProps } from './lib'
 import messages from './messages.json'
@@ -70,6 +69,6 @@ export function WorkItemFormModalView({
   )
 }
 
-export const WorkItemFormModal = composeHooks<WorkItemFormModalViewProps, WorkItemFormModalProps>(
-  WorkItemFormModalView
-)(useWorkItemFormModalProps)
+export function WorkItemFormModal(props: WorkItemFormModalProps) {
+  return <WorkItemFormModalView {...useWorkItemFormModalProps(props)} />
+}

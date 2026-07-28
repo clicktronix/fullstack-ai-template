@@ -9,7 +9,7 @@
   },
   "archivedDescription": {
     "id": "workItemsDashboard.archivedDescription",
-    "defaultMessage": "The same feature works through a separate archived route and reuses server-state."
+    "defaultMessage": "The archived route reuses the capability-owned query and cache contract."
   },
   "searchLabel": {
     "id": "workItemsDashboard.searchLabel",

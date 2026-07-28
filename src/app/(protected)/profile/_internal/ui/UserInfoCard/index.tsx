@@ -2,13 +2,11 @@
 
 import { Card, Text, Group, Stack, Button, Alert, Skeleton } from '@mantine/core'
 import { IconEdit, IconAlertCircle } from '@tabler/icons-react'
-import React from 'react'
-import type { User } from '@/domain/user/user'
-import { Avatar } from '@/ui/components/Avatar'
-import { TranslationText } from '@/ui/components/TranslationText'
-import { composeHooks } from '@/ui/hooks/compose-hooks'
+import type { User } from '@/modules/identity/client'
+import { Avatar } from '@/shared/ui/components/Avatar'
+import { TranslationText } from '@/shared/ui/components/TranslationText'
 import { UserEditForm } from '../UserEditForm'
-import { useUserInfoCardProps } from './lib'
+import { useUserInfoCardProps, type UseUserInfoCardPropsInput } from './lib'
 import messages from './messages.json'
 import styles from './styles.module.css'
 
@@ -118,6 +116,6 @@ export function UserInfoCardView({
   )
 }
 
-export const UserInfoCard = composeHooks(UserInfoCardView)(useUserInfoCardProps) as React.FC<{
-  user: User | null
-}>
+export function UserInfoCard(props: UseUserInfoCardPropsInput) {
+  return <UserInfoCardView {...useUserInfoCardProps(props)} />
+}

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { getUserDisplayName, getUserInitials, type User } from '@/domain/user/user'
+import { getUserDisplayName, getUserInitials, type User } from '@/modules/identity/client'
 
 export type UseUserInfoCardPropsInput = {
   user: User | null

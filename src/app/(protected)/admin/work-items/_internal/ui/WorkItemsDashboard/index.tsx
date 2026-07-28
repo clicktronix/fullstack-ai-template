@@ -18,9 +18,8 @@ import Link from 'next/link'
 import { AssistantSuggestionsPanel } from '@/app/(protected)/admin/work-items/_internal/ui/AssistantSuggestionsPanel'
 import { LabelsPanel } from '@/app/(protected)/admin/work-items/_internal/ui/LabelsPanel'
 import { WorkItemFormModal } from '@/app/(protected)/admin/work-items/_internal/ui/WorkItemFormModal'
-import { SectionCard } from '@/ui/components/SectionCard'
-import { TranslationText } from '@/ui/components/TranslationText'
-import { composeHooks } from '@/ui/hooks/compose-hooks'
+import { SectionCard } from '@/shared/ui/components/SectionCard'
+import { TranslationText } from '@/shared/ui/components/TranslationText'
 import type { WorkItemsDashboardProps, WorkItemsDashboardViewProps } from './lib'
 import { useWorkItemsDashboardProps } from './lib'
 import messages from './messages.json'
@@ -242,7 +241,6 @@ export function WorkItemsDashboardView({
   )
 }
 
-export const WorkItemsDashboard = composeHooks<
-  WorkItemsDashboardViewProps,
-  WorkItemsDashboardProps
->(WorkItemsDashboardView)(useWorkItemsDashboardProps)
+export function WorkItemsDashboard(props: WorkItemsDashboardProps) {
+  return <WorkItemsDashboardView {...useWorkItemsDashboardProps(props)} />
+}
