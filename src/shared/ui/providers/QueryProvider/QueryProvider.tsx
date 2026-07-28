@@ -29,7 +29,7 @@ type QueryProviderProps = {
  * Default Options (from getQueryClient):
  * - staleTime: 60 seconds
  * - gcTime: 5 minutes
- * - refetchOnMount: false (trust SSR data)
+ * - refetchOnMount: true (stale data is revalidated on mount)
  * - refetchOnWindowFocus: true
  * - Smart retry logic (only for 5xx/network errors)
  *

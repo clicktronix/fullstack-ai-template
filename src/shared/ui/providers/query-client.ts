@@ -83,11 +83,11 @@ export function makeQueryClient() {
         // not also capture mutation errors here, and do not add Sentry capture to
         // MutationErrorNotifier, to keep each error captured at exactly one boundary.
         //
-        // Exception: safe-action-backed queries (e.g. work-items/labels queries and prefetch)
-        // call a Server Action whose `handleServerError` (safe-action.ts) already captured
-        // unexpected failures server-side before rethrowing a serialized `[CODE] safeAction`
-        // error. `isAlreadyCapturedActionErrorMessage` detects that marker so we don't
-        // double-capture the same incident — the user is still notified below.
+        // A custom query may still call a Server Action whose `handleServerError`
+        // already captured an unexpected failure before returning a serialized
+        // `[CODE] safeAction` error. Built-in capability reads use RSC or GET routes
+        // instead. Detect the marker so any custom action-backed query does not
+        // double-capture the same incident; the user is still notified below.
         //
         // 4xx query outcomes (not found, forbidden, validation, ...) are expected, user-facing
         // results, not incidents — only capture when the mapped status is a genuine 5xx.
