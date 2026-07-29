@@ -97,7 +97,9 @@ Public surfaces are root files:
 | `job.ts`         | background job entrypoint                                                 |
 
 `app/**` and other capabilities import these root surfaces, not internal directories. Public
-surfaces use named exports and never `export *`.
+surfaces use named exports and never `export *`. A named re-export may publish an explicit stable
+API; it does not justify another wrapper. `actions.ts` is different: Next.js requires value exports
+from a top-level `'use server'` module to be locally declared async functions.
 
 ## Runtime Channels
 
@@ -150,6 +152,10 @@ Shared auth verifies the provider session and returns only `userId` plus server 
 `identity` capability resolves the product profile and role. The target capability receives that
 explicit identity and rechecks its own policy even if Proxy middleware already redirected the
 request.
+
+The current context is user-scoped: its publishable-key client and verified actor come from the
+same cookie session. A future secret/service-role client must use a separate server-only factory
+with explicit trusted actor, scope, and reason because that client can bypass RLS.
 
 ```mermaid
 flowchart TB
@@ -301,7 +307,8 @@ Framework control-flow exceptions such as redirects remain outside broad catches
 - narrow public exports;
 - resolved imports and file-level cycles.
 
-`bun run architecture:check` checks capability-level cycles.
+`bun run architecture:check` checks capability cycles, runtime-neutral surfaces, exhaustive direct
+dependency classification, and literal Supabase table/function ownership.
 
 These checks do not prove semantic depth, authorization correctness, cache invalidation,
 transaction scope, report-once behavior, or shared admission. Those remain review and test

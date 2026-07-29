@@ -7,7 +7,7 @@ import messages from '../messages.json'
 
 type ErrorPageProps = {
   error: Error & { digest?: string }
-  reset: () => void
+  unstable_retry: () => void
 }
 
 /**
@@ -20,13 +20,13 @@ type ErrorPageProps = {
  * This ensures users can still navigate away from the error
  * without losing the entire app shell.
  */
-export default function ProtectedErrorPage({ error, reset }: ErrorPageProps) {
+export default function ProtectedErrorPage({ error, unstable_retry }: ErrorPageProps) {
   return (
     <Container size="sm" py="xl">
       <Stack align="center" gap="md">
         <TranslationTitle {...messages.errorTitle} order={1} />
         <TranslationText {...messages.errorDescription} c="dimmed" ta="center" />
-        <Button onClick={reset} variant="outline">
+        <Button onClick={unstable_retry} variant="outline">
           <TranslationText {...messages.tryAgain} />
         </Button>
         {error.digest ? (

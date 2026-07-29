@@ -37,24 +37,8 @@ type CookieToSet = {
  *
  * @returns Supabase client configured for server environment
  *
- * @example
- * ```tsx
- * export default async function Page() {
- *   const supabase = await createClient()
- *   const { data: workItems } = await supabase.from('work_items').select('*')
- *   return <pre>{JSON.stringify(workItems, null, 2)}</pre>
- * }
- * ```
- *
- * @example
- * ```ts
- * // In a Server Action
- * 'use server'
- * export async function createWorkItem(data: { title: string }) {
- *   const supabase = await createClient()
- *   return supabase.from('work_items').insert(data)
- * }
- * ```
+ * Capability-private stores receive this client through the authenticated
+ * context. Routes, UI, and shared helpers do not query product tables directly.
  */
 export const createClient = cache(async function createClient() {
   const cookieStore = await cookies()
@@ -64,7 +48,7 @@ export const createClient = cache(async function createClient() {
       getAll() {
         return cookieStore.getAll()
       },
-      setAll(cookiesToSet: CookieToSet[]) {
+      setAll(cookiesToSet: CookieToSet[], _cacheHeaders: Record<string, string>) {
         // Next.js throws an error if cookies are set from Server Components.
         // This can be safely ignored because proxy handles session refresh.
         // @see https://supabase.com/docs/guides/auth/server-side/nextjs

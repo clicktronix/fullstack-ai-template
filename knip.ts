@@ -50,6 +50,7 @@ const config: KnipConfig = {
     // Capability contracts, schemas, and framework entrypoints are reusable template API.
     'src/modules/*/{actions,cache,client,rsc,server,stream,job,ui}.ts': ['exports'],
     'src/modules/*/domain/**': ['exports'],
+    'src/generated/**': ['exports'],
     // View components are exported for isolated tests and template customization.
     'src/modules/*/ui/**': ['exports'],
     'src/shared/ui/components/**': ['exports'],

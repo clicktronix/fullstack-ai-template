@@ -7,7 +7,7 @@ import messages from '../messages.json'
 
 type ErrorPageProps = {
   error: Error & { digest?: string }
-  reset: () => void
+  unstable_retry: () => void
 }
 
 /**
@@ -16,13 +16,13 @@ type ErrorPageProps = {
  * Uses full-viewport centering since public routes don't have AppShell.
  * Still has access to all providers (Intl, Mantine, etc.) from ClientProviders.
  */
-export default function PublicErrorPage({ error, reset }: ErrorPageProps) {
+export default function PublicErrorPage({ error, unstable_retry }: ErrorPageProps) {
   return (
     <Center h="100dvh">
       <Stack align="center" gap="md">
         <TranslationTitle {...messages.errorTitle} order={1} />
         <TranslationText {...messages.errorDescription} c="dimmed" />
-        <Button onClick={reset} variant="outline">
+        <Button onClick={unstable_retry} variant="outline">
           <TranslationText {...messages.tryAgain} />
         </Button>
         {error.digest ? (

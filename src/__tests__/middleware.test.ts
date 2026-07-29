@@ -88,18 +88,37 @@ function createMockResponse(
   }
 }
 
-// --- getUser mock state ---
+// --- getClaims mock state ---
 
-let mockGetUserResult: {
-  data: { user: { id?: string } | null }
+let mockGetClaimsResult: {
+  data: { claims: { sub?: string } } | null
   error: Error | null
-} = { data: { user: null }, error: new Error('not authenticated') }
+} = { data: null, error: new Error('not authenticated') }
+let mockSessionRefresh = false
 
 // Mock createServerClient from @supabase/ssr
 mock.module('@supabase/ssr', () => ({
-  createServerClient: () => ({
+  createServerClient: (
+    _url: string,
+    _key: string,
+    options: {
+      cookies: {
+        setAll: (
+          cookies: Array<{ name: string; value: string; options: Record<string, unknown> }>,
+          headers: Record<string, string>
+        ) => void
+      }
+    }
+  ) => ({
     auth: {
-      getUser: async () => mockGetUserResult,
+      getClaims: async () => {
+        if (mockSessionRefresh) {
+          options.cookies.setAll([{ name: 'sb-refresh', value: 'token', options: { path: '/' } }], {
+            'Cache-Control': 'private, no-store',
+          })
+        }
+        return mockGetClaimsResult
+      },
     },
   }),
   createBrowserClient: () => ({}),
@@ -127,7 +146,8 @@ describe('proxy', () => {
 
   beforeEach(() => {
     // Reset authentication state before each test.
-    mockGetUserResult = { data: { user: null }, error: new Error('not authenticated') }
+    mockGetClaimsResult = { data: null, error: new Error('not authenticated') }
+    mockSessionRefresh = false
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co'
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon-key'
   })
@@ -187,8 +207,8 @@ describe('proxy', () => {
 
   describe('authenticated user', () => {
     beforeEach(() => {
-      mockGetUserResult = {
-        data: { user: { id: 'user-123' } },
+      mockGetClaimsResult = {
+        data: { claims: { sub: 'user-123' } },
         error: null,
       }
     })
@@ -200,6 +220,17 @@ describe('proxy', () => {
 
       expect(response._type).toBe('redirect')
       expect(response._redirectUrl).toContain('/admin/work-items')
+    })
+
+    test('preserves refreshed auth cookies and cache headers on redirects', async () => {
+      mockSessionRefresh = true
+      const req = createMockRequest('/login')
+
+      const response = (await proxy(req as never)) as unknown as MockResponse
+
+      expect(response._type).toBe('redirect')
+      expect(response.cookies.get('sb-refresh')?.value).toBe('token')
+      expect(response.headers.get('Cache-Control')).toBe('private, no-store')
     })
 
     test('redirects from /signup to the protected area', async () => {
@@ -277,8 +308,8 @@ describe('proxy', () => {
     })
 
     test('/auth/callback with authenticated user redirects to the protected area', async () => {
-      mockGetUserResult = {
-        data: { user: { id: 'user-123' } },
+      mockGetClaimsResult = {
+        data: { claims: { sub: 'user-123' } },
         error: null,
       }
       const req = createMockRequest('/auth/callback')
@@ -310,8 +341,8 @@ describe('proxy', () => {
     })
 
     test('/api routes are allowed for authenticated users', async () => {
-      mockGetUserResult = {
-        data: { user: { id: 'user-123' } },
+      mockGetClaimsResult = {
+        data: { claims: { sub: 'user-123' } },
         error: null,
       }
       const req = createMockRequest('/api/health')
@@ -344,8 +375,8 @@ describe('proxy', () => {
     })
 
     test('does not add nonce for PPR protected routes', async () => {
-      mockGetUserResult = {
-        data: { user: { id: 'user-123' } },
+      mockGetClaimsResult = {
+        data: { claims: { sub: 'user-123' } },
         error: null,
       }
       const req = createMockRequest('/admin/work-items')

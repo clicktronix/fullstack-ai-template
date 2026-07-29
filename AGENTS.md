@@ -87,6 +87,8 @@ External HTTP  -> route handler     -> module/server.ts -> private store/provide
 
 Private `server/**` never imports its own root public surfaces. Channel files depend inward on
 private implementation; shared failure and policy contracts live in domain/application code.
+Root surfaces may use explicit named re-exports, never `export *`. `actions.ts` is stricter:
+top-level `'use server'` value exports are locally declared async functions, not re-exports.
 
 Do not use Server Actions as browser query transport. Server Components call `rsc.ts` or a trusted
 server surface directly. Browser-owned query lifecycles use GET or a stream.
@@ -110,8 +112,9 @@ speculative helpers.
 
 The executable floor lives in `rules/architecture-contract.json` and
 `rules/eslint-boundaries*.mjs`. It enforces ownership, public surfaces, runtime direction, and
-cycles. It does not prove authorization, reporting, cache policy, transaction scope, or semantic
-depth; cover those with tests and review.
+cycles. `check-dependency-classification.mjs` requires every direct dependency to be classified.
+`check-database-resources.mjs` protects literal Supabase table/function ownership. Neither proves
+authorization, RLS, grants, raw SQL ownership, reporting, cache policy, or semantic depth.
 
 ## Application Rules
 

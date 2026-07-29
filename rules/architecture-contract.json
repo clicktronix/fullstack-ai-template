@@ -9,6 +9,7 @@
   "clientSurfaces": ["client", "ui"],
   "neutralSurfaces": ["query-cache"],
   "sharedRoots": ["kernel", "server", "client", "ui"],
+  "purePackages": ["dayjs", "valibot"],
   "runtimePackages": [
     "next",
     "react",
@@ -22,7 +23,6 @@
     "@tanstack",
     "@vercel",
     "@prisma",
-    "dayjs",
     "drizzle-orm",
     "next-safe-action",
     "pg",
@@ -35,5 +35,15 @@
     "mongodb",
     "redis",
     "ioredis"
+  ],
+  "databaseResources": [
+    { "kind": "table", "name": "users", "owner": "identity" },
+    { "kind": "table", "name": "labels", "owner": "labels" },
+    { "kind": "table", "name": "work_items", "owner": "work-items" },
+    {
+      "kind": "table",
+      "name": "idempotency_keys",
+      "owner": "shared/server"
+    }
   ]
 }

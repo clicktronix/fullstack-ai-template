@@ -30,6 +30,8 @@ Note: this template is meant to be forked. The "version" applies to the template
 - Updated agent instructions, architecture guides, testing guidance, and visual diagrams to the
   capability-first contract.
 - Upgraded the `nextjs-clean-skills` Codex pin to `v2.0.0`.
+- Upgraded Supabase SSR/client packages and changed Proxy auth checks to verified claims while
+  preserving refreshed-cookie cache headers on redirects.
 
 ### Added
 
@@ -38,6 +40,9 @@ Note: this template is meant to be forked. The "version" applies to the template
 - Runtime-neutral `query-cache.ts` surfaces for key identity shared by RSC prefetch and browser
   queries, with a two-runtime liveness check.
 - Reproducible migration evidence and focused policy/Route Handler regression tests.
+- Reproducible local Supabase CLI configuration, explicit table/function grants, private
+  `SECURITY DEFINER` helpers, secure default privileges, and generated public-schema types.
+- Exhaustive dependency classification and literal Supabase resource-ownership checks.
 
 ## [1.0.0] - 2026-05-03
 

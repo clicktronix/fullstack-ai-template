@@ -66,10 +66,21 @@ This keeps the starter usable without a manual SQL bootstrap step, but you shoul
 
 ```bash
 bun install
+supabase start
+supabase db reset
 bun run setup:mcp
 bun run setup:skills
 bun run dev
 bun run storybook
+```
+
+`supabase/config.toml` is tracked so local reset and type generation are reproducible. After
+migration changes, run:
+
+```bash
+supabase db reset
+supabase gen types typescript --local --schema public > src/generated/supabase/types.ts
+supabase db lint --local
 ```
 
 If Playwright MCP browsers are missing, run:
