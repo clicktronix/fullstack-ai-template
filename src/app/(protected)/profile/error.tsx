@@ -9,7 +9,7 @@ import messages from './messages.json'
 
 type ErrorPageProps = {
   error: Error & { digest?: string }
-  reset: () => void
+  unstable_retry: () => void
 }
 
 /**
@@ -18,7 +18,7 @@ type ErrorPageProps = {
  * Renders inside the (protected) layout, preserving AppShell and navigation.
  * Provides buttons to return to the profile page and retry.
  */
-export default function ProfileErrorPage({ error, reset }: ErrorPageProps) {
+export default function ProfileErrorPage({ error, unstable_retry }: ErrorPageProps) {
   return (
     <Container size="sm" py="xl">
       <Stack align="center" gap="md">
@@ -28,7 +28,7 @@ export default function ProfileErrorPage({ error, reset }: ErrorPageProps) {
           <Button component={Link} href="/profile" variant="outline">
             <TranslationText {...messages.backToHome} />
           </Button>
-          <Button onClick={reset} variant="light">
+          <Button onClick={unstable_retry} variant="light">
             <TranslationText {...errorMessages.tryAgain} />
           </Button>
         </Group>
