@@ -59,6 +59,11 @@ Require two real consumers, identical meaning/lifecycle, no natural capability o
 contract, and a lower coordination cost than duplication. `shared/kernel` also requires identical
 invariants and change cadence.
 
+`bun run architecture:check` counts the consumers for you: unused files, files owned by a single
+capability, and files with one importer all fail. Consumers are owners, not files — two files of
+one capability count once, and that capability is the natural home. The rest of the rule is review
+judgement.
+
 ## Verification
 
 `bun run lint .` enforces ownership and runtime direction.

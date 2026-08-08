@@ -113,8 +113,12 @@ speculative helpers.
 The executable floor lives in `rules/architecture-contract.json` and
 `rules/eslint-boundaries*.mjs`. It enforces ownership, public surfaces, runtime direction, and
 cycles. `check-dependency-classification.mjs` requires every direct dependency to be classified.
-`check-database-resources.mjs` protects literal Supabase table/function ownership. Neither proves
-authorization, RLS, grants, raw SQL ownership, reporting, cache policy, or semantic depth.
+`check-database-resources.mjs` protects literal Supabase table/function ownership.
+`check-shared-admission.mjs` counts the real consumers behind each `shared/**` file and fails on
+unused code, on a file whose only owner is one capability, and on a file with a single importer; it
+ships as a ratchet whose budget may fall and never rise. None of these prove authorization, RLS,
+grants, raw SQL ownership, reporting, cache policy, or semantic depth — and the admission rule's
+other half (identical meaning, lifecycle, and coordination cost) stays a review judgement.
 
 ## Application Rules
 
