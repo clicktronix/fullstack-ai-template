@@ -3,7 +3,8 @@ import { useActionState, useMemo } from 'react'
 import { type IntlShape, useIntl } from 'react-intl'
 import { email, minLength, object, pipe, string } from 'valibot'
 import { createMantineValidator } from '@/shared/ui/create-mantine-validator'
-import { initialSignupFormState, submitSignupForm } from './actions'
+import { submitSignupForm } from './actions'
+import { initialSignupFormState } from './form-state'
 import messages from './messages.json'
 
 /**

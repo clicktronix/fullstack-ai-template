@@ -4,14 +4,7 @@ import { redirect } from 'next/navigation'
 import { signInAction } from '@/modules/identity/actions'
 import { getPostLoginRedirect } from '@/modules/identity/server'
 import { getUserFacingErrorMessage } from '@/shared/ui/errors/presentation'
-
-export type LoginFormState = {
-  error: string | null
-}
-
-export const initialLoginFormState: LoginFormState = {
-  error: null,
-}
+import type { LoginFormState } from './form-state'
 
 function getFormString(formData: FormData, name: string): string {
   const value = formData.get(name)
