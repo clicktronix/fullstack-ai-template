@@ -3,13 +3,14 @@
 These files enforce the machine-observable floor of the capability-first contract. They cannot
 infer business meaning from path names.
 
-| File                             | Purpose                                                     |
-| -------------------------------- | ----------------------------------------------------------- |
-| `architecture-contract.json`     | generated root, segments, public surfaces, and shared roots |
-| `eslint-boundaries.mjs`          | capability ownership, purity, and server/client direction   |
-| `eslint-boundaries-resolved.mjs` | unresolved-import and file-cycle canaries                   |
-| `check-module-cycles.mjs`        | capability-level cycle detection                            |
-| `check-neutral-surfaces.mjs`     | query-key surface direction and two-runtime liveness        |
+| File                             | Purpose                                                       |
+| -------------------------------- | ------------------------------------------------------------- |
+| `architecture-contract.json`     | generated root, segments, public surfaces, and shared roots   |
+| `eslint-boundaries.mjs`          | capability ownership, purity, and server/client direction     |
+| `eslint-boundaries-resolved.mjs` | unresolved-import and file-cycle canaries                     |
+| `check-module-cycles.mjs`        | capability-level cycle detection                              |
+| `check-neutral-surfaces.mjs`     | query-key surface direction and two-runtime liveness          |
+| `check-shared-admission.mjs`     | consumer count behind the shared-admission rule, as a ratchet |
 
 ## Enforced Invariants
 
