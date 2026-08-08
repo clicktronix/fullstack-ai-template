@@ -4,20 +4,7 @@ import { redirect } from 'next/navigation'
 import { signUpAction } from '@/modules/identity/actions'
 import { getPostLoginRedirect } from '@/modules/identity/server'
 import { getUserFacingErrorMessage } from '@/shared/ui/errors/presentation'
-
-export type SignupFormErrorKey = 'PASSWORDS_DO_NOT_MATCH'
-
-export type SignupFormState = {
-  error: string | null
-  errorKey: SignupFormErrorKey | null
-  confirmationEmail: string | null
-}
-
-export const initialSignupFormState: SignupFormState = {
-  error: null,
-  errorKey: null,
-  confirmationEmail: null,
-}
+import type { SignupFormState } from './form-state'
 
 function getFormString(formData: FormData, name: string): string {
   const value = formData.get(name)

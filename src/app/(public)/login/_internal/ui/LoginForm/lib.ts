@@ -3,7 +3,8 @@ import { useActionState } from 'react'
 import { useIntl } from 'react-intl'
 import { LoginCredentialsSchema, type LoginCredentials } from '@/modules/identity/client'
 import { createMantineValidator } from '@/shared/ui/create-mantine-validator'
-import { initialLoginFormState, submitLoginForm } from './actions'
+import { submitLoginForm } from './actions'
+import { initialLoginFormState } from './form-state'
 import messages from './messages.json'
 
 export type LoginFormProps = {
