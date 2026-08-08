@@ -61,7 +61,7 @@ const appRoot = path.join(sourceRoot, 'app')
  * should eventually be deleted, demoted, or earn a second consumer — the target is 0/0/0.
  */
 const BUDGET = {
-  unused: 12,
+  unused: 9,
   demote: 3,
   speculative: 19,
 }
@@ -78,6 +78,13 @@ const EXEMPT = new Set([
 ])
 
 const isTest = (file) => /\.(test|spec)\.tsx?$/.test(file) || file.includes('__tests__')
+
+/**
+ * Storybook discovers stories by the glob in `.storybook/main.ts`; nothing imports them. They are
+ * entry points, so "no importer" says nothing about them — but they DO count as importers of what
+ * they render.
+ */
+const isStory = (file) => /\.stories\.(tsx?|mdx)$/.test(file)
 
 function listSources(directory) {
   if (!fs.existsSync(directory)) return []
@@ -151,10 +158,24 @@ function ownerOf(file) {
   if (file.startsWith(`${sharedRoot}${path.sep}`)) {
     return `shared/${path.relative(sharedRoot, file).split(path.sep)[0]}`
   }
+  if (!file.startsWith(`${sourceRoot}${path.sep}`)) return 'root'
   return 'app'
 }
 
-const allSources = listSources(sourceRoot)
+/**
+ * Importers are not confined to the source root. `sentry.server.config.ts` and
+ * `sentry.edge.config.ts` sit at the repository root and import `shared/server/observability/**`;
+ * scanning only `src/` reported those files as dead, which would have deleted live wiring.
+ */
+function listRootImporters() {
+  const rootFiles = fs
+    .readdirSync(root, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && /\.(tsx?|mts|mjs)$/.test(entry.name))
+    .map((entry) => path.join(root, entry.name))
+  return [...rootFiles, ...listSources(path.join(root, 'scripts'))]
+}
+
+const allSources = [...listSources(sourceRoot), ...listRootImporters()]
 const importers = new Map() // target file -> Set of importing files
 
 for (const file of allSources) {
@@ -176,7 +197,7 @@ let okCount = 0
 for (const file of listSources(sharedRoot)) {
   if (isTest(file)) continue
   const relative = path.relative(root, file)
-  if (EXEMPT.has(relative)) continue
+  if (EXEMPT.has(relative) || isStory(file)) continue
 
   const own = importers.get(file) ?? new Set()
   if (own.size === 0) {
